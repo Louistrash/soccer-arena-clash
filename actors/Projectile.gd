@@ -19,7 +19,7 @@ func _physics_process(delta: float) -> void:
 	position += direction.normalized() * speed * delta
 	rotation = direction.angle()
 	queue_redraw()
-	if position.x < -100 or position.x > 1380 or position.y < -100 or position.y > 820:
+	if position.x < -100 or position.x > 4400 or position.y < -100 or position.y > 2800:
 		queue_free()
 
 func _draw() -> void:

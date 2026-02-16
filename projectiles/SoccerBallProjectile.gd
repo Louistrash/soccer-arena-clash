@@ -55,7 +55,7 @@ func _physics_process(delta: float) -> void:
 		elif body is CharacterBody2D:
 			if _should_hit(body):
 				_explode()
-	if global_position.x < -50 or global_position.x > 1330 or global_position.y < -50 or global_position.y > 770:
+	if global_position.x < -100 or global_position.x > 4400 or global_position.y < -100 or global_position.y > 2800:
 		_explode()
 
 func _draw() -> void:
