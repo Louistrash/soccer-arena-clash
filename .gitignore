@@ -1,13 +1,8 @@
 # Godot 4+ specific ignores
 .godot/
 
-# Web export output (regenerate with Godot export)
-web/
-index.html
-index.js
-index.wasm
-index.pck
-index.audio*.js
+# Web export output is now committed for easy deployment
+# web/ folder is included in repo
 /android/
 
 # macOS
