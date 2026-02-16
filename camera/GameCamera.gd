@@ -9,7 +9,7 @@ var target: Node2D
 
 # Mode zoom levels
 var gameplay_zoom := Vector2(1.15, 1.15)
-var overview_zoom := Vector2(0.55, 0.55)
+var overview_zoom := Vector2(0.30, 0.30)
 
 # Mode state
 var current_mode: Mode = Mode.GAMEPLAY
@@ -26,7 +26,7 @@ var max_offset := Vector2(4, 3)
 var max_tilt := 0.012
 
 # Field center for overview soft drift (optional)
-var field_center := Vector2(640, 360)
+var field_center := Vector2(2100, 1325)
 
 func _ready() -> void:
 	add_to_group("game_camera")

@@ -19,8 +19,8 @@ const DIRTY_SPAWN_INTERVAL_MIN: float = 15.0
 const DIRTY_SPAWN_INTERVAL_MAX: float = 20.0
 const DESTRUCTIBLE_SPAWN_INTERVAL: float = 22.0
 const MAX_DESTRUCTIBLES: int = 3
-const ARENA_MIN: Vector2 = Vector2(120, 120)
-const ARENA_MAX: Vector2 = Vector2(1160, 600)
+const ARENA_MIN: Vector2 = Vector2(350, 250)
+const ARENA_MAX: Vector2 = Vector2(3850, 2400)
 
 var glass_scoreboard: CanvasLayer
 

@@ -2,8 +2,8 @@ extends Node2D
 ## Tiled arena floor with subtle color variation and grid lines.
 
 const TILE_SIZE := 64
-const ARENA_W := 2000
-const ARENA_H := 2000
+const ARENA_W := 8000
+const ARENA_H := 5000
 const BASE_COLOR := Color(0.122, 0.373, 0.227)  # #1f5f3a
 const VARIATION := 0.03
 
@@ -28,14 +28,14 @@ func _draw() -> void:
 	for y in range(0, ARENA_H + 1, TILE_SIZE):
 		draw_line(Vector2(ox, oy + y), Vector2(ox + ARENA_W, oy + y), line_color)
 
-	# Soccer field lines (playable area: ~80–1200 x, 80–640 y)
-	const FX1 := 80
-	const FX2 := 1200
-	const FY1 := 80
-	const FY2 := 640
-	const HALFWAY := 640
-	const PENALTY_W := 120
-	const CENTER_R := 80
+	# Soccer field lines (full field 7x bigger: ~200–4000 x, 150–2500 y)
+	const FX1 := 200
+	const FX2 := 4000
+	const FY1 := 150
+	const FY2 := 2500
+	const HALFWAY := 2100
+	const PENALTY_W := 400
+	const CENTER_R := 200
 	var field_color := Color(1.0, 1.0, 1.0, 0.35)
 	# Halfway line
 	draw_line(Vector2(HALFWAY, FY1), Vector2(HALFWAY, FY2), field_color)

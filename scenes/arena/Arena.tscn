@@ -24,40 +24,40 @@ size = Vector2(56, 56)
 script = ExtResource("1_floor")
 
 [node name="GoalLeft" parent="." instance=ExtResource("2_goal_left")]
-position = Vector2(30, 360)
+position = Vector2(250, 1325)
 
 [node name="GoalRight" parent="." instance=ExtResource("2_goal_right")]
-position = Vector2(1250, 360)
+position = Vector2(3950, 1325)
 
 [node name="YSort" type="Node2D" parent="."]
 y_sort_enabled = true
 
 [node name="SpawnPoint" type="Marker2D" parent="YSort"]
-position = Vector2(640, 360)
+position = Vector2(2100, 1325)
 
 [node name="SpawnPoints" type="Node2D" parent="YSort"]
 
 [node name="CornerTopLeft" type="Marker2D" parent="YSort/SpawnPoints"]
-position = Vector2(80, 80)
+position = Vector2(300, 250)
 
 [node name="CornerTopRight" type="Marker2D" parent="YSort/SpawnPoints"]
-position = Vector2(1200, 80)
+position = Vector2(3900, 250)
 
 [node name="CornerBottomLeft" type="Marker2D" parent="YSort/SpawnPoints"]
-position = Vector2(80, 640)
+position = Vector2(300, 2400)
 
 [node name="CornerBottomRight" type="Marker2D" parent="YSort/SpawnPoints"]
-position = Vector2(1200, 640)
+position = Vector2(3900, 2400)
 
 [node name="CenterSpawn" type="Marker2D" parent="YSort/SpawnPoints"]
-position = Vector2(640, 360)
+position = Vector2(2100, 1325)
 
 [node name="EnemyContainer" type="Node2D" parent="YSort"]
 
 [node name="Obstacles" type="Node2D" parent="YSort"]
 
 [node name="Bush1" type="StaticBody2D" parent="YSort/Obstacles"]
-position = Vector2(200, 300)
+position = Vector2(600, 800)
 
 [node name="Sprite2D" type="Sprite2D" parent="YSort/Obstacles/Bush1"]
 texture = ExtResource("2_bush")
@@ -68,7 +68,7 @@ scale = Vector2(0.04, 0.04)
 shape = SubResource("RectangleShape2D_obstacle")
 
 [node name="Bush2" type="StaticBody2D" parent="YSort/Obstacles"]
-position = Vector2(1000, 400)
+position = Vector2(3200, 1100)
 
 [node name="Sprite2D" type="Sprite2D" parent="YSort/Obstacles/Bush2"]
 texture = ExtResource("3_bush01")
@@ -79,7 +79,7 @@ scale = Vector2(0.04, 0.04)
 shape = SubResource("RectangleShape2D_obstacle")
 
 [node name="Bush3" type="StaticBody2D" parent="YSort/Obstacles"]
-position = Vector2(640, 150)
+position = Vector2(2100, 500)
 
 [node name="Sprite2D" type="Sprite2D" parent="YSort/Obstacles/Bush3"]
 texture = ExtResource("4_bush02")
@@ -90,7 +90,7 @@ scale = Vector2(0.04, 0.04)
 shape = SubResource("RectangleShape2D_obstacle")
 
 [node name="Bush4" type="StaticBody2D" parent="YSort/Obstacles"]
-position = Vector2(300, 550)
+position = Vector2(800, 2000)
 
 [node name="Sprite2D" type="Sprite2D" parent="YSort/Obstacles/Bush4"]
 texture = ExtResource("5_bush04")
@@ -101,7 +101,7 @@ scale = Vector2(0.04, 0.04)
 shape = SubResource("RectangleShape2D_obstacle")
 
 [node name="Bush5" type="StaticBody2D" parent="YSort/Obstacles"]
-position = Vector2(900, 200)
+position = Vector2(2900, 600)
 
 [node name="Sprite2D" type="Sprite2D" parent="YSort/Obstacles/Bush5"]
 texture = ExtResource("2_bush")
@@ -112,7 +112,7 @@ scale = Vector2(0.04, 0.04)
 shape = SubResource("RectangleShape2D_obstacle")
 
 [node name="Wall1" type="StaticBody2D" parent="YSort/Obstacles"]
-position = Vector2(100, 360)
+position = Vector2(400, 1325)
 
 [node name="Sprite2D" type="Sprite2D" parent="YSort/Obstacles/Wall1"]
 texture = ExtResource("6_wall")
@@ -123,7 +123,7 @@ scale = Vector2(0.02, 0.02)
 shape = SubResource("RectangleShape2D_obstacle")
 
 [node name="Wall2" type="StaticBody2D" parent="YSort/Obstacles"]
-position = Vector2(1180, 360)
+position = Vector2(3800, 1325)
 
 [node name="Sprite2D" type="Sprite2D" parent="YSort/Obstacles/Wall2"]
 texture = ExtResource("6_wall")
@@ -134,7 +134,7 @@ scale = Vector2(0.02, 0.02)
 shape = SubResource("RectangleShape2D_obstacle")
 
 [node name="Tree1" type="StaticBody2D" parent="YSort/Obstacles"]
-position = Vector2(750, 500)
+position = Vector2(2400, 1700)
 
 [node name="Sprite2D" type="Sprite2D" parent="YSort/Obstacles/Tree1"]
 texture = ExtResource("7_tree")
@@ -147,7 +147,7 @@ shape = SubResource("RectangleShape2D_obstacle")
 [node name="Pickups" type="Node2D" parent="YSort"]
 
 [node name="XP1" type="Area2D" parent="YSort/Pickups"]
-position = Vector2(400, 500)
+position = Vector2(1200, 1600)
 
 [node name="Sprite2D" type="Sprite2D" parent="YSort/Pickups/XP1"]
 texture = ExtResource("8_xp")
@@ -158,7 +158,7 @@ scale = Vector2(0.028, 0.028)
 shape = SubResource("RectangleShape2D_pickup")
 
 [node name="XP2" type="Area2D" parent="YSort/Pickups"]
-position = Vector2(200, 150)
+position = Vector2(700, 500)
 
 [node name="Sprite2D" type="Sprite2D" parent="YSort/Pickups/XP2"]
 texture = ExtResource("8_xp")
@@ -169,7 +169,7 @@ scale = Vector2(0.028, 0.028)
 shape = SubResource("RectangleShape2D_pickup")
 
 [node name="XPower1" type="Area2D" parent="YSort/Pickups"]
-position = Vector2(880, 200)
+position = Vector2(2800, 700)
 
 [node name="Sprite2D" type="Sprite2D" parent="YSort/Pickups/XPower1"]
 texture = ExtResource("9_xpower")
@@ -180,7 +180,7 @@ scale = Vector2(0.028, 0.028)
 shape = SubResource("RectangleShape2D_pickup")
 
 [node name="XPower2" type="Area2D" parent="YSort/Pickups"]
-position = Vector2(1050, 550)
+position = Vector2(3400, 1900)
 
 [node name="Sprite2D" type="Sprite2D" parent="YSort/Pickups/XPower2"]
 texture = ExtResource("9_xpower")
