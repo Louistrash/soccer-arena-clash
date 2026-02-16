@@ -1,0 +1,57 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://actors/Hero.gd" id="1_hero"]
+[ext_resource type="Script" path="res://actors/Shadow.gd" id="2_shadow"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hero"]
+size = Vector2(64, 64)
+
+[node name="Hero" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 3
+script = ExtResource("1_hero")
+
+[node name="Shadow" type="Node2D" parent="."]
+position = Vector2(0, 30)
+script = ExtResource("2_shadow")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_hero")
+
+[node name="UnitUI" type="Node2D" parent="."]
+position = Vector2(0, -60)
+
+[node name="NameLabel" type="Label" parent="UnitUI"]
+offset_left = -50
+offset_top = -20
+offset_right = 50
+offset_bottom = 0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HealthBarBG" type="ColorRect" parent="UnitUI"]
+offset_left = -25
+offset_top = 2
+offset_right = 25
+offset_bottom = 8
+color = Color(0.15, 0.15, 0.15, 0.8)
+
+[node name="HealthBarFill" type="ColorRect" parent="UnitUI"]
+offset_left = -25
+offset_top = 2
+offset_right = 25
+offset_bottom = 8
+color = Color(0.2, 0.85, 0.2, 1)
+
+[node name="RespawnLabel" type="Label" parent="UnitUI"]
+offset_left = -80
+offset_top = -50
+offset_right = 80
+offset_bottom = -20
+theme_override_font_sizes/font_size = 14
+text = "Respawning in 3..."
+horizontal_alignment = 1
+vertical_alignment = 1
+visible = false

@@ -1,0 +1,193 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://scenes/arena/ArenaFloor.gd" id="1_floor"]
+[ext_resource type="PackedScene" path="res://actors/GoalArea.tscn" id="2_goal_left"]
+[ext_resource type="PackedScene" path="res://actors/GoalArea.tscn" id="2_goal_right"]
+[ext_resource type="Texture2D" path="res://obstacles/bush.png" id="2_bush"]
+[ext_resource type="Texture2D" path="res://obstacles/bush_01.png" id="3_bush01"]
+[ext_resource type="Texture2D" path="res://obstacles/bush_02.png" id="4_bush02"]
+[ext_resource type="Texture2D" path="res://obstacles/bush_04.png" id="5_bush04"]
+[ext_resource type="Texture2D" path="res://obstacles/stone_wall.png" id="6_wall"]
+[ext_resource type="Texture2D" path="res://obstacles/tree.png" id="7_tree"]
+[ext_resource type="Texture2D" path="res://pickups/xp.png" id="8_xp"]
+[ext_resource type="Texture2D" path="res://pickups/xpower.png" id="9_xpower"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_obstacle"]
+size = Vector2(80, 80)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pickup"]
+size = Vector2(56, 56)
+
+[node name="Arena" type="Node2D"]
+
+[node name="Floor" type="Node2D" parent="."]
+script = ExtResource("1_floor")
+
+[node name="GoalLeft" parent="." instance=ExtResource("2_goal_left")]
+position = Vector2(30, 360)
+
+[node name="GoalRight" parent="." instance=ExtResource("2_goal_right")]
+position = Vector2(1250, 360)
+
+[node name="YSort" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="SpawnPoint" type="Marker2D" parent="YSort"]
+position = Vector2(640, 360)
+
+[node name="SpawnPoints" type="Node2D" parent="YSort"]
+
+[node name="CornerTopLeft" type="Marker2D" parent="YSort/SpawnPoints"]
+position = Vector2(80, 80)
+
+[node name="CornerTopRight" type="Marker2D" parent="YSort/SpawnPoints"]
+position = Vector2(1200, 80)
+
+[node name="CornerBottomLeft" type="Marker2D" parent="YSort/SpawnPoints"]
+position = Vector2(80, 640)
+
+[node name="CornerBottomRight" type="Marker2D" parent="YSort/SpawnPoints"]
+position = Vector2(1200, 640)
+
+[node name="CenterSpawn" type="Marker2D" parent="YSort/SpawnPoints"]
+position = Vector2(640, 360)
+
+[node name="EnemyContainer" type="Node2D" parent="YSort"]
+
+[node name="Obstacles" type="Node2D" parent="YSort"]
+
+[node name="Bush1" type="StaticBody2D" parent="YSort/Obstacles"]
+position = Vector2(200, 300)
+
+[node name="Sprite2D" type="Sprite2D" parent="YSort/Obstacles/Bush1"]
+texture = ExtResource("2_bush")
+centered = true
+scale = Vector2(0.04, 0.04)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YSort/Obstacles/Bush1"]
+shape = SubResource("RectangleShape2D_obstacle")
+
+[node name="Bush2" type="StaticBody2D" parent="YSort/Obstacles"]
+position = Vector2(1000, 400)
+
+[node name="Sprite2D" type="Sprite2D" parent="YSort/Obstacles/Bush2"]
+texture = ExtResource("3_bush01")
+centered = true
+scale = Vector2(0.04, 0.04)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YSort/Obstacles/Bush2"]
+shape = SubResource("RectangleShape2D_obstacle")
+
+[node name="Bush3" type="StaticBody2D" parent="YSort/Obstacles"]
+position = Vector2(640, 150)
+
+[node name="Sprite2D" type="Sprite2D" parent="YSort/Obstacles/Bush3"]
+texture = ExtResource("4_bush02")
+centered = true
+scale = Vector2(0.04, 0.04)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YSort/Obstacles/Bush3"]
+shape = SubResource("RectangleShape2D_obstacle")
+
+[node name="Bush4" type="StaticBody2D" parent="YSort/Obstacles"]
+position = Vector2(300, 550)
+
+[node name="Sprite2D" type="Sprite2D" parent="YSort/Obstacles/Bush4"]
+texture = ExtResource("5_bush04")
+centered = true
+scale = Vector2(0.04, 0.04)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YSort/Obstacles/Bush4"]
+shape = SubResource("RectangleShape2D_obstacle")
+
+[node name="Bush5" type="StaticBody2D" parent="YSort/Obstacles"]
+position = Vector2(900, 200)
+
+[node name="Sprite2D" type="Sprite2D" parent="YSort/Obstacles/Bush5"]
+texture = ExtResource("2_bush")
+centered = true
+scale = Vector2(0.04, 0.04)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YSort/Obstacles/Bush5"]
+shape = SubResource("RectangleShape2D_obstacle")
+
+[node name="Wall1" type="StaticBody2D" parent="YSort/Obstacles"]
+position = Vector2(100, 360)
+
+[node name="Sprite2D" type="Sprite2D" parent="YSort/Obstacles/Wall1"]
+texture = ExtResource("6_wall")
+centered = true
+scale = Vector2(0.02, 0.02)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YSort/Obstacles/Wall1"]
+shape = SubResource("RectangleShape2D_obstacle")
+
+[node name="Wall2" type="StaticBody2D" parent="YSort/Obstacles"]
+position = Vector2(1180, 360)
+
+[node name="Sprite2D" type="Sprite2D" parent="YSort/Obstacles/Wall2"]
+texture = ExtResource("6_wall")
+centered = true
+scale = Vector2(0.02, 0.02)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YSort/Obstacles/Wall2"]
+shape = SubResource("RectangleShape2D_obstacle")
+
+[node name="Tree1" type="StaticBody2D" parent="YSort/Obstacles"]
+position = Vector2(750, 500)
+
+[node name="Sprite2D" type="Sprite2D" parent="YSort/Obstacles/Tree1"]
+texture = ExtResource("7_tree")
+centered = true
+scale = Vector2(0.04, 0.04)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YSort/Obstacles/Tree1"]
+shape = SubResource("RectangleShape2D_obstacle")
+
+[node name="Pickups" type="Node2D" parent="YSort"]
+
+[node name="XP1" type="Area2D" parent="YSort/Pickups"]
+position = Vector2(400, 500)
+
+[node name="Sprite2D" type="Sprite2D" parent="YSort/Pickups/XP1"]
+texture = ExtResource("8_xp")
+centered = true
+scale = Vector2(0.028, 0.028)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YSort/Pickups/XP1"]
+shape = SubResource("RectangleShape2D_pickup")
+
+[node name="XP2" type="Area2D" parent="YSort/Pickups"]
+position = Vector2(200, 150)
+
+[node name="Sprite2D" type="Sprite2D" parent="YSort/Pickups/XP2"]
+texture = ExtResource("8_xp")
+centered = true
+scale = Vector2(0.028, 0.028)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YSort/Pickups/XP2"]
+shape = SubResource("RectangleShape2D_pickup")
+
+[node name="XPower1" type="Area2D" parent="YSort/Pickups"]
+position = Vector2(880, 200)
+
+[node name="Sprite2D" type="Sprite2D" parent="YSort/Pickups/XPower1"]
+texture = ExtResource("9_xpower")
+centered = true
+scale = Vector2(0.028, 0.028)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YSort/Pickups/XPower1"]
+shape = SubResource("RectangleShape2D_pickup")
+
+[node name="XPower2" type="Area2D" parent="YSort/Pickups"]
+position = Vector2(1050, 550)
+
+[node name="Sprite2D" type="Sprite2D" parent="YSort/Pickups/XPower2"]
+texture = ExtResource("9_xpower")
+centered = true
+scale = Vector2(0.028, 0.028)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="YSort/Pickups/XPower2"]
+shape = SubResource("RectangleShape2D_pickup")
+
+[node name="ProjectileManager" type="Node2D" parent="YSort"]

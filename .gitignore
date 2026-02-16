@@ -1,0 +1,17 @@
+# Godot 4+ specific ignores
+.godot/
+
+# Web export output (regenerate with Godot export)
+web/
+index.html
+index.js
+index.wasm
+index.pck
+index.audio*.js
+/android/
+
+# macOS
+.DS_Store
+
+# External / nested projects
+nanobanana-mcp-server/

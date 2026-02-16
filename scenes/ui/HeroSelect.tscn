@@ -1,0 +1,144 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/HeroSelect.gd" id="1_script"]
+
+[node name="HeroSelect" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.11, 0.06, 1)
+
+[node name="MainVBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="TopBar" type="PanelContainer" parent="MainVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 100)
+
+[node name="TopMargin" type="MarginContainer" parent="MainVBox/TopBar"]
+layout_mode = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 8
+
+[node name="TitleVBox" type="VBoxContainer" parent="MainVBox/TopBar/TopMargin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="MainVBox/TopBar/TopMargin/TitleVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "SELECT YOUR BRAWLER"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="MainVBox/TopBar/TopMargin/TitleVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Choose your striker for the arena"
+horizontal_alignment = 1
+
+[node name="SpotlightPanel" type="PanelContainer" parent="MainVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 160)
+
+[node name="SpotlightMargin" type="MarginContainer" parent="MainVBox/SpotlightPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 12
+
+[node name="SpotlightHBox" type="HBoxContainer" parent="MainVBox/SpotlightPanel/SpotlightMargin"]
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="SpotlightSprite" type="TextureRect" parent="MainVBox/SpotlightPanel/SpotlightMargin/SpotlightHBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 120)
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SpotlightInfo" type="VBoxContainer" parent="MainVBox/SpotlightPanel/SpotlightMargin/SpotlightHBox"]
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_constants/separation = 4
+
+[node name="SpotlightName" type="Label" parent="MainVBox/SpotlightPanel/SpotlightMargin/SpotlightHBox/SpotlightInfo"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Select a hero..."
+
+[node name="SpotlightRole" type="Label" parent="MainVBox/SpotlightPanel/SpotlightMargin/SpotlightHBox/SpotlightInfo"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = ""
+
+[node name="SpotlightDesc" type="Label" parent="MainVBox/SpotlightPanel/SpotlightMargin/SpotlightHBox/SpotlightInfo"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = ""
+
+[node name="CarouselPanel" type="PanelContainer" parent="MainVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CarouselMargin" type="MarginContainer" parent="MainVBox/CarouselPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 12
+
+[node name="HeroScroll" type="ScrollContainer" parent="MainVBox/CarouselPanel/CarouselMargin"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 2
+vertical_scroll_mode = 0
+
+[node name="HeroRow" type="HBoxContainer" parent="MainVBox/CarouselPanel/CarouselMargin/HeroScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 20
+
+[node name="BottomBar" type="PanelContainer" parent="MainVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 100)
+
+[node name="BottomMargin" type="MarginContainer" parent="MainVBox/BottomBar"]
+layout_mode = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 16
+
+[node name="BottomHBox" type="HBoxContainer" parent="MainVBox/BottomBar/BottomMargin"]
+layout_mode = 2
+alignment = 1
+
+[node name="PlayButton" type="Button" parent="MainVBox/BottomBar/BottomMargin/BottomHBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(320, 64)
+theme_override_font_sizes/font_size = 24
+text = "PLAY MATCH"
+
+[connection signal="pressed" from="MainVBox/BottomBar/BottomMargin/BottomHBox/PlayButton" to="." method="_on_play_pressed"]
