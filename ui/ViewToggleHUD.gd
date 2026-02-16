@@ -9,7 +9,7 @@ var _camera: Node
 var _tooltip_tween: Tween
 
 func _ready() -> void:
-	layer = 20
+	layer = 30
 	_style_button()
 	if toggle_btn:
 		toggle_btn.pressed.connect(_on_toggle_pressed)
