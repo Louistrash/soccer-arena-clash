@@ -30,8 +30,6 @@ func _setup_connections() -> void:
 		aim_joystick.output_changed.connect(_on_aim_output)
 	if shoot_btn:
 		shoot_btn.pressed.connect(_on_shoot_pressed)
-		shoot_btn.button_down.connect(_on_shoot_down)
-		shoot_btn.button_up.connect(_on_shoot_up)
 
 func _process(_delta: float) -> void:
 	if not move_joystick:
@@ -49,15 +47,8 @@ func _on_aim_output(v: Vector2) -> void:
 		InputRouter.set_touch_aim(v)
 
 func _on_shoot_pressed() -> void:
-	pass
-
-func _on_shoot_down() -> void:
 	if InputRouter:
 		InputRouter.set_touch_shoot(true)
-
-func _on_shoot_up() -> void:
-	if InputRouter:
-		InputRouter.set_touch_shoot(false)
 
 func _style_shoot_button() -> void:
 	if not shoot_btn:

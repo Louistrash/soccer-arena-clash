@@ -12,7 +12,7 @@ var _shoot_buffered: bool = false
 # Touch input (set by TouchControls when active)
 var _touch_move: Vector2 = Vector2.ZERO
 var _touch_aim: Vector2 = Vector2.ZERO
-var _touch_shoot: bool = false
+var _touch_active: bool = false
 
 func register_hero(hero: Node2D) -> void:
 	_hero_ref = weakref(hero)
@@ -20,24 +20,24 @@ func register_hero(hero: Node2D) -> void:
 func get_hero() -> Node2D:
 	return _hero_ref.get_ref() as Node2D
 
-## Called by Hero after consuming the shoot flag.
 func consume_shoot() -> void:
 	shoot_just_pressed = false
 	_shoot_buffered = false
-	_touch_shoot = false
 
 ## Touch controls API (called by TouchControls)
 func set_touch_move(v: Vector2) -> void:
 	_touch_move = v
+	_touch_active = true
 
 func set_touch_aim(v: Vector2) -> void:
 	_touch_aim = v
+	_touch_active = true
 
 func set_touch_shoot(pressed: bool) -> void:
-	_touch_shoot = pressed
-	if pressed:
+	if pressed and not _shoot_buffered:
 		_shoot_buffered = true
 		shoot_just_pressed = true
+	_touch_active = true
 
 func _process(_delta: float) -> void:
 	# Movement: prefer touch when active, else keyboard
@@ -57,14 +57,16 @@ func _process(_delta: float) -> void:
 			if dir.length_squared() > 1.0:
 				aim_direction = dir.normalized()
 
-	# Shoot: touch or keyboard/mouse
-	if _touch_shoot:
-		shoot_just_pressed = true
+	# Shoot: only from buffered flag (one shot per press)
 	if _shoot_buffered:
 		shoot_just_pressed = true
 		_shoot_buffered = false
 
 func _input(event: InputEvent) -> void:
+	# On touch devices, ignore simulated mouse clicks to prevent double-fire
+	if _touch_active and event is InputEventMouseButton:
+		return
+
 	if event.is_action_pressed("shoot"):
 		_shoot_buffered = true
 		shoot_just_pressed = true
