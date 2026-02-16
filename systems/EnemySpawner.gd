@@ -75,7 +75,7 @@ func _pick_spawn_point() -> Vector2:
 	if corner_spawns.size() > 0:
 		var idx: int = randi() % corner_spawns.size()
 		return corner_spawns[idx].global_position
-	return Vector2(640, 360)
+	return Vector2(2100, 1325)
 
 func _spawn_one() -> void:
 	if not enemy_container:
@@ -153,11 +153,11 @@ func get_wave_number() -> int:
 
 func _pos_to_zone_name(pos: Vector2) -> String:
 	var zones: Array[Dictionary] = [
-		{"pos": Vector2(80, 80), "name": "NORTH WEST"},
-		{"pos": Vector2(1200, 80), "name": "NORTH EAST"},
-		{"pos": Vector2(80, 640), "name": "SOUTH WEST"},
-		{"pos": Vector2(1200, 640), "name": "SOUTH EAST"},
-		{"pos": Vector2(640, 360), "name": "CENTER"},
+		{"pos": Vector2(300, 250), "name": "NORTH WEST"},
+		{"pos": Vector2(3900, 250), "name": "NORTH EAST"},
+		{"pos": Vector2(300, 2400), "name": "SOUTH WEST"},
+		{"pos": Vector2(3900, 2400), "name": "SOUTH EAST"},
+		{"pos": Vector2(2100, 1325), "name": "CENTER"},
 	]
 	var best: String = "CENTER"
 	var best_dist: float = INF

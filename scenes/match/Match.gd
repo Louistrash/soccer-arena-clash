@@ -93,7 +93,7 @@ func _spawn_hero() -> void:
 	if spawn_point:
 		hero.global_position = spawn_point.global_position
 	else:
-		hero.global_position = Vector2(640, 360)
+		hero.global_position = Vector2(2100, 1325)
 	if ysort:
 		ysort.add_child(hero)
 	else:

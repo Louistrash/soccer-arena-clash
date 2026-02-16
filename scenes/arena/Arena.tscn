@@ -24,10 +24,12 @@ size = Vector2(56, 56)
 script = ExtResource("1_floor")
 
 [node name="GoalLeft" parent="." instance=ExtResource("2_goal_left")]
-position = Vector2(250, 1325)
+position = Vector2(170, 1325)
+team = "left"
 
 [node name="GoalRight" parent="." instance=ExtResource("2_goal_right")]
-position = Vector2(3950, 1325)
+position = Vector2(4030, 1325)
+team = "right"
 
 [node name="YSort" type="Node2D" parent="."]
 y_sort_enabled = true

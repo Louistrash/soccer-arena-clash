@@ -139,7 +139,7 @@ func _respawn() -> void:
 	if spawn_point:
 		global_position = spawn_point.global_position
 	else:
-		global_position = Vector2(640, 360)
+		global_position = Vector2(2100, 1325)
 	# 2s invulnerability
 	await get_tree().create_timer(2.0).timeout
 	invulnerable = false
