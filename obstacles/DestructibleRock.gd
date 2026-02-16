@@ -3,7 +3,7 @@ extends StaticBody2D
 
 const ROCK_CRACKED_PATH: String = "res://obstacles/rock_cracked.png"
 const FALLBACK_TEXTURE: String = "res://obstacles/stone_wall.png"
-const TARGET_SIZE_PX: float = 480.0
+const TARGET_SIZE_PX: float = 200.0
 const SOURCE_SIZE_PX: float = 1024.0
 
 var health: float = 30.0

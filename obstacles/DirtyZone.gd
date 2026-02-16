@@ -5,7 +5,7 @@ const ROCK_VARIANTS: Array[String] = [
 	"rock_moss", "rock_vines", "rock_flower", "rock_ruin", "rock_cleanable",
 ]
 const FALLBACK_TEXTURE: String = "res://obstacles/stone_wall.png"
-const TARGET_SIZE_PX: float = 480.0
+const TARGET_SIZE_PX: float = 200.0
 const SOURCE_SIZE_PX: float = 1024.0
 
 var corruption_value: float = 100.0

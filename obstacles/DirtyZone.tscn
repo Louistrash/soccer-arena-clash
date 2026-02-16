@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://obstacles/DirtyZone.gd" id="1_dirty"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_dirty"]
-radius = 240.0
+radius = 100.0
 
 [node name="DirtyZone" type="Area2D"]
 collision_layer = 0
