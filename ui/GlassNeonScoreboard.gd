@@ -114,18 +114,18 @@ func _refresh_info() -> void:
 	if _spawner.has_method("get_teammates_alive"):
 		teammates = _spawner.get_teammates_alive()
 	if wave_label:
-		wave_label.text = "5v5 SHOWDOWN"
+		wave_label.text = "2-2-2 (4 vs 2)"
 	if enemies_label:
 		enemies_label.text = "%d OPPONENTS" % count
 	if zone_label:
 		zone_label.text = "%d TEAMMATES" % teammates
 	if status_label:
-		if count >= 5:
-			status_label.text = "HIGH PRESSURE"
-		elif count <= 1:
-			status_label.text = "FIELD CONTROL"
-		else:
+		if count >= 2:
 			status_label.text = "ARENA ACTIVE"
+		elif count == 1:
+			status_label.text = "ONE LEFT"
+		else:
+			status_label.text = "FIELD CONTROL"
 
 func _on_enemy_spawned(_enemy: Node, _pos: Vector2) -> void:
 	_refresh_info()

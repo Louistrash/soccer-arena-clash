@@ -1,6 +1,6 @@
 extends Node
-## Solo Showdown: spawns 4 teammate bots + 5 opponent bots at match start.
-## 5v5 combat: Hero + 4 teammates vs 5 opponents. No respawn.
+## Solo Showdown: 2-2-2 formatie. 3 teammates (2 links, 1 midden) + 2 opponents (rechts).
+## Hero spawnt in midden. Totaal 4 vs 2.
 
 const ENEMY_SCENE := preload("res://actors/Enemy.tscn")
 const ENEMY_TYPES: Array[String] = ["razor", "bulwark", "vinewitch"]
@@ -51,43 +51,28 @@ func spawn_all() -> void:
 	enemy_count_changed.emit(_opponents.size())
 
 func _spawn_teammates() -> void:
-	# Player team attacks right. Formation: 2 def, 2 mid, 1 striker
-	var def_positions: Array[Vector2] = [
-		Vector2(700, FIELD_CY - 200),
-		Vector2(800, FIELD_CY + 200),
+	# 2 links (uit elkaar), 1 midden (naast Hero)
+	var positions: Array[Vector2] = [
+		Vector2(800, 1000),
+		Vector2(900, 1650),
+		Vector2(2000, FIELD_CY),
 	]
-	var mid_positions: Array[Vector2] = [
-		Vector2(1800, FIELD_CY - 150),
-		Vector2(2000, FIELD_CY + 150),
-	]
-	var str_positions: Array[Vector2] = [
-		Vector2(3200, FIELD_CY),
-	]
-	var all_positions: Array[Vector2] = def_positions + mid_positions + str_positions
-	var roles: Array[int] = [Role.DEFENDER, Role.DEFENDER, Role.MIDFIELDER, Role.MIDFIELDER, Role.STRIKER]
-	for i in range(4):
-		var pos: Vector2 = all_positions[i] + Vector2(randf_range(-40, 40), randf_range(-40, 40))
+	var roles: Array[int] = [Role.DEFENDER, Role.DEFENDER, Role.MIDFIELDER]
+	for i in range(3):
+		var pos: Vector2 = positions[i] + Vector2(randf_range(-30, 30), randf_range(-30, 30))
 		var bot: CharacterBody2D = _spawn_bot_at(pos, "player", roles[i], i, true)
 		if bot:
 			_teammates.append(bot)
 
 func _spawn_opponents() -> void:
-	# Opponent team attacks left. Formation: 2 def, 2 mid, 1 striker
-	var def_positions: Array[Vector2] = [
-		Vector2(3500, FIELD_CY - 200),
-		Vector2(3400, FIELD_CY + 200),
+	# 2 rechts, goed uit elkaar
+	var positions: Array[Vector2] = [
+		Vector2(3300, 1100),
+		Vector2(3400, 1550),
 	]
-	var mid_positions: Array[Vector2] = [
-		Vector2(2400, FIELD_CY - 150),
-		Vector2(2200, FIELD_CY + 150),
-	]
-	var str_positions: Array[Vector2] = [
-		Vector2(1000, FIELD_CY),
-	]
-	var all_positions: Array[Vector2] = def_positions + mid_positions + str_positions
-	var roles: Array[int] = [Role.DEFENDER, Role.DEFENDER, Role.MIDFIELDER, Role.MIDFIELDER, Role.STRIKER]
-	for i in range(5):
-		var pos: Vector2 = all_positions[i] + Vector2(randf_range(-40, 40), randf_range(-40, 40))
+	var roles: Array[int] = [Role.DEFENDER, Role.MIDFIELDER]
+	for i in range(2):
+		var pos: Vector2 = positions[i] + Vector2(randf_range(-30, 30), randf_range(-30, 30))
 		var bot: CharacterBody2D = _spawn_bot_at(pos, "opponent", roles[i], i, false)
 		if bot:
 			_opponents.append(bot)
@@ -129,4 +114,4 @@ func get_wave_number() -> int:
 	return 1
 
 func get_last_spawn_zone() -> String:
-	return "5v5 SHOWDOWN"
+	return "2-2-2"
