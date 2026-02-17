@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://uu7i6qaiagah"
-path="res://.godot/imported/nova.png-0561b9f1e83b292d55bd763901554892.ctex"
+uid="uid://cc8kguouy5l1e"
+path="res://.godot/imported/zane.png-c181fc58a41c7d6793cb6b166ed8180a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://heroes/nova.png"
-dest_files=["res://.godot/imported/nova.png-0561b9f1e83b292d55bd763901554892.ctex"]
+source_file="res://heroes/zane.png"
+dest_files=["res://.godot/imported/zane.png-c181fc58a41c7d6793cb6b166ed8180a.ctex"]
 
 [params]
 

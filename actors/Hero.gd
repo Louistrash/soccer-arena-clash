@@ -148,33 +148,24 @@ func _shoot(direction: Vector2) -> void:
 	if direction.length_squared() < 0.01:
 		direction = Vector2.RIGHT
 
-	if GameManager.selected_hero_id in ["player1", "lionel"]:
-		# Striker: soccer balls
-		var balls: Array = get_tree().get_nodes_in_group("soccer_ball")
-		var hero_balls: int = 0
-		for b in balls:
-			if is_instance_valid(b) and "source_group" in b and b.source_group == "hero":
-				hero_balls += 1
-		if hero_balls >= MAX_ACTIVE_BALLS:
-			return
-		var projectile: CharacterBody2D = SOCCER_BALL_SCENE.instantiate() as CharacterBody2D
-		if projectile:
-			projectile.direction = direction
-			projectile.source_group = "hero"
-			projectile.global_position = global_position + direction * PROJECTILE_SPAWN_OFFSET
-		projectile_container.add_child(projectile)
-		_shoot_cooldown = SHOOT_COOLDOWN
-		var scoreboard: Node = get_tree().get_first_node_in_group("glass_scoreboard")
-		if scoreboard and scoreboard.has_method("trigger_ball_spin"):
-			scoreboard.trigger_ball_spin()
-	else:
-		# Other heroes: laser
-		var projectile: Area2D = LASER_PROJECTILE_SCENE.instantiate() as Area2D
-		if projectile:
-			projectile.direction = direction
-			projectile.source_group = "hero"
-			projectile.global_position = global_position + direction * PROJECTILE_SPAWN_OFFSET
-			projectile_container.add_child(projectile)
+	# All heroes use soccer balls (soccer vs fantasy enemies)
+	var balls: Array = get_tree().get_nodes_in_group("soccer_ball")
+	var hero_balls: int = 0
+	for b in balls:
+		if is_instance_valid(b) and "source_group" in b and b.source_group == "hero":
+			hero_balls += 1
+	if hero_balls >= MAX_ACTIVE_BALLS:
+		return
+	var projectile: CharacterBody2D = SOCCER_BALL_SCENE.instantiate() as CharacterBody2D
+	if projectile:
+		projectile.direction = direction
+		projectile.source_group = "hero"
+		projectile.global_position = global_position + direction * PROJECTILE_SPAWN_OFFSET
+	projectile_container.add_child(projectile)
+	_shoot_cooldown = SHOOT_COOLDOWN
+	var scoreboard: Node = get_tree().get_first_node_in_group("glass_scoreboard")
+	if scoreboard and scoreboard.has_method("trigger_ball_spin"):
+		scoreboard.trigger_ball_spin()
 
 func _spawn_dust_puff() -> void:
 	var dust: Node2D = DUST_PUFF_SCENE.instantiate() as Node2D

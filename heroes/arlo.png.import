@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cghkbhve0grf2"
-path="res://.godot/imported/glyph.png-ebbfe014594c58594ce954ae09710f6e.ctex"
+uid="uid://3mub5uwjg7cx"
+path="res://.godot/imported/arlo.png-bb9fc25eb3a2936ba6bc882fe81894d0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://heroes/glyph.png"
-dest_files=["res://.godot/imported/glyph.png-ebbfe014594c58594ce954ae09710f6e.ctex"]
+source_file="res://heroes/arlo.png"
+dest_files=["res://.godot/imported/arlo.png-bb9fc25eb3a2936ba6bc882fe81894d0.ctex"]
 
 [params]
 

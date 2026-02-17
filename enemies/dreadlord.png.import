@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://deqahivj5iij2"
-path="res://.godot/imported/lionel.png-30a112d29e4445b2d9cbafa3ac607b28.ctex"
+uid="uid://cuguj5n2e7084"
+path="res://.godot/imported/dreadlord.png-289ae36891e4a83e162cde88fb0b5f67.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://heroes/lionel.png"
-dest_files=["res://.godot/imported/lionel.png-30a112d29e4445b2d9cbafa3ac607b28.ctex"]
+source_file="res://enemies/dreadlord.png"
+dest_files=["res://.godot/imported/dreadlord.png-289ae36891e4a83e162cde88fb0b5f67.ctex"]
 
 [params]
 

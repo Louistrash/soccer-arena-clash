@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bbw87ql7tyvig"
-path="res://.godot/imported/dreadlord.png-71d371ba8c8cc925f7f4c821d6a85848.ctex"
+uid="uid://dseomxuv4qjy1"
+path="res://.godot/imported/enzo.png-0e68d4a2e9292d15acb741e28dee904f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://heroes/dreadlord.png"
-dest_files=["res://.godot/imported/dreadlord.png-71d371ba8c8cc925f7f4c821d6a85848.ctex"]
+source_file="res://heroes/enzo.png"
+dest_files=["res://.godot/imported/enzo.png-0e68d4a2e9292d15acb741e28dee904f.ctex"]
 
 [params]
 

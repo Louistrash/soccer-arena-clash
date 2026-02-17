@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://v042sm22amqc"
-path="res://.godot/imported/benny.png-ad608e794db1eef939ab72f5595c77e1.ctex"
+uid="uid://22w2sw1k71f2"
+path="res://.godot/imported/leo.png-ec08a2f04279d047b5a1042857dce3ca.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://heroes/benny.png"
-dest_files=["res://.godot/imported/benny.png-ad608e794db1eef939ab72f5595c77e1.ctex"]
+source_file="res://heroes/leo.png"
+dest_files=["res://.godot/imported/leo.png-ec08a2f04279d047b5a1042857dce3ca.ctex"]
 
 [params]
 

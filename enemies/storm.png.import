@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://deqahivj5iij2"
-path="res://.godot/imported/lionel.png-30a112d29e4445b2d9cbafa3ac607b28.ctex"
+uid="uid://co3ktv7gah188"
+path="res://.godot/imported/storm.png-6ecf8a0bbb9971f438c88c9ce12d5aa3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://heroes/lionel.png"
-dest_files=["res://.godot/imported/lionel.png-30a112d29e4445b2d9cbafa3ac607b28.ctex"]
+source_file="res://enemies/storm.png"
+dest_files=["res://.godot/imported/storm.png-6ecf8a0bbb9971f438c88c9ce12d5aa3.ctex"]
 
 [params]
 

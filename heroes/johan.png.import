@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://deqahivj5iij2"
-path="res://.godot/imported/lionel.png-30a112d29e4445b2d9cbafa3ac607b28.ctex"
+uid="uid://cuhlj48adeqa7"
+path="res://.godot/imported/johan.png-b6ddac1e660019453614a7da7401604c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://heroes/lionel.png"
-dest_files=["res://.godot/imported/lionel.png-30a112d29e4445b2d9cbafa3ac607b28.ctex"]
+source_file="res://heroes/johan.png"
+dest_files=["res://.godot/imported/johan.png-b6ddac1e660019453614a7da7401604c.ctex"]
 
 [params]
 

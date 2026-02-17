@@ -19,15 +19,17 @@ extends Control
 
 # --- Hero data with roles and glow colors ---
 const HERO_DATA: Array[Dictionary] = [
-	{"id": "player1",   "name": "Player 1",  "role": "Striker",  "desc": "Your custom soccer hero.",           "glow": Color(0.2, 0.9, 0.3)},
-	{"id": "pulse",     "name": "Pulse",     "role": "Striker",  "desc": "Accurate shots, burst movement.",  "glow": Color(0.16, 0.66, 1.0)},
-	{"id": "lionel",    "name": "Lionel",    "role": "Striker",  "desc": "Quick shots and fast dribbles.",   "glow": Color(0.16, 0.66, 1.0)},
-	{"id": "forge",     "name": "Forge",     "role": "Tank",     "desc": "Soaks damage, holds midfield.",    "glow": Color(1.0, 0.48, 0.16)},
-	{"id": "dreadlord", "name": "Dreadlord", "role": "Tank",     "desc": "Blocks lanes and clears ball.",    "glow": Color(1.0, 0.48, 0.16)},
-	{"id": "nova",      "name": "Nova",      "role": "Support",  "desc": "Buffs allies, disrupts enemies.",  "glow": Color(0.36, 1.0, 0.69)},
-	{"id": "benny",     "name": "Benny",     "role": "Support",  "desc": "Heals and shields teammates.",     "glow": Color(0.36, 1.0, 0.69)},
-	{"id": "glyph",     "name": "Glyph",     "role": "Mage",     "desc": "Tricky zones and control shots.",  "glow": Color(0.66, 0.33, 0.97)},
-	{"id": "storm",     "name": "Storm",     "role": "Mage",     "desc": "Area pressure and ball denial.",   "glow": Color(0.40, 0.91, 0.98)},
+	{"id": "arlo",   "name": "Arlo",   "role": "Playmaker",      "desc": "Precision passing playmaker.",             "glow": Color(0.16, 0.66, 1.0)},
+	{"id": "axel",   "name": "Axel",   "role": "Striker",        "desc": "Elite goal scoring striker.",              "glow": Color(1.0, 0.35, 0.2)},
+	{"id": "enzo",   "name": "Enzo",   "role": "Forward",        "desc": "Aggressive pressing forward.",            "glow": Color(0.95, 0.75, 0.2)},
+	{"id": "johan",  "name": "Johan",  "role": "General",        "desc": "Tactical field general.",                 "glow": Color(0.3, 0.85, 0.5)},
+	{"id": "kai",    "name": "Kai",    "role": "Shooter",        "desc": "Unstoppable power shooter.",               "glow": Color(0.9, 0.2, 0.4)},
+	{"id": "kian",   "name": "Kian",   "role": "Midfielder",     "desc": "Dynamic box-to-box midfielder.",          "glow": Color(0.5, 0.9, 0.6)},
+	{"id": "leo",    "name": "Leo",    "role": "Defender",       "desc": "Defensive anchor specialist.",            "glow": Color(0.4, 0.6, 1.0)},
+	{"id": "lionel", "name": "Lionel", "role": "Dribbler",       "desc": "Skillful freestyle dribbler.",             "glow": Color(0.7, 0.3, 0.95)},
+	{"id": "marco",  "name": "Marco",  "role": "Finisher",       "desc": "Clutch finisher hero.",                    "glow": Color(1.0, 0.55, 0.2)},
+	{"id": "rio",    "name": "Rio",    "role": "Sprint",         "desc": "Rapid counterattack sprinter.",           "glow": Color(0.2, 0.95, 0.5)},
+	{"id": "zane",   "name": "Zane",   "role": "Defender",       "desc": "Smart positioning defender.",             "glow": Color(0.55, 0.75, 0.95)},
 ]
 
 var _selected_id: String = ""
@@ -35,15 +37,13 @@ var _cards: Array[PanelContainer] = []
 var _play_pulse_tween: Tween
 
 func _get_hero_texture_path(hero_id: String) -> String:
-	if hero_id == "player1":
-		return "res://assets/player1.png"
 	return "res://heroes/" + hero_id + ".png"
 
 func _ready() -> void:
 	_style_panels()
 	_style_play_button()
 	_populate_cards()
-	_select_hero("player1")
+	_select_hero("arlo")
 	_screen_open_animation()
 
 # ====================== PANEL STYLING ======================

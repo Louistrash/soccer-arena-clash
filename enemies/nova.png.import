@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ewmtw0vprkve"
-path="res://.godot/imported/pulse.png-d5d8a29eb4ce1908a3d75c37060edb21.ctex"
+uid="uid://ceuib7sedunnk"
+path="res://.godot/imported/nova.png-3f17b3e7a57cc3a9d1b51b4f7a14fb66.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://heroes/pulse.png"
-dest_files=["res://.godot/imported/pulse.png-d5d8a29eb4ce1908a3d75c37060edb21.ctex"]
+source_file="res://enemies/nova.png"
+dest_files=["res://.godot/imported/nova.png-3f17b3e7a57cc3a9d1b51b4f7a14fb66.ctex"]
 
 [params]
 

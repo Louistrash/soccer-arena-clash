@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://deqahivj5iij2"
-path="res://.godot/imported/lionel.png-30a112d29e4445b2d9cbafa3ac607b28.ctex"
+uid="uid://ly7ieth05veo"
+path="res://.godot/imported/marco.png-7d07676d852ca71feea4696ca01b7af4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://heroes/lionel.png"
-dest_files=["res://.godot/imported/lionel.png-30a112d29e4445b2d9cbafa3ac607b28.ctex"]
+source_file="res://heroes/marco.png"
+dest_files=["res://.godot/imported/marco.png-7d07676d852ca71feea4696ca01b7af4.ctex"]
 
 [params]
 

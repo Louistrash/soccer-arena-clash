@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://0xdffhybxqqj"
-path="res://.godot/imported/forge.png-d9acb7d05df0d6b9712dc5d3a89dd5ba.ctex"
+uid="uid://b1dnakwkpw8re"
+path="res://.godot/imported/benny.png-6cc53e09716ed5af1ecdc58af88591b5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://heroes/forge.png"
-dest_files=["res://.godot/imported/forge.png-d9acb7d05df0d6b9712dc5d3a89dd5ba.ctex"]
+source_file="res://enemies/benny.png"
+dest_files=["res://.godot/imported/benny.png-6cc53e09716ed5af1ecdc58af88591b5.ctex"]
 
 [params]
 

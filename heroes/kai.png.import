@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://deqahivj5iij2"
-path="res://.godot/imported/lionel.png-30a112d29e4445b2d9cbafa3ac607b28.ctex"
+uid="uid://d4dwrj4u6qutd"
+path="res://.godot/imported/kai.png-dc430f6a1a46377573a75096727cb305.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://heroes/lionel.png"
-dest_files=["res://.godot/imported/lionel.png-30a112d29e4445b2d9cbafa3ac607b28.ctex"]
+source_file="res://heroes/kai.png"
+dest_files=["res://.godot/imported/kai.png-dc430f6a1a46377573a75096727cb305.ctex"]
 
 [params]
 

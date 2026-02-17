@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cc6q0ja4b8pes"
-path="res://.godot/imported/storm.png-de256c63cd6a80ff951fa65494a7bcc8.ctex"
+uid="uid://cqnp11mo5nf7c"
+path="res://.godot/imported/glyph.png-9b0de66c8fa06a3bf6596b9fda9af37b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://heroes/storm.png"
-dest_files=["res://.godot/imported/storm.png-de256c63cd6a80ff951fa65494a7bcc8.ctex"]
+source_file="res://enemies/glyph.png"
+dest_files=["res://.godot/imported/glyph.png-9b0de66c8fa06a3bf6596b9fda9af37b.ctex"]
 
 [params]
 

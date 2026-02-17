@@ -102,9 +102,9 @@ func _spawn_hero() -> void:
 	var hero_path: String = GameManager.selected_hero_path
 	var hero_name_str: String = GameManager.selected_hero_name
 	if hero_path.is_empty():
-		hero_path = "res://assets/player1.png"
-		hero_name_str = "Player 1"
-		GameManager.selected_hero_id = "player1"
+		hero_path = "res://heroes/arlo.png"
+		hero_name_str = "Arlo"
+		GameManager.selected_hero_id = "arlo"
 	hero.set_hero_texture(hero_path)
 	hero.set_hero_name(hero_name_str)
 	camera.target = hero

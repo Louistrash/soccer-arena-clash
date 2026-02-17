@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://deqahivj5iij2"
-path="res://.godot/imported/lionel.png-30a112d29e4445b2d9cbafa3ac607b28.ctex"
+uid="uid://ilwbsfpcfyat"
+path="res://.godot/imported/rio.png-8dacad74ddc5565e6693f859e3ce55d2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://heroes/lionel.png"
-dest_files=["res://.godot/imported/lionel.png-30a112d29e4445b2d9cbafa3ac607b28.ctex"]
+source_file="res://heroes/rio.png"
+dest_files=["res://.godot/imported/rio.png-8dacad74ddc5565e6693f859e3ce55d2.ctex"]
 
 [params]
 
