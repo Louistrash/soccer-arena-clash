@@ -6,7 +6,7 @@ enum State { IDLE, CHASE, ATTACK, RETREAT }
 
 const SPEED: float = 140.0
 const CHASE_RANGE: float = 300.0
-const ATTACK_RANGE: float = 120.0
+const ATTACK_RANGE: float = 100.0
 const RETREAT_HP_RATIO: float = 0.25
 const SHOOT_COOLDOWN_MIN: float = 0.8
 const SHOOT_COOLDOWN_MAX: float = 1.5
@@ -64,7 +64,9 @@ func _select_state(enemy: CharacterBody2D, target: Node2D) -> void:
 		return
 
 	var dist: float = enemy.global_position.distance_to(target.global_position)
-	if dist < ATTACK_RANGE:
+	if dist < 35:
+		state = State.RETREAT
+	elif dist < ATTACK_RANGE:
 		state = State.ATTACK
 	elif dist < CHASE_RANGE:
 		state = State.CHASE
@@ -75,7 +77,7 @@ func _find_best_target(enemy: CharacterBody2D) -> Node2D:
 	var best: Node2D = null
 	var best_dist: float = 99999.0
 
-	# Check heroes
+	# Only target heroes (player) - never other enemies (prevents lock-up)
 	var heroes: Array = get_tree().get_nodes_in_group("hero")
 	for h in heroes:
 		if not is_instance_valid(h) or h == enemy:
@@ -85,18 +87,6 @@ func _find_best_target(enemy: CharacterBody2D) -> Node2D:
 		var dist: float = enemy.global_position.distance_to(h.global_position)
 		if dist < best_dist:
 			best = h
-			best_dist = dist
-
-	# Check other enemies
-	var enemies: Array = get_tree().get_nodes_in_group("enemy")
-	for e in enemies:
-		if not is_instance_valid(e) or e == enemy:
-			continue
-		if "is_dead" in e and e.is_dead:
-			continue
-		var dist: float = enemy.global_position.distance_to(e.global_position)
-		if dist < best_dist:
-			best = e
 			best_dist = dist
 
 	return best
@@ -117,19 +107,19 @@ func _move_toward(enemy: CharacterBody2D, target: Vector2) -> void:
 
 func _separation_vector(enemy: CharacterBody2D) -> Vector2:
 	var sep := Vector2.ZERO
-	var container: Node = enemy.get_parent()
-	if not container:
-		return sep
-	for c in container.get_children():
-		if c == enemy or not c is CharacterBody2D:
+	# Push away from all nearby characters (enemies + hero)
+	var chars: Array = get_tree().get_nodes_in_group("hero") + get_tree().get_nodes_in_group("enemy")
+	for c in chars:
+		if not is_instance_valid(c) or c == enemy:
 			continue
 		if "is_dead" in c and c.is_dead:
 			continue
 		var diff: Vector2 = enemy.global_position - c.global_position
 		var dist: float = diff.length()
-		if dist < 80 and dist > 1:
-			sep += diff.normalized() * (80 - dist) / 80.0
-	return sep * 0.6
+		if dist < 100 and dist > 2:
+			var strength: float = (100 - dist) / 100.0
+			sep += diff.normalized() * strength
+	return sep * 1.2
 
 func _try_shoot(enemy: CharacterBody2D, target_pos: Vector2) -> void:
 	if _shoot_cooldown > 0:

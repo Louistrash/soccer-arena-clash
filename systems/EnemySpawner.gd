@@ -69,12 +69,21 @@ func _clean_dead_enemies() -> void:
 	_enemies = _enemies.filter(func(e): return is_instance_valid(e) and not e.is_dead)
 
 func _pick_spawn_point() -> Vector2:
-	# 30% chance center, 70% corners
-	if center_spawn and randf() < CENTER_SPAWN_CHANCE:
-		return center_spawn.global_position
+	var hero: Node2D = hero_ref.get_ref() as Node2D
+	var hero_pos: Vector2 = hero.global_position if hero else Vector2(2100, 1325)
+	var candidates: Array[Vector2] = []
 	if corner_spawns.size() > 0:
-		var idx: int = randi() % corner_spawns.size()
-		return corner_spawns[idx].global_position
+		for m in corner_spawns:
+			if hero and m.global_position.distance_to(hero_pos) > 400:
+				candidates.append(m.global_position)
+	if candidates.is_empty() and corner_spawns.size() > 0:
+		for m in corner_spawns:
+			candidates.append(m.global_position)
+	if center_spawn and (not hero or center_spawn.global_position.distance_to(hero_pos) > 400):
+		if randf() < CENTER_SPAWN_CHANCE:
+			return center_spawn.global_position
+	if candidates.size() > 0:
+		return candidates[randi() % candidates.size()]
 	return Vector2(2100, 1325)
 
 func _spawn_one() -> void:
