@@ -14,6 +14,8 @@ const HEALTH_BAR_WIDTH: float = 50.0
 
 var enemy_name: String = ""
 var enemy_type: String = "razor"
+var team: String = "opponent"
+var role: int = 0  # EnemyAI.Role
 var health: float = 100.0
 var max_health: float = 100.0
 var invulnerable: bool = false
@@ -35,6 +37,19 @@ func setup_type(id: String) -> void:
 		enemy_type = id
 		_type_assigned = true
 
+func setup_team(t: String) -> void:
+	team = t
+
+func setup_role(r: int) -> void:
+	role = r
+
+func setup_teammate_texture(hero_id: String) -> void:
+	_type_assigned = true
+	enemy_type = hero_id
+	var path: String = "res://heroes/" + hero_id + ".png"
+	set_enemy_texture(path)
+	set_enemy_name(hero_id.capitalize())
+
 func _ready() -> void:
 	add_to_group("enemy")
 
@@ -48,17 +63,21 @@ func _ready() -> void:
 	else:
 		set_enemy_type_id(enemy_type)
 
-	# Red tint
-	sprite.modulate = Color(1.2, 0.75, 0.75)
-
-	# Red name
-	if name_label:
-		name_label.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
-
-	# Red health bar bg
-	var health_bar_bg: ColorRect = get_node_or_null("UnitUI/HealthBarBG") as ColorRect
-	if health_bar_bg:
-		health_bar_bg.color = Color(0.3, 0.1, 0.1, 0.8)
+	# Teammates: green tint. Opponents: red tint
+	if team == "player":
+		sprite.modulate = Color(0.75, 1.2, 0.75)
+		if name_label:
+			name_label.add_theme_color_override("font_color", Color(0.4, 1.0, 0.4))
+		var health_bar_bg: ColorRect = get_node_or_null("UnitUI/HealthBarBG") as ColorRect
+		if health_bar_bg:
+			health_bar_bg.color = Color(0.1, 0.3, 0.1, 0.8)
+	else:
+		sprite.modulate = Color(1.2, 0.75, 0.75)
+		if name_label:
+			name_label.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
+		var health_bar_bg: ColorRect = get_node_or_null("UnitUI/HealthBarBG") as ColorRect
+		if health_bar_bg:
+			health_bar_bg.color = Color(0.3, 0.1, 0.1, 0.8)
 
 	projectile_container = get_parent().get_node_or_null("ProjectileManager")
 	if not projectile_container:

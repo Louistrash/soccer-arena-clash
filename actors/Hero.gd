@@ -7,7 +7,7 @@ extends CharacterBody2D
 @onready var health_bar_fill: ColorRect = $UnitUI/HealthBarFill
 @onready var respawn_label: Label = $UnitUI/RespawnLabel
 
-const SPEED: float = 200.0
+const SPEED: float = 220.0
 const SOCCER_BALL_SCENE := preload("res://projectiles/SoccerBallProjectile.tscn")
 const LASER_PROJECTILE_SCENE := preload("res://actors/Projectile.tscn")
 const DUST_PUFF_SCENE := preload("res://actors/DustPuff.tscn")
@@ -16,6 +16,7 @@ const PROJECTILE_SPAWN_OFFSET: float = 40.0
 const HEALTH_BAR_WIDTH: float = 50.0
 
 var hero_name: String = ""
+var team: String = "player"
 var health: float = 100.0
 var max_health: float = 100.0
 var invulnerable: bool = false
@@ -24,7 +25,7 @@ var is_dead: bool = false
 var projectile_container: Node
 var _dust_timer: float = 0.0
 var _shoot_cooldown: float = 0.0
-const SHOOT_COOLDOWN: float = 0.45
+const SHOOT_COOLDOWN: float = 0.40
 const MAX_ACTIVE_BALLS: int = 8
 
 func _ready() -> void:
@@ -80,6 +81,14 @@ func _physics_process(_delta: float) -> void:
 
 	queue_redraw()
 	_update_health_bar()
+
+func _draw() -> void:
+	if is_dead:
+		return
+	# Hero indicator: subtle outer glow ring so player stands out
+	var glow_color := Color(0.3, 1.0, 0.5, 0.5)
+	draw_arc(Vector2(0, 25), 32.0, 0, TAU, 32, glow_color, 3.0)
+	draw_arc(Vector2(0, 25), 28.0, 0, TAU, 24, Color(0.3, 1.0, 0.4, 0.25), 2.0)
 
 func take_damage(amount: float, knockback_dir: Vector2 = Vector2.ZERO, _knockback_strength: float = 200.0) -> void:
 	if invulnerable or is_dead:

@@ -112,11 +112,11 @@ func _spawn_hero() -> void:
 	camera.make_current()
 
 func _setup_enemy_spawner() -> void:
-	var script: GDScript = load("res://systems/EnemySpawner.gd") as GDScript
+	var script: GDScript = load("res://systems/SoloShowdownSpawner.gd") as GDScript
 	enemy_spawner = script.new()
 	add_child(enemy_spawner)
 	enemy_spawner.setup(arena, hero)
-	enemy_spawner.spawn_initial()
+	enemy_spawner.spawn_all()
 
 func _process(delta: float) -> void:
 	if match_ended:

@@ -76,9 +76,10 @@ func _draw() -> void:
 	draw_arc(Vector2.ZERO, r * 0.55, 0, TAU, 6, Color(0.12, 0.12, 0.12), 1.8)
 
 func _should_hit(body: Node2D) -> bool:
-	if source_group == "hero" and body.is_in_group("hero"):
-		return false
-	if source_group == "enemy" and body.is_in_group("enemy"):
+	# Same team never damages each other (hero + teammates vs opponents)
+	var body_team: String = body.get("team") if "team" in body else ("player" if body.is_in_group("hero") else "opponent")
+	var shooter_team: String = "player" if source_group == "hero" else "opponent"
+	if body_team == shooter_team:
 		return false
 	return true
 
@@ -126,9 +127,9 @@ func _apply_explosion_damage() -> void:
 	for result in results:
 		var body: Node2D = result.collider as Node2D
 		if body and body.has_method("take_damage"):
-			if source_group == "hero" and body.is_in_group("hero"):
-				continue
-			if source_group == "enemy" and body.is_in_group("enemy"):
+			var body_team: String = body.get("team") if "team" in body else ("player" if body.is_in_group("hero") else "opponent")
+			var shooter_team: String = "player" if source_group == "hero" else "opponent"
+			if body_team == shooter_team:
 				continue
 			var diff: Vector2 = (body.global_position - center).normalized()
 			body.take_damage(EXPLOSION_DAMAGE, diff, EXPLOSION_KNOCKBACK)

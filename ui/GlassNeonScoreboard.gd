@@ -110,15 +110,17 @@ func _refresh_info() -> void:
 		wave = _spawner.get_wave_number()
 	if _spawner.has_method("get_last_spawn_zone"):
 		zone = _spawner.get_last_spawn_zone()
+	var teammates: int = 0
+	if _spawner.has_method("get_teammates_alive"):
+		teammates = _spawner.get_teammates_alive()
 	if wave_label:
-		wave_label.text = "WAVE %d" % maxi(1, wave)
+		wave_label.text = "5v5 SHOWDOWN"
 	if enemies_label:
-		enemies_label.text = "%d %s ON FIELD" % [count, "ENEMY" if count == 1 else "ENEMIES"]
+		enemies_label.text = "%d OPPONENTS" % count
 	if zone_label:
-		zone_label.text = zone
+		zone_label.text = "%d TEAMMATES" % teammates
 	if status_label:
-		const MAX_ENEMIES: int = 3
-		if count >= MAX_ENEMIES:
+		if count >= 5:
 			status_label.text = "HIGH PRESSURE"
 		elif count <= 1:
 			status_label.text = "FIELD CONTROL"

@@ -43,10 +43,10 @@ func _on_body_entered(body: Node2D) -> void:
 	if body is StaticBody2D:
 		queue_free()
 	elif body is CharacterBody2D:
-		# Don't damage friendlies
-		if source_group == "hero" and body.is_in_group("hero"):
-			return
-		if source_group == "enemy" and body.is_in_group("enemy"):
+		# Don't damage same team
+		var body_team: String = body.get("team") if "team" in body else ("player" if body.is_in_group("hero") else "opponent")
+		var shooter_team: String = "player" if source_group == "hero" else "opponent"
+		if body_team == shooter_team:
 			return
 		_spawn_hit_spark()
 		if body.has_method("take_damage"):

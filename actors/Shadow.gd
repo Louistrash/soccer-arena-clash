@@ -11,9 +11,11 @@ func _draw() -> void:
 	draw_set_transform(Vector2.ZERO, 0, Vector2(1, 0.5))
 	draw_circle(Vector2.ZERO, 22.0, Color(0, 0, 0, 0.25))
 
-	# Team ring (reset transform)
+	# Team ring (reset transform): green = player team, red = opponent
 	draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
 	var color := Color(0.2, 0.9, 0.3, 0.7)
-	if parent and not parent.is_in_group("hero"):
-		color = Color(0.9, 0.2, 0.2, 0.7)
+	if parent:
+		var pt: String = parent.get("team") if "team" in parent else ""
+		if pt != "player" and not parent.is_in_group("hero"):
+			color = Color(0.9, 0.2, 0.2, 0.7)
 	draw_arc(Vector2.ZERO, 24.0, 0, TAU, 32, color, 2.5)

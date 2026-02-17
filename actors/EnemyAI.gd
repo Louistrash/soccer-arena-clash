@@ -1,12 +1,16 @@
 extends Node
 ## Brawl-style AI: state machine with IDLE, CHASE, ATTACK, RETREAT.
-## Targets nearest opponent.
+## Targets nearest opponent (opposite team only). Role-based formation.
 
 enum State { IDLE, CHASE, ATTACK, RETREAT }
+enum Role { DEFENDER, MIDFIELDER, STRIKER }
 
 const SPEED: float = 140.0
 const CHASE_RANGE: float = 300.0
 const ATTACK_RANGE: float = 100.0
+const CHASE_RANGE_DEFENDER: float = 180.0
+const CHASE_RANGE_STRIKER: float = 380.0
+const HOME_POSITION_WEIGHT: float = 0.35
 const RETREAT_HP_RATIO: float = 0.25
 const SHOOT_COOLDOWN_MIN: float = 0.8
 const SHOOT_COOLDOWN_MAX: float = 1.5
@@ -17,11 +21,23 @@ var _shoot_cooldown: float = 0.0
 var _attack_pause_timer: float = 0.0
 var _wander_dir: Vector2 = Vector2.ZERO
 var _wander_timer: float = 0.0
+var _home_position: Vector2 = Vector2.ZERO
+var _chase_range: float = CHASE_RANGE
 
 func _process(delta: float) -> void:
 	var enemy: CharacterBody2D = get_parent() as CharacterBody2D
 	if not enemy or enemy.is_dead:
 		return
+	if _home_position == Vector2.ZERO:
+		_home_position = enemy.global_position
+		# Role-based chase range
+		var r: int = enemy.get("role") if "role" in enemy else Role.MIDFIELDER
+		if r == Role.DEFENDER:
+			_chase_range = CHASE_RANGE_DEFENDER
+		elif r == Role.STRIKER:
+			_chase_range = CHASE_RANGE_STRIKER
+		else:
+			_chase_range = CHASE_RANGE
 
 	_shoot_cooldown -= delta
 	_attack_pause_timer -= delta
@@ -68,7 +84,7 @@ func _select_state(enemy: CharacterBody2D, target: Node2D) -> void:
 		state = State.RETREAT
 	elif dist < ATTACK_RANGE:
 		state = State.ATTACK
-	elif dist < CHASE_RANGE:
+	elif dist < _chase_range:
 		state = State.CHASE
 	else:
 		state = State.IDLE
@@ -76,19 +92,24 @@ func _select_state(enemy: CharacterBody2D, target: Node2D) -> void:
 func _find_best_target(enemy: CharacterBody2D) -> Node2D:
 	var best: Node2D = null
 	var best_dist: float = 99999.0
+	var my_team: String = enemy.get("team") if "team" in enemy else "opponent"
 
-	# Only target heroes (player) - never other enemies (prevents lock-up)
-	var heroes: Array = get_tree().get_nodes_in_group("hero")
-	for h in heroes:
-		if not is_instance_valid(h) or h == enemy:
+	# Target opposite team only (hero + teammates vs opponents)
+	var candidates: Array[Node2D] = []
+	candidates.append_array(get_tree().get_nodes_in_group("hero"))
+	candidates.append_array(get_tree().get_nodes_in_group("enemy"))
+	for c in candidates:
+		if not is_instance_valid(c) or c == enemy:
 			continue
-		if "is_dead" in h and h.is_dead:
+		if "is_dead" in c and c.is_dead:
 			continue
-		var dist: float = enemy.global_position.distance_to(h.global_position)
+		var c_team: String = c.get("team") if "team" in c else ("player" if c.is_in_group("hero") else "opponent")
+		if c_team == my_team:
+			continue
+		var dist: float = enemy.global_position.distance_to(c.global_position)
 		if dist < best_dist:
-			best = h
+			best = c
 			best_dist = dist
-
 	return best
 
 func _do_idle(enemy: CharacterBody2D, delta: float) -> void:
@@ -96,7 +117,11 @@ func _do_idle(enemy: CharacterBody2D, delta: float) -> void:
 	if _wander_timer <= 0:
 		_wander_dir = Vector2(randf_range(-1, 1), randf_range(-1, 1)).normalized()
 		_wander_timer = randf_range(1.0, 3.0)
-	enemy.velocity = _wander_dir * SPEED * 0.4
+	var dir: Vector2 = _wander_dir
+	if _home_position != Vector2.ZERO:
+		var to_home: Vector2 = (_home_position - enemy.global_position).normalized()
+		dir = (dir + to_home * HOME_POSITION_WEIGHT).normalized()
+	enemy.velocity = dir * SPEED * 0.4
 
 func _move_toward(enemy: CharacterBody2D, target: Vector2) -> void:
 	var dir: Vector2 = (target - enemy.global_position).normalized()
@@ -125,16 +150,34 @@ func _try_shoot(enemy: CharacterBody2D, target_pos: Vector2) -> void:
 	if _shoot_cooldown > 0:
 		return
 	var dir: Vector2 = (target_pos - enemy.global_position).normalized()
-	var proj_scene: PackedScene = preload("res://actors/Projectile.tscn")
-	var proj: Area2D = proj_scene.instantiate() as Area2D
-	if proj:
-		proj.direction = dir
-		proj.source_group = "enemy"
-		proj.global_position = enemy.global_position + dir * 40
-		var container: Node = enemy.get_parent().get_node_or_null("ProjectileManager")
-		if container:
+	var container: Node = enemy.get_parent().get_node_or_null("ProjectileManager")
+	if not container:
+		container = enemy.get_parent()
+	var my_team: String = enemy.get("team") if "team" in enemy else "opponent"
+	if my_team == "player":
+		# Teammates use soccer balls like Hero
+		var balls: Array = get_tree().get_nodes_in_group("soccer_ball")
+		var hero_balls: int = 0
+		for b in balls:
+			if is_instance_valid(b) and "source_group" in b and b.source_group == "hero":
+				hero_balls += 1
+		if hero_balls < 8:
+			var proj: CharacterBody2D = preload("res://projectiles/SoccerBallProjectile.tscn").instantiate() as CharacterBody2D
+			if proj:
+				proj.direction = dir
+				proj.source_group = "hero"
+				proj.global_position = enemy.global_position + dir * 40
+				container.add_child(proj)
+				var scoreboard: Node = get_tree().get_first_node_in_group("glass_scoreboard")
+				if scoreboard and scoreboard.has_method("trigger_ball_spin"):
+					scoreboard.trigger_ball_spin()
+	else:
+		# Opponents use laser
+		var proj: Area2D = preload("res://actors/Projectile.tscn").instantiate() as Area2D
+		if proj:
+			proj.direction = dir
+			proj.source_group = "enemy"
+			proj.global_position = enemy.global_position + dir * 40
 			container.add_child(proj)
-		else:
-			enemy.get_parent().add_child(proj)
-		_shoot_cooldown = randf_range(SHOOT_COOLDOWN_MIN, SHOOT_COOLDOWN_MAX)
-		_attack_pause_timer = ATTACK_PAUSE
+	_shoot_cooldown = randf_range(SHOOT_COOLDOWN_MIN, SHOOT_COOLDOWN_MAX)
+	_attack_pause_timer = ATTACK_PAUSE
