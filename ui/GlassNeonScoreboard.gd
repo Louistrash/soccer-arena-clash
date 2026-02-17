@@ -110,15 +110,12 @@ func _refresh_info() -> void:
 		wave = _spawner.get_wave_number()
 	if _spawner.has_method("get_last_spawn_zone"):
 		zone = _spawner.get_last_spawn_zone()
-	var teammates: int = 0
-	if _spawner.has_method("get_teammates_alive"):
-		teammates = _spawner.get_teammates_alive()
 	if wave_label:
-		wave_label.text = "2-2-2 (4 vs 2)"
+		wave_label.text = "SOLO (1 vs %d)" % count
 	if enemies_label:
-		enemies_label.text = "%d OPPONENTS" % count
+		enemies_label.text = "%d ENEMIES" % count
 	if zone_label:
-		zone_label.text = "%d TEAMMATES" % teammates
+		zone_label.text = "SOLO"
 	if status_label:
 		if count >= 2:
 			status_label.text = "ARENA ACTIVE"
