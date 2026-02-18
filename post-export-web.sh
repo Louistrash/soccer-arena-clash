@@ -46,9 +46,17 @@ new = '''\t\t<link rel="icon" type="image/png" href="icon.png" />
 
 if old in s:
     s = s.replace(old, new)
-    with open(path, "w") as f:
-        f.write(s)
     print("✓ index.html gepatcht: favicon + social meta tags")
 else:
     print("! Geen standaard favicon-block gevonden (al gepatcht of ander template)")
+
+# 3. Forceer thread_support=false (voorkomt Cross-Origin Isolation error)
+if "GODOT_THREADS_ENABLED = true" in s:
+    s = s.replace("GODOT_THREADS_ENABLED = true", "GODOT_THREADS_ENABLED = false")
+    print("✓ GODOT_THREADS_ENABLED geforceerd naar false (geen Cross-Origin headers nodig)")
+else:
+    print("- GODOT_THREADS_ENABLED staat al op false")
+
+with open(path, "w") as f:
+    f.write(s)
 PYEOF
