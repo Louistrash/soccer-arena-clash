@@ -23,22 +23,9 @@ func _is_touch_device() -> bool:
 	if os_name in ["iOS", "Android"]:
 		return true
 	if os_name == "Web":
-		# Op Web: meerdere checks - iPad in desktopmodus rapporteert vaak maxTouchPoints=0
-		if OS.has_feature("web"):
-			var js := """
-			(function() {
-				if (navigator.maxTouchPoints > 0) return true;
-				if ('ontouchstart' in window) return true;
-				if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return true;
-				// Tablet-viewport fallback (iPad etc. wanneer maxTouchPoints faalt)
-				var w = window.innerWidth || screen.width;
-				var h = window.innerHeight || screen.height;
-				return (w <= 1024 || h <= 900);
-			})()
-			"""
-			var result = JavaScriptBridge.eval(js, true)
-			return result == true
-		return false
+		# Altijd tonen op Web: iPad/Safari rapporteert touch onbetrouwbaar (maxTouchPoints=0 in desktopmodus).
+		# Desktop gebruikt keyboard/mouse, joysticks blijven zichtbaar maar ongebruikt.
+		return true
 	# Native desktop: alleen bij fysieke touchscreen
 	return DisplayServer.is_touchscreen_available()
 
