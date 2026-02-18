@@ -1,6 +1,9 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scenes/ui/HeroSelect.gd" id="1_script"]
+[ext_resource type="Script" path="res://scenes/ui/BackgroundLayer.gd" id="2_background"]
+[ext_resource type="Script" path="res://scenes/ui/ParticleLayer.gd" id="3_particles"]
+[ext_resource type="Script" path="res://scenes/ui/SpotlightRing.gd" id="4_spotlight_ring"]
 
 [node name="HeroSelect" type="Control"]
 layout_mode = 3
@@ -11,14 +14,23 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="BackgroundLayer" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.05, 0.11, 0.06, 1)
+script = ExtResource("2_background")
+
+[node name="ParticleLayer" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("3_particles")
 
 [node name="MainVBox" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -58,7 +70,7 @@ horizontal_alignment = 1
 
 [node name="SpotlightPanel" type="PanelContainer" parent="MainVBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 160)
+custom_minimum_size = Vector2(0, 180)
 
 [node name="SpotlightMargin" type="MarginContainer" parent="MainVBox/SpotlightPanel"]
 layout_mode = 2
@@ -72,8 +84,26 @@ layout_mode = 2
 theme_override_constants/separation = 24
 alignment = 1
 
-[node name="SpotlightSprite" type="TextureRect" parent="MainVBox/SpotlightPanel/SpotlightMargin/SpotlightHBox"]
+[node name="SpotlightSpriteContainer" type="Control" parent="MainVBox/SpotlightPanel/SpotlightMargin/SpotlightHBox"]
 layout_mode = 2
+custom_minimum_size = Vector2(120, 120)
+
+[node name="SpotlightRing" type="Control" parent="MainVBox/SpotlightPanel/SpotlightMargin/SpotlightHBox/SpotlightSpriteContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("4_spotlight_ring")
+
+[node name="SpotlightSprite" type="TextureRect" parent="MainVBox/SpotlightPanel/SpotlightMargin/SpotlightHBox/SpotlightSpriteContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 custom_minimum_size = Vector2(120, 120)
 expand_mode = 1
 stretch_mode = 5
@@ -118,7 +148,7 @@ vertical_scroll_mode = 0
 [node name="HeroRow" type="HBoxContainer" parent="MainVBox/CarouselPanel/CarouselMargin/HeroScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 20
+theme_override_constants/separation = 24
 
 [node name="BottomBar" type="PanelContainer" parent="MainVBox"]
 layout_mode = 2
