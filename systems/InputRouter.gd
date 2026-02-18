@@ -13,6 +13,7 @@ var _shoot_buffered: bool = false
 var _touch_move: Vector2 = Vector2.ZERO
 var _touch_aim: Vector2 = Vector2.ZERO
 var _touch_active: bool = false
+var _touch_block_until: float = 0.0  # Block mouse na touch-shoot (dubbel-fire voorkomen)
 
 func register_hero(hero: Node2D) -> void:
 	_hero_ref = weakref(hero)
@@ -27,17 +28,20 @@ func consume_shoot() -> void:
 ## Touch controls API (called by TouchControls)
 func set_touch_move(v: Vector2) -> void:
 	_touch_move = v
-	_touch_active = true
+	if v.length_squared() > 0.01:
+		_touch_active = true
 
 func set_touch_aim(v: Vector2) -> void:
 	_touch_aim = v
-	_touch_active = true
+	if v.length_squared() > 0.01:
+		_touch_active = true
 
 func set_touch_shoot(pressed: bool) -> void:
 	if pressed and not _shoot_buffered:
 		_shoot_buffered = true
 		shoot_just_pressed = true
-	_touch_active = true
+	if pressed:
+		_touch_block_until = Time.get_ticks_msec() / 1000.0 + 0.15
 
 func _process(_delta: float) -> void:
 	# Movement: prefer touch when active, else keyboard
@@ -62,9 +66,15 @@ func _process(_delta: float) -> void:
 		shoot_just_pressed = true
 		_shoot_buffered = false
 
+	# Clear _touch_active when geen touch input (user released)
+	if _touch_move.length_squared() < 0.01 and _touch_aim.length_squared() < 0.01:
+		_touch_active = false
+
 func _input(event: InputEvent) -> void:
-	# On touch devices, ignore simulated mouse clicks to prevent double-fire
-	if _touch_active and event is InputEventMouseButton:
+	# Op touch: negeer gesimuleerde muisklik (dubbel-fire). Alleen blocken bij actieve touch of net na touch-shoot.
+	var now: float = Time.get_ticks_msec() / 1000.0
+	var block_mouse: bool = (_touch_active or now < _touch_block_until) and event is InputEventMouseButton
+	if block_mouse:
 		return
 
 	if event.is_action_pressed("shoot"):

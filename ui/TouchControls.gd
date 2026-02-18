@@ -19,10 +19,18 @@ func _ready() -> void:
 	_setup_connections()
 
 func _is_touch_device() -> bool:
-	if DisplayServer.is_touchscreen_available():
-		return true
 	var os_name: String = OS.get_name()
-	return os_name in ["iOS", "Android", "Web"]
+	if os_name in ["iOS", "Android"]:
+		return true
+	if os_name == "Web":
+		# Op Web: alleen tonen als browser touch rapporteert (maxTouchPoints > 0)
+		# Desktop browsers hebben meestal maxTouchPoints = 0
+		if OS.has_feature("web"):
+			var result = JavaScriptBridge.eval("navigator.maxTouchPoints > 0", true)
+			return result == true
+		return false
+	# Native desktop: alleen bij fysieke touchscreen
+	return DisplayServer.is_touchscreen_available()
 
 func _setup_connections() -> void:
 	if move_joystick and move_joystick.has_signal("output_changed"):

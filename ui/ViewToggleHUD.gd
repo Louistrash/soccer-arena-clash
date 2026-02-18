@@ -12,6 +12,7 @@ func _ready() -> void:
 	layer = 30
 	_style_button()
 	if toggle_btn:
+		toggle_btn.focus_mode = Control.FOCUS_NONE  # Space blijft voor shoot, niet voor button
 		toggle_btn.pressed.connect(_on_toggle_pressed)
 		toggle_btn.mouse_entered.connect(_on_button_hovered)
 		toggle_btn.mouse_exited.connect(_on_button_exited)
@@ -75,6 +76,13 @@ func _on_button_exited() -> void:
 		tooltip_label.visible = false
 	if _tooltip_tween and _tooltip_tween.is_valid():
 		_tooltip_tween.kill()
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("toggle_overview"):
+		if _camera and _camera.has_method("toggle_mode"):
+			_camera.toggle_mode()
+		_show_tooltip()
+		get_viewport().set_input_as_handled()
 
 func _show_tooltip() -> void:
 	if not tooltip_label:
