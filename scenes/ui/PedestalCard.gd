@@ -24,6 +24,8 @@ var _hero_rect: TextureRect
 var _name_label: Label
 var _role_icon: Control
 var _trophy_label: Label
+var _trophy_container: HBoxContainer
+var _rank_tier_label: Label
 var _idle_tween: Tween
 var _pulse_tween: Tween
 
@@ -113,6 +115,7 @@ func set_selected(selected: bool) -> void:
 		return
 	is_selected = selected
 	_update_size()
+	update_trophy_visuals(selected)
 	queue_redraw()
 	z_index = 10 if is_selected else 0
 
@@ -153,6 +156,59 @@ func _build_ui() -> void:
 	_name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	info_vbox.add_child(_name_label)
 
+	# Trophies (Directly under name, BEFORE role)
+	_trophy_container = HBoxContainer.new()
+	_trophy_container.alignment = BoxContainer.ALIGNMENT_CENTER
+	_trophy_container.add_theme_constant_override("separation", 4)
+	_trophy_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_trophy_container.pivot_offset = Vector2(0, 0) # Will be updated after layout
+	info_vbox.add_child(_trophy_container)
+
+	var trophy_icon := Label.new()
+	trophy_icon.text = "🏆"
+	trophy_icon.add_theme_font_size_override("font_size", 16) # Larger icon
+	trophy_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_trophy_container.add_child(trophy_icon)
+
+	_trophy_label = Label.new()
+	var trophy_count = hero_data.get("trophies", 0)
+	_trophy_label.text = str(trophy_count)
+	
+	# Rank color logic
+	var trophy_color = STADIUM_GOLD
+	var base_font_size = 17
+	var outline_size = 3
+	
+	if trophy_count < 100:
+		trophy_color = Color(0.85, 0.55, 0.2) # Bronze
+		base_font_size = 15 # Smaller for low rank
+	elif trophy_count < 300:
+		trophy_color = Color(0.9, 0.9, 0.95) # Silver
+	elif trophy_count < 600:
+		trophy_color = Color(1.0, 0.84, 0.0) # Gold
+	else:
+		trophy_color = Color(0.6, 0.85, 1.0) # Diamond
+		base_font_size = 18 # Larger for high rank
+		outline_size = 4
+		
+	_trophy_label.add_theme_font_size_override("font_size", base_font_size)
+	_trophy_label.add_theme_constant_override("outline_size", outline_size)
+	_trophy_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
+	_trophy_label.set_meta("base_font_size", base_font_size) # Store for focus scaling
+	
+	_trophy_label.add_theme_color_override("font_color", trophy_color)
+	_trophy_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_trophy_container.add_child(_trophy_label)
+
+	# Rank Tier Label (Under trophies)
+	_rank_tier_label = Label.new()
+	_rank_tier_label.text = _get_rank_tier(trophy_count)
+	_rank_tier_label.add_theme_font_size_override("font_size", 10)
+	_rank_tier_label.add_theme_color_override("font_color", trophy_color)
+	_rank_tier_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_rank_tier_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	info_vbox.add_child(_rank_tier_label)
+
 	var role_container := HBoxContainer.new()
 	role_container.alignment = BoxContainer.ALIGNMENT_CENTER
 	role_container.add_theme_constant_override("separation", 6)
@@ -173,36 +229,39 @@ func _build_ui() -> void:
 	role_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	role_container.add_child(role_lbl)
 
-	# Trophies
-	var trophy_container := HBoxContainer.new()
-	trophy_container.alignment = BoxContainer.ALIGNMENT_CENTER
-	trophy_container.add_theme_constant_override("separation", 2)
-	trophy_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	info_vbox.add_child(trophy_container)
+func _get_rank_tier(count: int) -> String:
+	if count < 100: return "Bronze"
+	if count < 200: return "Silver I"
+	if count < 300: return "Silver II"
+	if count < 400: return "Silver III"
+	if count < 500: return "Gold I"
+	if count < 600: return "Gold II"
+	if count < 700: return "Gold III"
+	return "Diamond"
 
-	var trophy_icon := Label.new()
-	trophy_icon.text = "🏆"
-	trophy_icon.add_theme_font_size_override("font_size", 10)
-	trophy_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	trophy_container.add_child(trophy_icon)
-
-	_trophy_label = Label.new()
-	var trophy_count = hero_data.get("trophies", 0)
-	_trophy_label.text = str(trophy_count)
-	_trophy_label.add_theme_font_size_override("font_size", 12)
-	
-	# Rank color logic
-	var trophy_color = STADIUM_GOLD
-	if trophy_count < 100:
-		trophy_color = Color(0.8, 0.5, 0.2) # Bronze
-	elif trophy_count < 300:
-		trophy_color = Color(0.75, 0.75, 0.75) # Silver
-	else:
-		trophy_color = STADIUM_GOLD # Gold
+func update_trophy_visuals(selected: bool) -> void:
+	if not _trophy_container or not _trophy_label:
+		return
 		
-	_trophy_label.add_theme_color_override("font_color", trophy_color)
-	_trophy_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	trophy_container.add_child(_trophy_label)
+	var base_scale := Vector2.ONE
+	var base_font_size: int = _trophy_label.get_meta("base_font_size", 17)
+	var outline_col := Color(0, 0, 0, 0.8)
+	var outline_size := 3
+	
+	if selected:
+		# Selected focus: Scale up trophy section, add glow
+		_trophy_container.scale = Vector2(1.2, 1.2)
+		_trophy_container.pivot_offset = _trophy_container.size / 2
+		_trophy_label.add_theme_font_size_override("font_size", base_font_size + 3)
+		_trophy_label.add_theme_color_override("font_outline_color", STADIUM_GOLD)
+		_trophy_label.add_theme_constant_override("outline_size", 4)
+	else:
+		# Reset to normal
+		_trophy_container.scale = Vector2.ONE
+		_trophy_container.pivot_offset = Vector2.ZERO
+		_trophy_label.add_theme_font_size_override("font_size", base_font_size)
+		_trophy_label.add_theme_color_override("font_outline_color", outline_col)
+		_trophy_label.add_theme_constant_override("outline_size", outline_size)
 
 func _update_size() -> void:
 	# Size controlled by grid, but we set min size

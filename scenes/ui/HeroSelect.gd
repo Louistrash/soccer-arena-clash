@@ -2,7 +2,7 @@ extends Control
 ## Stadium-style hero gallery: rounded cards, green/gold palette, 4x3 grid layout.
 
 # --- Node refs ---
-@onready var hero_grid: GridContainer = $MainVBox/CarouselPanel/CarouselMargin/CenterContainer/HeroGrid
+@onready var hero_grid: GridContainer = $MainVBox/CarouselPanel/CarouselMargin/ScrollContainer/CenterContainer/HeroGrid
 @onready var play_button: Button = $MainVBox/BottomBar/BottomMargin/BottomHBox/PlayButton
 @onready var title_label: Label = $MainVBox/TopBar/TopMargin/ContentHBox/TitleVBox/Title
 @onready var subtitle_label: Label = $MainVBox/TopBar/TopMargin/ContentHBox/TitleVBox/Subtitle
@@ -107,25 +107,54 @@ func _on_viewport_resized() -> void:
 func _update_grid_layout() -> void:
 	var win_size := get_viewport_rect().size
 	var is_mobile := win_size.x < 1024
-	
+
+	# Compact bars on small viewports
+	var top_h: int = 80 if win_size.y < 800 else 110
+	var bottom_h: int = 60 if win_size.y < 800 else 80
+	top_bar.custom_minimum_size.y = top_h
+	bottom_bar.custom_minimum_size.y = bottom_h
+
+	# Margins: CarouselMargin 8+8, extra padding
+	var margin_overhead: int = 32
+	var available_h: float = win_size.y - float(top_h + bottom_h + margin_overhead)
+
+	var card_w: int
+	var card_h: int
+	var h_sep: int
+	var v_sep: int
+	var cols: int
+	var rows: int
+
 	if is_mobile:
-		hero_grid.columns = 3
-		hero_grid.add_theme_constant_override("h_separation", 12)
-		hero_grid.add_theme_constant_override("v_separation", 12)
-		# Update card sizes for mobile
-		for card in _pedestals:
-			card.custom_minimum_size = Vector2(100, 130)
-			if card.has_method("_clamp_size"):
-				card._clamp_size()
+		cols = 3
+		rows = ceili(HERO_DATA.size() / float(cols))
+		h_sep = 12
+		v_sep = 12
+		card_w = 100
+		card_h = 130
+		hero_grid.columns = cols
 	else:
-		hero_grid.columns = 4
-		hero_grid.add_theme_constant_override("h_separation", 24)
-		hero_grid.add_theme_constant_override("v_separation", 24)
-		# Update card sizes for desktop
-		for card in _pedestals:
-			card.custom_minimum_size = Vector2(140, 180)
-			if card.has_method("_clamp_size"):
-				card._clamp_size()
+		cols = 4
+		rows = ceili(HERO_DATA.size() / float(cols))
+		h_sep = 24
+		v_sep = 24
+		card_w = 140
+		card_h = 180
+		hero_grid.columns = cols
+
+	hero_grid.add_theme_constant_override("h_separation", h_sep)
+	hero_grid.add_theme_constant_override("v_separation", v_sep)
+
+	var required_h: float = rows * card_h + (rows - 1) * v_sep
+	if required_h > available_h and available_h > 0:
+		var scale_factor: float = available_h / required_h
+		card_h = clampi(int(card_h * scale_factor), 80, 200)
+		card_w = clampi(int(card_w * scale_factor), 70, 200)
+
+	for card in _pedestals:
+		card.custom_minimum_size = Vector2(card_w, card_h)
+		if card.has_method("_clamp_size"):
+			card._clamp_size()
 
 # ====================== PANEL STYLING ======================
 
@@ -337,6 +366,8 @@ func _update_pedestal_visuals() -> void:
 			t.tween_property(card, "scale", Vector2(1.35, 1.35), 0.2).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 			card.start_idle_bounce()
 			card.start_glow_pulse()
+			if card.has_method("update_trophy_visuals"):
+				card.update_trophy_visuals(true)
 		else:
 			card.modulate = Color(0.5, 0.55, 0.6) # Desaturated blue/grey
 			card.z_index = 0
@@ -344,6 +375,8 @@ func _update_pedestal_visuals() -> void:
 			t.tween_property(card, "scale", Vector2.ONE, 0.2).set_ease(Tween.EASE_OUT)
 			card.stop_idle_bounce()
 			card.stop_glow_pulse()
+			if card.has_method("update_trophy_visuals"):
+				card.update_trophy_visuals(false)
 
 func _update_center_glow() -> void:
 	if not background_layer:

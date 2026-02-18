@@ -146,12 +146,18 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 8
 
-[node name="CenterContainer" type="CenterContainer" parent="MainVBox/CarouselPanel/CarouselMargin"]
+[node name="ScrollContainer" type="ScrollContainer" parent="MainVBox/CarouselPanel/CarouselMargin"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 1
+
+[node name="CenterContainer" type="CenterContainer" parent="MainVBox/CarouselPanel/CarouselMargin/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="HeroGrid" type="GridContainer" parent="MainVBox/CarouselPanel/CarouselMargin/CenterContainer"]
+[node name="HeroGrid" type="GridContainer" parent="MainVBox/CarouselPanel/CarouselMargin/ScrollContainer/CenterContainer"]
 layout_mode = 2
 theme_override_constants/h_separation = 24
 theme_override_constants/v_separation = 24
