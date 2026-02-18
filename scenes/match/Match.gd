@@ -18,7 +18,7 @@ var _destructibles_spawned: int = 0
 const DIRTY_SPAWN_INTERVAL_MIN: float = 15.0
 const DIRTY_SPAWN_INTERVAL_MAX: float = 20.0
 const DESTRUCTIBLE_SPAWN_INTERVAL: float = 22.0
-const MAX_DESTRUCTIBLES: int = 3
+const MAX_DESTRUCTIBLES: int = 2
 const ARENA_MIN: Vector2 = Vector2(350, 250)
 const ARENA_MAX: Vector2 = Vector2(3850, 2400)
 
@@ -27,12 +27,19 @@ var glass_scoreboard: CanvasLayer
 func _ready() -> void:
 	_spawn_hero()
 	_setup_enemy_spawner()
+	_setup_maze_layout()
 	_setup_glass_scoreboard()
 	_setup_view_toggle()
 	_setup_touch_controls()
 	_setup_goal_areas()
 	_spawn_initial_dirty_zones()
 	_update_score_ui()
+
+func _setup_maze_layout() -> void:
+	var MazeLayoutScript: GDScript = load("res://systems/MazeLayout.gd") as GDScript
+	var maze: Node = MazeLayoutScript.new()
+	add_child(maze)
+	maze.spawn_maze(arena)
 
 func _setup_glass_scoreboard() -> void:
 	var scene: PackedScene = load("res://ui/GlassNeonScoreboard.tscn") as PackedScene
