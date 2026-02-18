@@ -42,18 +42,18 @@ theme_override_constants/separation = 0
 
 [node name="TopBar" type="PanelContainer" parent="MainVBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 120)
+custom_minimum_size = Vector2(0, 110)
 
 [node name="TopMargin" type="MarginContainer" parent="MainVBox/TopBar"]
 layout_mode = 2
 theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 12
+theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_bottom = 8
 
 [node name="ContentHBox" type="HBoxContainer" parent="MainVBox/TopBar/TopMargin"]
 layout_mode = 2
-theme_override_constants/separation = 24
+theme_override_constants/separation = 20
 
 [node name="StatsPanel" type="PanelContainer" parent="MainVBox/TopBar/TopMargin/ContentHBox"]
 layout_mode = 2
@@ -62,23 +62,23 @@ custom_minimum_size = Vector2(220, 0)
 [node name="StatsMargin" type="MarginContainer" parent="MainVBox/TopBar/TopMargin/ContentHBox/StatsPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 8
+theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_bottom = 6
 
 [node name="StatsVBox" type="VBoxContainer" parent="MainVBox/TopBar/TopMargin/ContentHBox/StatsPanel/StatsMargin"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
 
 [node name="StatsTitle" type="Label" parent="MainVBox/TopBar/TopMargin/ContentHBox/StatsPanel/StatsMargin/StatsVBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 13
 text = "STATS"
 theme_override_colors/font_color = Color(0.95, 0.78, 0.25, 1)
 
 [node name="StatsContainer" type="VBoxContainer" parent="MainVBox/TopBar/TopMargin/ContentHBox/StatsPanel/StatsMargin/StatsVBox"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 3
 
 [node name="TitleSpacer" type="Control" parent="MainVBox/TopBar/TopMargin/ContentHBox"]
 layout_mode = 2
@@ -86,18 +86,18 @@ size_flags_horizontal = 3
 
 [node name="TitleVBox" type="VBoxContainer" parent="MainVBox/TopBar/TopMargin/ContentHBox"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 2
 alignment = 1
 
 [node name="Title" type="Label" parent="MainVBox/TopBar/TopMargin/ContentHBox/TitleVBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 30
 text = "SELECT YOUR HERO"
 horizontal_alignment = 1
 
 [node name="Subtitle" type="Label" parent="MainVBox/TopBar/TopMargin/ContentHBox/TitleVBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 14
 text = "Choose your hero for the arena"
 horizontal_alignment = 1
 
@@ -107,27 +107,27 @@ size_flags_horizontal = 3
 
 [node name="RolePanel" type="PanelContainer" parent="MainVBox/TopBar/TopMargin/ContentHBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(260, 0)
+custom_minimum_size = Vector2(240, 0)
 
 [node name="RoleMargin" type="MarginContainer" parent="MainVBox/TopBar/TopMargin/ContentHBox/RolePanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 8
+theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_bottom = 6
 
 [node name="RoleVBox" type="VBoxContainer" parent="MainVBox/TopBar/TopMargin/ContentHBox/RolePanel/RoleMargin"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
 
 [node name="RoleTitle" type="Label" parent="MainVBox/TopBar/TopMargin/ContentHBox/RolePanel/RoleMargin/RoleVBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 13
 text = ""
 
 [node name="RoleDesc" type="Label" parent="MainVBox/TopBar/TopMargin/ContentHBox/RolePanel/RoleMargin/RoleVBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = ""
 autowrap_mode = 2
 
@@ -137,32 +137,40 @@ size_flags_vertical = 3
 
 [node name="CarouselMargin" type="MarginContainer" parent="MainVBox/CarouselPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 48
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 48
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 8
 
-[node name="CenterContainer" type="CenterContainer" parent="MainVBox/CarouselPanel/CarouselMargin"]
+[node name="RowsVBox" type="VBoxContainer" parent="MainVBox/CarouselPanel/CarouselMargin"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_constants/separation = 12
+alignment = 1
 
-[node name="HeroGrid" type="GridContainer" parent="MainVBox/CarouselPanel/CarouselMargin/CenterContainer"]
+[node name="TopRow" type="HBoxContainer" parent="MainVBox/CarouselPanel/CarouselMargin/RowsVBox"]
 layout_mode = 2
-theme_override_constants/h_separation = 28
-theme_override_constants/v_separation = 28
-columns = 4
+size_flags_horizontal = 4
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="BottomRow" type="HBoxContainer" parent="MainVBox/CarouselPanel/CarouselMargin/RowsVBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 12
+alignment = 1
 
 [node name="BottomBar" type="PanelContainer" parent="MainVBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 100)
+custom_minimum_size = Vector2(0, 80)
 
 [node name="BottomMargin" type="MarginContainer" parent="MainVBox/BottomBar"]
 layout_mode = 2
 theme_override_constants/margin_left = 40
-theme_override_constants/margin_top = 16
+theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 40
-theme_override_constants/margin_bottom = 16
+theme_override_constants/margin_bottom = 10
 
 [node name="BottomHBox" type="HBoxContainer" parent="MainVBox/BottomBar/BottomMargin"]
 layout_mode = 2
@@ -170,8 +178,8 @@ alignment = 1
 
 [node name="PlayButton" type="Button" parent="MainVBox/BottomBar/BottomMargin/BottomHBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(360, 72)
-theme_override_font_sizes/font_size = 26
+custom_minimum_size = Vector2(360, 60)
+theme_override_font_sizes/font_size = 24
 text = "PLAY MATCH"
 
 [connection signal="pressed" from="MainVBox/BottomBar/BottomMargin/BottomHBox/PlayButton" to="." method="_on_play_pressed"]
