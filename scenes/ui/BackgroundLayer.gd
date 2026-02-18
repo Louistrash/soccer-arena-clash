@@ -1,7 +1,10 @@
 extends Control
-## Stadium background: navy gradient, teal spotlight beams, hex pattern, center glow.
+## Stadium background: navy gradient, procedural field lines, green/gold beams, center spotlight.
 
 var center_glow_pos: Vector2 = Vector2(-9999, -9999)
+
+const STADIUM_GREEN := Color(0.2, 0.95, 0.5)
+const STADIUM_GOLD := Color(0.94, 0.75, 0.25)
 
 func _ready() -> void:
 	queue_redraw()
@@ -10,63 +13,78 @@ func _draw() -> void:
 	var w := size.x
 	var h := size.y
 
-	# Navy gradient base
+	# 1. Navy gradient base
 	var top_col := Color(0.04, 0.06, 0.1)
 	var bot_col := Color(0.08, 0.12, 0.19)
 	var bg_pts := PackedVector2Array([Vector2(0, 0), Vector2(w, 0), Vector2(w, h), Vector2(0, h)])
 	var bg_cols := PackedColorArray([top_col, top_col, bot_col, bot_col])
 	draw_polygon(bg_pts, bg_cols)
 
-	# Hex grid pattern (very subtle)
-	var hex_col := Color(0.15, 0.35, 0.45, 0.04)
-	var hex_size := 40.0
-	var row_h := hex_size * 1.732
-	var y := 0.0
-	var row_idx := 0
-	while y < h + row_h:
-		var x_off := hex_size * 0.75 if row_idx % 2 == 1 else 0.0
-		var x := x_off
-		while x < w + hex_size:
-			_draw_hex(Vector2(x, y), hex_size * 0.45, hex_col)
-			x += hex_size * 1.5
-		y += row_h * 0.5
-		row_idx += 1
+	# 2. Procedural Soccer Field Pattern (Subtle)
+	# Draw faint field lines to suggest a pitch
+	var line_col := Color(1.0, 1.0, 1.0, 0.03)
+	var center := Vector2(w * 0.5, h * 0.55)
+	
+	# Center circle
+	draw_arc(center, 120.0, 0, TAU, 64, line_col, 2.0)
+	draw_line(Vector2(0, center.y), Vector2(w, center.y), line_col, 2.0) # Halfway line
+	
+	# Penalty box hints (sides)
+	var box_h := 300.0
+	var box_w := 150.0
+	# Left box
+	draw_polyline(PackedVector2Array([
+		Vector2(0, center.y - box_h/2), 
+		Vector2(box_w, center.y - box_h/2), 
+		Vector2(box_w, center.y + box_h/2), 
+		Vector2(0, center.y + box_h/2)
+	]), line_col, 2.0)
+	# Right box
+	draw_polyline(PackedVector2Array([
+		Vector2(w, center.y - box_h/2), 
+		Vector2(w - box_w, center.y - box_h/2), 
+		Vector2(w - box_w, center.y + box_h/2), 
+		Vector2(w, center.y + box_h/2)
+	]), line_col, 2.0)
 
-	# Spotlight beams from top corners
-	_draw_spotlight_beam(Vector2(w * 0.12, 0), Vector2(w * 0.35, h * 0.7), 220.0, Color(0.0, 0.78, 0.88, 0.07))
-	_draw_spotlight_beam(Vector2(w * 0.88, 0), Vector2(w * 0.65, h * 0.7), 220.0, Color(0.0, 0.78, 0.88, 0.07))
-	# Inner beams (brighter, narrower)
-	_draw_spotlight_beam(Vector2(w * 0.2, 0), Vector2(w * 0.4, h * 0.6), 140.0, Color(0.0, 0.85, 0.95, 0.05))
-	_draw_spotlight_beam(Vector2(w * 0.8, 0), Vector2(w * 0.6, h * 0.6), 140.0, Color(0.0, 0.85, 0.95, 0.05))
+	# 3. Spotlight beams from top corners (Green/Gold)
+	# Left beam (Green)
+	_draw_spotlight_beam(Vector2(w * 0.1, 0), Vector2(w * 0.35, h * 0.7), 220.0, Color(STADIUM_GREEN.r, STADIUM_GREEN.g, STADIUM_GREEN.b, 0.06))
+	# Right beam (Green)
+	_draw_spotlight_beam(Vector2(w * 0.9, 0), Vector2(w * 0.65, h * 0.7), 220.0, Color(STADIUM_GREEN.r, STADIUM_GREEN.g, STADIUM_GREEN.b, 0.06))
+	
+	# Inner beams (Gold/Warm)
+	_draw_spotlight_beam(Vector2(w * 0.25, 0), Vector2(w * 0.45, h * 0.6), 140.0, Color(STADIUM_GOLD.r, STADIUM_GOLD.g, STADIUM_GOLD.b, 0.04))
+	_draw_spotlight_beam(Vector2(w * 0.75, 0), Vector2(w * 0.55, h * 0.6), 140.0, Color(STADIUM_GOLD.r, STADIUM_GOLD.g, STADIUM_GOLD.b, 0.04))
 
-	# Top edge glow (stadium lights)
+	# 4. Top edge glow (stadium lights)
 	for i in range(15):
 		var r: float = 400.0 - float(i) * 30.0
 		var alpha: float = 0.02 + float(i) * 0.003
-		draw_circle(Vector2(w * 0.15, -20), r, Color(0.0, 0.7, 0.9, alpha))
-		draw_circle(Vector2(w * 0.85, -20), r, Color(0.0, 0.7, 0.9, alpha))
+		draw_circle(Vector2(w * 0.15, -20), r, Color(STADIUM_GREEN.r, STADIUM_GREEN.g, STADIUM_GREEN.b, alpha))
+		draw_circle(Vector2(w * 0.85, -20), r, Color(STADIUM_GREEN.r, STADIUM_GREEN.g, STADIUM_GREEN.b, alpha))
 
-	# Center spotlight behind selected hero
+	# 5. Center spotlight behind selected hero (Gold)
 	if center_glow_pos.x > -9999:
 		var xform: Transform2D = get_global_transform_with_canvas().affine_inverse()
 		var local_pos: Vector2 = xform * center_glow_pos
-		for i in range(16):
-			var r: float = 80.0 + float(i) * 32.0
-			var alpha: float = 0.22 - float(i) * 0.012
-			draw_arc(local_pos, r, 0, TAU, 40, Color(0.0, 0.8, 0.95, alpha))
-		# Warm gold inner glow for selected
-		for i in range(6):
-			var r: float = 30.0 + float(i) * 18.0
-			var alpha: float = 0.12 - float(i) * 0.015
-			draw_arc(local_pos, r, 0, TAU, 32, Color(0.95, 0.78, 0.25, alpha))
-
-func _draw_hex(center: Vector2, radius: float, col: Color) -> void:
-	var pts := PackedVector2Array()
-	for i in range(6):
-		var angle := TAU * float(i) / 6.0 - PI / 6.0
-		pts.append(center + Vector2(cos(angle), sin(angle)) * radius)
-	pts.append(pts[0])
-	draw_polyline(pts, col, 1.0)
+		
+		# Draw a "cone" shape on the floor? Or just strong radial glow.
+		# Plan says: Gold spotlight cone, strong pulse.
+		# We'll do a strong radial gradient.
+		
+		for i in range(20):
+			var r: float = 100.0 + float(i) * 25.0
+			var alpha: float = 0.15 - float(i) * 0.007
+			if alpha > 0:
+				draw_arc(local_pos, r, 0, TAU, 40, Color(STADIUM_GOLD.r, STADIUM_GOLD.g, STADIUM_GOLD.b, alpha))
+		
+		# Intense inner core
+		for i in range(8):
+			var r: float = 40.0 + float(i) * 15.0
+			var alpha: float = 0.25 - float(i) * 0.03
+			if alpha > 0:
+				draw_circle(local_pos, r, Color(STADIUM_GOLD.r, STADIUM_GOLD.g, STADIUM_GOLD.b, alpha * 0.5))
 
 func _draw_spotlight_beam(origin: Vector2, target: Vector2, spread: float, col: Color) -> void:
 	var dir := (target - origin).normalized()
