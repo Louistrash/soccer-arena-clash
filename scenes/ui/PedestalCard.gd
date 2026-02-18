@@ -126,15 +126,15 @@ func _build_ui() -> void:
 	main_vbox.add_theme_constant_override("separation", 2)
 	add_child(main_vbox)
 
-	# Hero sprite (upper 65% - use minimum height so it gets space)
+	# Hero sprite (upper ~65% - use minimum height so it gets space)
 	var sprite_container := CenterContainer.new()
-	sprite_container.custom_minimum_size = Vector2(0, 85)  # Min height so sprite area has space
+	sprite_container.custom_minimum_size = Vector2(0, 115)
 	sprite_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	sprite_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	main_vbox.add_child(sprite_container)
 
 	_hero_rect = TextureRect.new()
-	_hero_rect.custom_minimum_size = Vector2(56, 56)
+	_hero_rect.custom_minimum_size = Vector2(80, 80)
 	_hero_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_hero_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_hero_rect.texture = hero_texture
@@ -151,7 +151,7 @@ func _build_ui() -> void:
 	_name_label = Label.new()
 	_name_label.text = hero_data.get("name", "?")
 	_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_name_label.add_theme_font_size_override("font_size", 12)
+	_name_label.add_theme_font_size_override("font_size", 14)
 	_name_label.add_theme_color_override("font_color", Color.WHITE)
 	_name_label.add_theme_constant_override("outline_size", 1)
 	_name_label.add_theme_color_override("font_outline_color", Color(0.02, 0.04, 0.08))
@@ -168,7 +168,7 @@ func _build_ui() -> void:
 
 	var trophy_icon := Label.new()
 	trophy_icon.text = "🏆"
-	trophy_icon.add_theme_font_size_override("font_size", 14)
+	trophy_icon.add_theme_font_size_override("font_size", 18)
 	trophy_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_trophy_container.add_child(trophy_icon)
 
@@ -176,22 +176,22 @@ func _build_ui() -> void:
 	var trophy_count = hero_data.get("trophies", 0)
 	_trophy_label.text = str(trophy_count)
 	
-	# Rank color logic (compact font sizes for 6-column layout)
+	# Rank color logic (larger cards = larger fonts)
 	var trophy_color = STADIUM_GOLD
-	var base_font_size = 14
-	var outline_size = 2
+	var base_font_size = 18
+	var outline_size = 3
 	
 	if trophy_count < 100:
 		trophy_color = Color(0.85, 0.55, 0.2) # Bronze
-		base_font_size = 12 # Smaller for low rank
+		base_font_size = 16
 	elif trophy_count < 300:
 		trophy_color = Color(0.9, 0.9, 0.95) # Silver
 	elif trophy_count < 600:
 		trophy_color = Color(1.0, 0.84, 0.0) # Gold
 	else:
 		trophy_color = Color(0.6, 0.85, 1.0) # Diamond
-		base_font_size = 15 # Larger for high rank
-		outline_size = 3
+		base_font_size = 20
+		outline_size = 4
 		
 	_trophy_label.add_theme_font_size_override("font_size", base_font_size)
 	_trophy_label.add_theme_constant_override("outline_size", outline_size)
@@ -205,7 +205,7 @@ func _build_ui() -> void:
 	# Rank Tier Label (Under trophies)
 	_rank_tier_label = Label.new()
 	_rank_tier_label.text = _get_rank_tier(trophy_count)
-	_rank_tier_label.add_theme_font_size_override("font_size", 9)
+	_rank_tier_label.add_theme_font_size_override("font_size", 11)
 	_rank_tier_label.add_theme_color_override("font_color", trophy_color)
 	_rank_tier_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_rank_tier_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -220,13 +220,13 @@ func _build_ui() -> void:
 	_role_icon = Control.new()
 	_role_icon.set_script(load("res://scenes/ui/RoleIconDraw.gd") as GDScript)
 	_role_icon.role = hero_data.get("role", "")
-	_role_icon.custom_minimum_size = Vector2(14, 14)
+	_role_icon.custom_minimum_size = Vector2(18, 18)
 	_role_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	role_container.add_child(_role_icon)
 
 	var role_lbl := Label.new()
 	role_lbl.text = hero_data.get("role", "")
-	role_lbl.add_theme_font_size_override("font_size", 10)
+	role_lbl.add_theme_font_size_override("font_size", 12)
 	role_lbl.add_theme_color_override("font_color", hero_data.get("glow", TEAL_GLOW))
 	role_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	role_container.add_child(role_lbl)
@@ -246,9 +246,9 @@ func update_trophy_visuals(selected: bool) -> void:
 		return
 		
 	var base_scale := Vector2.ONE
-	var base_font_size: int = _trophy_label.get_meta("base_font_size", 14)
+	var base_font_size: int = _trophy_label.get_meta("base_font_size", 18)
 	var outline_col := Color(0, 0, 0, 0.8)
-	var outline_size := 2
+	var outline_size := 3
 	
 	if selected:
 		# Selected focus: Scale up trophy section, add glow
@@ -266,13 +266,13 @@ func update_trophy_visuals(selected: bool) -> void:
 		_trophy_label.add_theme_constant_override("outline_size", outline_size)
 
 func _update_size() -> void:
-	# Size controlled by grid; compact default for 6-column layout
-	custom_minimum_size = Vector2(110, 155)
+	# Size controlled by grid; larger cards for better readability
+	custom_minimum_size = Vector2(155, 205)
 	_clamp_size()
 
 func _clamp_size() -> void:
 	if custom_minimum_size == Vector2.ZERO:
-		custom_minimum_size = Vector2(110, 155)
+		custom_minimum_size = Vector2(125, 170)
 
 func start_idle_bounce() -> void:
 	if _hero_rect == null:

@@ -1,5 +1,5 @@
 extends Control
-## Stadium-style hero gallery: rounded cards, green/gold palette, 6x2 grid layout.
+## Stadium-style hero gallery: rounded cards, green/gold palette, 4x3 (desktop) / 3-col (mobile) grid.
 
 # --- Node refs ---
 @onready var hero_grid: GridContainer = $MainVBox/CarouselPanel/CarouselMargin/ScrollContainer/HeroGrid
@@ -136,18 +136,18 @@ func _update_grid_layout() -> void:
 	if is_mobile:
 		cols = 3
 		rows = ceili(HERO_DATA.size() / float(cols))
-		h_sep = 12
-		v_sep = 12
-		card_w = 100
-		card_h = 130
+		h_sep = 16
+		v_sep = 16
+		card_w = 125
+		card_h = 170
 		hero_grid.columns = cols
 	else:
-		cols = 6
-		rows = 2
-		h_sep = 16
-		v_sep = 20
-		card_w = 110
-		card_h = 155
+		cols = 4
+		rows = ceili(HERO_DATA.size() / float(cols))
+		h_sep = 24
+		v_sep = 24
+		card_w = 155
+		card_h = 205
 		hero_grid.columns = cols
 
 	hero_grid.add_theme_constant_override("h_separation", h_sep)
@@ -156,8 +156,8 @@ func _update_grid_layout() -> void:
 	var required_h: float = rows * card_h + (rows - 1) * v_sep
 	if required_h > available_h and available_h > 0:
 		var scale_factor: float = available_h / required_h
-		card_h = clampi(int(card_h * scale_factor), 75, 200)
-		card_w = clampi(int(card_w * scale_factor), 65, 200)
+		card_h = clampi(int(card_h * scale_factor), 100, 220)
+		card_w = clampi(int(card_w * scale_factor), 90, 220)
 
 	# Force grid minimum size so content is visible (fixes empty gallery on web/tablet)
 	var grid_w: int = cols * card_w + (cols - 1) * h_sep
@@ -256,7 +256,7 @@ func _populate_pedestals() -> void:
 		card.set_meta("hero_id", hero["id"])
 		card.set_meta("hero_data", hero)
 		# Set size before add_child so layout works correctly (fixes empty cards on web)
-		card.custom_minimum_size = Vector2(110, 155)
+		card.custom_minimum_size = Vector2(125, 170)
 
 		hero_grid.add_child(card)
 
