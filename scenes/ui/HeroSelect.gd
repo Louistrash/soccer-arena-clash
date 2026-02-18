@@ -1,9 +1,8 @@
 extends Control
-## Stadium-style hero gallery: hex pedestals, teal/gold palette, two-row layout.
+## Stadium-style hero gallery: rounded cards, green/gold palette, 4x3 grid layout.
 
 # --- Node refs ---
-@onready var top_row: HBoxContainer = $MainVBox/CarouselPanel/CarouselMargin/RowsVBox/TopRow
-@onready var bottom_row: HBoxContainer = $MainVBox/CarouselPanel/CarouselMargin/RowsVBox/BottomRow
+@onready var hero_grid: GridContainer = $MainVBox/CarouselPanel/CarouselMargin/CenterContainer/HeroGrid
 @onready var play_button: Button = $MainVBox/BottomBar/BottomMargin/BottomHBox/PlayButton
 @onready var title_label: Label = $MainVBox/TopBar/TopMargin/ContentHBox/TitleVBox/Title
 @onready var subtitle_label: Label = $MainVBox/TopBar/TopMargin/ContentHBox/TitleVBox/Subtitle
@@ -16,49 +15,59 @@ extends Control
 @onready var background_layer: Control = $BackgroundLayer
 @onready var gallery_music: AudioStreamPlayer = $GalleryMusic
 
-const TOP_ROW_COUNT := 7
 const STAT_NAMES := ["Speed", "Shooting", "Passing", "Defense", "Control"]
 
 const NAVY := Color(0.04, 0.06, 0.1)
 const NAVY_PANEL := Color(0.05, 0.08, 0.14, 0.85)
-const TEAL_ACCENT := Color(0.0, 0.78, 0.88)
-const TEAL_BORDER := Color(0.0, 0.78, 0.88, 0.25)
+const STADIUM_GREEN := Color(0.2, 0.95, 0.5)
+const STADIUM_GREEN_BORDER := Color(0.2, 0.95, 0.5, 0.3)
 const STADIUM_GOLD := Color(0.94, 0.75, 0.25)
 const GOLD_BAR := Color(0.84, 0.66, 0.16)
 
 const HERO_DATA: Array[Dictionary] = [
 	{"id": "arlo",   "name": "Arlo",   "role": "Playmaker",  "desc": "Precision passing playmaker.",   "glow": Color(0.16, 0.66, 1.0),
 	 "stats": {"speed": 70, "shooting": 45, "passing": 92, "defense": 38, "control": 85},
+	 "trophies": 120,
 	 "tactical": "Precision passing playmaker. Dictates tempo, creates chances through vision and through balls."},
 	{"id": "axel",   "name": "Axel",   "role": "Striker",    "desc": "Elite goal scoring striker.",    "glow": Color(1.0, 0.35, 0.2),
 	 "stats": {"speed": 75, "shooting": 90, "passing": 50, "defense": 25, "control": 65},
+	 "trophies": 350,
 	 "tactical": "Elite goal scorer. Prioritize shooting positions and exploit space in the final third."},
 	{"id": "enzo",   "name": "Enzo",   "role": "Forward",    "desc": "Aggressive pressing forward.",   "glow": Color(0.95, 0.75, 0.2),
 	 "stats": {"speed": 82, "shooting": 72, "passing": 55, "defense": 45, "control": 60},
+	 "trophies": 0,
 	 "tactical": "Aggressive pressing forward. High work rate, closes down defenders, wins the ball high."},
 	{"id": "johan",  "name": "Johan",  "role": "General",    "desc": "Tactical field general.",        "glow": Color(0.3, 0.85, 0.5),
 	 "stats": {"speed": 65, "shooting": 55, "passing": 88, "defense": 70, "control": 90},
+	 "trophies": 500,
 	 "tactical": "Tactical field general. Maintains structure, controls tempo, creates passing opportunities."},
 	{"id": "kai",    "name": "Kai",    "role": "Shooter",    "desc": "Unstoppable power shooter.",     "glow": Color(0.9, 0.2, 0.4),
 	 "stats": {"speed": 68, "shooting": 95, "passing": 42, "defense": 22, "control": 58},
+	 "trophies": 80,
 	 "tactical": "Unstoppable power shooter. Long range threat, shoot on sight from anywhere."},
 	{"id": "kian",   "name": "Kian",   "role": "Midfielder", "desc": "Dynamic box-to-box midfielder.", "glow": Color(0.5, 0.9, 0.6),
 	 "stats": {"speed": 78, "shooting": 60, "passing": 80, "defense": 62, "control": 75},
+	 "trophies": 210,
 	 "tactical": "Dynamic box-to-box midfielder. Covers ground, links defense and attack, versatile."},
 	{"id": "leo",    "name": "Leo",    "role": "Defender",   "desc": "Defensive anchor specialist.",   "glow": Color(0.4, 0.6, 1.0),
 	 "stats": {"speed": 62, "shooting": 35, "passing": 65, "defense": 92, "control": 70},
+	 "trophies": 450,
 	 "tactical": "Defensive anchor specialist. Holds the line, blocks shots, clears danger."},
 	{"id": "lionel", "name": "Lionel", "role": "Dribbler",   "desc": "Skillful freestyle dribbler.",   "glow": Color(0.7, 0.3, 0.95),
 	 "stats": {"speed": 80, "shooting": 65, "passing": 72, "defense": 30, "control": 95},
+	 "trophies": 600,
 	 "tactical": "Skillful freestyle dribbler. Beats defenders one-on-one, creates space with the ball."},
 	{"id": "marco",  "name": "Marco",  "role": "Finisher",   "desc": "Clutch finisher hero.",          "glow": Color(1.0, 0.55, 0.2),
 	 "stats": {"speed": 72, "shooting": 88, "passing": 52, "defense": 28, "control": 68},
+	 "trophies": 150,
 	 "tactical": "Clutch finisher hero. Composed in front of goal, converts chances under pressure."},
 	{"id": "rio",    "name": "Rio",    "role": "Sprint",     "desc": "Rapid counterattack sprinter.",  "glow": Color(0.2, 0.95, 0.5),
 	 "stats": {"speed": 95, "shooting": 58, "passing": 60, "defense": 35, "control": 72},
+	 "trophies": 40,
 	 "tactical": "Rapid counterattack sprinter. Explosive pace, breaks lines, runs in behind."},
 	{"id": "zane",   "name": "Zane",   "role": "Defender",   "desc": "Smart positioning defender.",    "glow": Color(0.55, 0.75, 0.95),
 	 "stats": {"speed": 70, "shooting": 40, "passing": 70, "defense": 88, "control": 75},
+	 "trophies": 280,
 	 "tactical": "Smart positioning defender. Reads the game, intercepts passes, organizes the back line."},
 ]
 
@@ -76,9 +85,11 @@ func _get_hero_stats(hero: Dictionary) -> Dictionary:
 	return _default_stats.duplicate()
 
 func _ready() -> void:
+	get_tree().root.size_changed.connect(_on_viewport_resized)
 	_style_panels()
 	_style_play_button()
 	_populate_pedestals()
+	_update_grid_layout()
 	_select_hero("arlo")
 	_screen_open_animation()
 	_play_gallery_music()
@@ -87,6 +98,32 @@ func _play_gallery_music() -> void:
 	if gallery_music.stream is AudioStreamOggVorbis:
 		gallery_music.stream.loop = true
 	gallery_music.play()
+
+func _on_viewport_resized() -> void:
+	_update_grid_layout()
+
+func _update_grid_layout() -> void:
+	var win_size := get_viewport_rect().size
+	var is_mobile := win_size.x < 1024
+	
+	if is_mobile:
+		hero_grid.columns = 3
+		hero_grid.add_theme_constant_override("h_separation", 12)
+		hero_grid.add_theme_constant_override("v_separation", 12)
+		# Update card sizes for mobile
+		for card in _pedestals:
+			card.custom_minimum_size = Vector2(100, 130)
+			if card.has_method("_clamp_size"):
+				card._clamp_size()
+	else:
+		hero_grid.columns = 4
+		hero_grid.add_theme_constant_override("h_separation", 24)
+		hero_grid.add_theme_constant_override("v_separation", 24)
+		# Update card sizes for desktop
+		for card in _pedestals:
+			card.custom_minimum_size = Vector2(140, 180)
+			if card.has_method("_clamp_size"):
+				card._clamp_size()
 
 # ====================== PANEL STYLING ======================
 
@@ -101,13 +138,13 @@ func _style_panels() -> void:
 	# Subtle bottom border on top bar
 	var top_sb: StyleBoxFlat = top_bar.get_theme_stylebox("panel").duplicate() as StyleBoxFlat
 	top_sb.border_width_bottom = 1
-	top_sb.border_color = TEAL_BORDER
+	top_sb.border_color = STADIUM_GREEN_BORDER
 	top_bar.add_theme_stylebox_override("panel", top_sb)
 
 	# Subtle top border on bottom bar
 	var bot_sb: StyleBoxFlat = bottom_bar.get_theme_stylebox("panel").duplicate() as StyleBoxFlat
 	bot_sb.border_width_top = 1
-	bot_sb.border_color = TEAL_BORDER
+	bot_sb.border_color = STADIUM_GREEN_BORDER
 	bottom_bar.add_theme_stylebox_override("panel", bot_sb)
 
 	# Stats and Role panels
@@ -118,7 +155,7 @@ func _style_panels() -> void:
 		sb.bg_color = Color(0.04, 0.07, 0.12, 0.9)
 		sb.set_corner_radius_all(8)
 		sb.set_border_width_all(1)
-		sb.border_color = Color(TEAL_ACCENT.r, TEAL_ACCENT.g, TEAL_ACCENT.b, 0.2)
+		sb.border_color = Color(STADIUM_GREEN.r, STADIUM_GREEN.g, STADIUM_GREEN.b, 0.2)
 		p.add_theme_stylebox_override("panel", sb)
 
 	title_label.add_theme_color_override("font_color", Color.WHITE)
@@ -175,10 +212,7 @@ func _populate_pedestals() -> void:
 		card.set_meta("hero_id", hero["id"])
 		card.set_meta("hero_data", hero)
 
-		if i < TOP_ROW_COUNT:
-			top_row.add_child(card)
-		else:
-			bottom_row.add_child(card)
+		hero_grid.add_child(card)
 
 		card.gui_input.connect(_on_pedestal_gui_input.bind(card))
 		card.mouse_entered.connect(_on_pedestal_mouse_entered.bind(card))
@@ -298,11 +332,11 @@ func _update_pedestal_visuals() -> void:
 			card.modulate = Color.WHITE
 			card.z_index = 10
 			var t := create_tween()
-			t.tween_property(card, "scale", Vector2(1.25, 1.25), 0.2).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+			t.tween_property(card, "scale", Vector2(1.35, 1.35), 0.2).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 			card.start_idle_bounce()
 			card.start_glow_pulse()
 		else:
-			card.modulate = Color(0.65, 0.65, 0.7)
+			card.modulate = Color(0.5, 0.55, 0.6) # Desaturated blue/grey
 			card.z_index = 0
 			var t := create_tween()
 			t.tween_property(card, "scale", Vector2.ONE, 0.2).set_ease(Tween.EASE_OUT)

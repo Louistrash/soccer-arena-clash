@@ -1,13 +1,13 @@
 extends Control
-## Stadium hex pedestal card: 3D hexagonal shape, holographic glow ring,
-## metallic teal border (normal) or gold border (selected).
+## Stadium FIFA-style card: Rounded rect, circular shadow, glow ring.
+## Stadium green + gold palette.
 
 const STADIUM_GOLD := Color(0.94, 0.75, 0.25)
 const CARD_BG := Color(0.05, 0.1, 0.16, 0.92)
 const CARD_BG_TOP := Color(0.08, 0.16, 0.24, 0.7)
-const TEAL_BORDER := Color(0.13, 0.63, 0.7)
-const TEAL_GLOW := Color(0.0, 0.9, 1.0)
-const SHADOW_COL := Color(0, 0, 0, 0.55)
+const STADIUM_GREEN := Color(0.2, 0.95, 0.5)
+const TEAL_GLOW := Color(0.0, 0.9, 1.0) # Kept for role text fallback
+const SHADOW_COL := Color(0, 0, 0, 0.25) # Softer shadow
 
 var hero_data: Dictionary = {}
 var hero_texture: Texture2D
@@ -23,6 +23,7 @@ var glow_pulse: float:
 var _hero_rect: TextureRect
 var _name_label: Label
 var _role_icon: Control
+var _trophy_label: Label
 var _idle_tween: Tween
 var _pulse_tween: Tween
 
@@ -33,76 +34,72 @@ func _ready() -> void:
 	_clamp_size()
 
 func _draw() -> void:
-	var cx := size.x * 0.5
-	var cy := size.y * 0.5
-	var card_r := Rect2(Vector2.ZERO, size)
+	var rect := Rect2(Vector2.ZERO, size)
+	var radius := 12.0
+	
+	# 1. Soft circular shadow (underneath)
+	var shadow_center := Vector2(size.x * 0.5, size.y - 10)
+	var shadow_radius := size.x * 0.55
+	draw_circle(shadow_center, shadow_radius, SHADOW_COL)
 
-	# Holographic glow ellipse underneath
-	var glow_cx := cx
-	var glow_cy := size.y + 4.0
-	var glow_w := size.x * 0.7
-	var glow_h := 16.0
-	var glow_col: Color
+	# 2. Glow ring (only if selected)
 	if is_selected:
-		glow_col = Color(STADIUM_GOLD.r, STADIUM_GOLD.g, STADIUM_GOLD.b, 0.4 * _glow_pulse_val)
-	else:
-		glow_col = Color(TEAL_GLOW.r, TEAL_GLOW.g, TEAL_GLOW.b, 0.2)
-	_draw_ellipse_filled(Vector2(glow_cx, glow_cy), glow_w, glow_h, glow_col)
-	if is_selected:
-		_draw_ellipse_filled(Vector2(glow_cx, glow_cy), glow_w * 1.4, glow_h * 1.8, Color(STADIUM_GOLD.r, STADIUM_GOLD.g, STADIUM_GOLD.b, 0.12 * _glow_pulse_val))
+		var glow_col := Color(STADIUM_GOLD.r, STADIUM_GOLD.g, STADIUM_GOLD.b, 0.5 * _glow_pulse_val)
+		# Draw a glow rect slightly larger than the card
+		var glow_rect := rect.grow(4.0)
+		_draw_rounded_rect_outline(glow_rect, radius + 2, glow_col, 4.0)
 
-	# Shadow
-	var shadow_pts := _hex_points(cx + 3, cy + 4, size.x * 0.48, size.y * 0.46)
-	draw_colored_polygon(shadow_pts, SHADOW_COL)
+	# 3. Card Body (Rounded Rect)
+	var style_box := StyleBoxFlat.new()
+	style_box.bg_color = CARD_BG
+	style_box.set_corner_radius_all(int(radius))
+	style_box.draw(get_canvas_item(), rect)
 
-	# Card body (hex shape)
-	var body_pts := _hex_points(cx, cy, size.x * 0.48, size.y * 0.46)
-	draw_colored_polygon(body_pts, CARD_BG)
-
-	# Top gradient overlay
-	var top_h := size.y * 0.45
-	var grad_pts := PackedVector2Array([
-		Vector2(size.x * 0.08, size.y * 0.06),
-		Vector2(size.x * 0.92, size.y * 0.06),
-		Vector2(size.x * 0.92, top_h),
-		Vector2(size.x * 0.08, top_h),
-	])
-	var grad_cols := PackedColorArray([CARD_BG_TOP, CARD_BG_TOP, Color(CARD_BG_TOP.r, CARD_BG_TOP.g, CARD_BG_TOP.b, 0.0), Color(CARD_BG_TOP.r, CARD_BG_TOP.g, CARD_BG_TOP.b, 0.0)])
-	draw_polygon(grad_pts, grad_cols)
-
-	# Border (hex outline)
+	# 4. Top Gradient Overlay
+	# We can't easily clip a polygon to a rounded rect in _draw without a shader or clip_children.
+	# For simplicity, we'll skip the gradient or draw a smaller inner rect.
+	# Let's try a StyleBox with gradient? No, StyleBoxFlat doesn't support gradient.
+	# We'll just skip the complex gradient for now to keep it clean, or use a slightly lighter top part.
+	
+	# 5. Border
 	var border_col: Color
 	var border_w: float
 	if is_selected:
 		border_col = Color(STADIUM_GOLD.r, STADIUM_GOLD.g, STADIUM_GOLD.b, 0.9 * _glow_pulse_val)
 		border_w = 3.0
 	else:
-		border_col = Color(TEAL_BORDER.r, TEAL_BORDER.g, TEAL_BORDER.b, 0.6)
+		border_col = Color(STADIUM_GREEN.r, STADIUM_GREEN.g, STADIUM_GREEN.b, 0.4)
 		border_w = 2.0
-	var border_pts := _hex_points(cx, cy, size.x * 0.48, size.y * 0.46)
-	border_pts.append(border_pts[0])
-	draw_polyline(border_pts, border_col, border_w, true)
+	
+	_draw_rounded_rect_outline(rect, radius, border_col, border_w)
 
-	# Inner highlight line (top edge of hex)
-	if is_selected:
-		var inner_pts := _hex_points(cx, cy, size.x * 0.45, size.y * 0.43)
-		draw_line(inner_pts[5], inner_pts[0], Color(STADIUM_GOLD.r, STADIUM_GOLD.g, STADIUM_GOLD.b, 0.25), 1.5)
-		draw_line(inner_pts[0], inner_pts[1], Color(STADIUM_GOLD.r, STADIUM_GOLD.g, STADIUM_GOLD.b, 0.25), 1.5)
-
-func _hex_points(cx: float, cy: float, rx: float, ry: float) -> PackedVector2Array:
+func _draw_rounded_rect_outline(rect: Rect2, radius: float, col: Color, width: float) -> void:
 	var pts := PackedVector2Array()
-	for i in range(6):
-		var angle := TAU * float(i) / 6.0 - PI / 2.0
-		pts.append(Vector2(cx + cos(angle) * rx, cy + sin(angle) * ry))
-	return pts
-
-func _draw_ellipse_filled(center: Vector2, rx: float, ry: float, col: Color) -> void:
-	var pts := PackedVector2Array()
-	var segs := 24
-	for i in range(segs):
-		var a := TAU * float(i) / float(segs)
-		pts.append(Vector2(center.x + cos(a) * rx, center.y + sin(a) * ry))
-	draw_colored_polygon(pts, col)
+	var corners := 4
+	var segments := 8
+	
+	# Top-left
+	for i in range(segments + 1):
+		var angle = PI + (PI / 2) * i / segments
+		pts.append(rect.position + Vector2(radius, radius) + Vector2(cos(angle), sin(angle)) * radius)
+	
+	# Top-right
+	for i in range(segments + 1):
+		var angle = 1.5 * PI + (PI / 2) * i / segments
+		pts.append(rect.position + Vector2(rect.size.x - radius, radius) + Vector2(cos(angle), sin(angle)) * radius)
+	
+	# Bottom-right
+	for i in range(segments + 1):
+		var angle = 0 + (PI / 2) * i / segments
+		pts.append(rect.position + Vector2(rect.size.x - radius, rect.size.y - radius) + Vector2(cos(angle), sin(angle)) * radius)
+		
+	# Bottom-left
+	for i in range(segments + 1):
+		var angle = PI / 2 + (PI / 2) * i / segments
+		pts.append(rect.position + Vector2(radius, rect.size.y - radius) + Vector2(cos(angle), sin(angle)) * radius)
+	
+	pts.append(pts[0]) # Close loop
+	draw_polyline(pts, col, width, true)
 
 func setup(data: Dictionary, tex: Texture2D) -> void:
 	hero_data = data
@@ -128,7 +125,7 @@ func _build_ui() -> void:
 	add_child(sprite_container)
 
 	_hero_rect = TextureRect.new()
-	_hero_rect.custom_minimum_size = Vector2(72, 72)
+	_hero_rect.custom_minimum_size = Vector2(80, 80) # Slightly larger
 	_hero_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_hero_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_hero_rect.texture = hero_texture
@@ -149,8 +146,8 @@ func _build_ui() -> void:
 	_name_label = Label.new()
 	_name_label.text = hero_data.get("name", "?")
 	_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_name_label.add_theme_font_size_override("font_size", 13)
-	_name_label.add_theme_color_override("font_color", Color(0.95, 0.95, 0.98))
+	_name_label.add_theme_font_size_override("font_size", 14)
+	_name_label.add_theme_color_override("font_color", Color.WHITE)
 	_name_label.add_theme_constant_override("outline_size", 2)
 	_name_label.add_theme_color_override("font_outline_color", Color(0.02, 0.04, 0.08))
 	_name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -158,31 +155,63 @@ func _build_ui() -> void:
 
 	var role_container := HBoxContainer.new()
 	role_container.alignment = BoxContainer.ALIGNMENT_CENTER
-	role_container.add_theme_constant_override("separation", 4)
+	role_container.add_theme_constant_override("separation", 6)
 	role_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	info_vbox.add_child(role_container)
 
 	_role_icon = Control.new()
 	_role_icon.set_script(load("res://scenes/ui/RoleIconDraw.gd") as GDScript)
 	_role_icon.role = hero_data.get("role", "")
-	_role_icon.custom_minimum_size = Vector2(14, 14)
+	_role_icon.custom_minimum_size = Vector2(18, 18) # Larger icon
 	_role_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	role_container.add_child(_role_icon)
 
 	var role_lbl := Label.new()
 	role_lbl.text = hero_data.get("role", "")
-	role_lbl.add_theme_font_size_override("font_size", 10)
+	role_lbl.add_theme_font_size_override("font_size", 11)
 	role_lbl.add_theme_color_override("font_color", hero_data.get("glow", TEAL_GLOW))
 	role_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	role_container.add_child(role_lbl)
 
+	# Trophies
+	var trophy_container := HBoxContainer.new()
+	trophy_container.alignment = BoxContainer.ALIGNMENT_CENTER
+	trophy_container.add_theme_constant_override("separation", 2)
+	trophy_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	info_vbox.add_child(trophy_container)
+
+	var trophy_icon := Label.new()
+	trophy_icon.text = "🏆"
+	trophy_icon.add_theme_font_size_override("font_size", 10)
+	trophy_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	trophy_container.add_child(trophy_icon)
+
+	_trophy_label = Label.new()
+	var trophy_count = hero_data.get("trophies", 0)
+	_trophy_label.text = str(trophy_count)
+	_trophy_label.add_theme_font_size_override("font_size", 12)
+	
+	# Rank color logic
+	var trophy_color = STADIUM_GOLD
+	if trophy_count < 100:
+		trophy_color = Color(0.8, 0.5, 0.2) # Bronze
+	elif trophy_count < 300:
+		trophy_color = Color(0.75, 0.75, 0.75) # Silver
+	else:
+		trophy_color = STADIUM_GOLD # Gold
+		
+	_trophy_label.add_theme_color_override("font_color", trophy_color)
+	_trophy_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	trophy_container.add_child(_trophy_label)
+
 func _update_size() -> void:
-	custom_minimum_size = Vector2(120, 155)
+	# Size controlled by grid, but we set min size
+	custom_minimum_size = Vector2(140, 180) 
 	_clamp_size()
 
 func _clamp_size() -> void:
 	if custom_minimum_size == Vector2.ZERO:
-		custom_minimum_size = Vector2(120, 155)
+		custom_minimum_size = Vector2(140, 180)
 
 func start_idle_bounce() -> void:
 	if _hero_rect == null:
@@ -204,8 +233,9 @@ func start_glow_pulse() -> void:
 	if _pulse_tween and _pulse_tween.is_valid():
 		_pulse_tween.kill()
 	_pulse_tween = create_tween().set_loops()
-	_pulse_tween.tween_property(self, "glow_pulse", 1.0, 0.6).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
-	_pulse_tween.tween_property(self, "glow_pulse", 0.5, 0.6).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
+	# 2s loop: 1s up, 1s down
+	_pulse_tween.tween_property(self, "glow_pulse", 1.0, 1.0).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
+	_pulse_tween.tween_property(self, "glow_pulse", 0.5, 1.0).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
 
 func stop_glow_pulse() -> void:
 	if _pulse_tween and _pulse_tween.is_valid():
