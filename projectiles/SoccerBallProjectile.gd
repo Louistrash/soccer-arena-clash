@@ -54,7 +54,7 @@ func _physics_process(delta: float) -> void:
 			_bounce(col.get_normal())
 			if body.has_method("take_damage"):
 				var hit_dir: Vector2 = col.get_normal()
-				body.take_damage(EXPLOSION_DAMAGE * 0.5, -hit_dir, 0.0)
+				body.take_damage(2.0, -hit_dir, 0.0)
 		elif body is CharacterBody2D:
 			if _should_hit(body):
 				_explode()
@@ -130,6 +130,10 @@ func _apply_explosion_damage() -> void:
 	for result in results:
 		var body: Node2D = result.collider as Node2D
 		if body and body.has_method("take_damage"):
+			if body.is_in_group("maze_wall"):
+				var diff: Vector2 = (body.global_position - center).normalized()
+				body.take_damage(1.0, diff, 0.0)
+				continue
 			var body_team: String = body.get("team") if "team" in body else ("player" if body.is_in_group("hero") else "opponent")
 			var shooter_team: String = "player" if source_group == "hero" else "opponent"
 			if body_team == shooter_team:

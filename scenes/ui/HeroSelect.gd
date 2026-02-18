@@ -1,101 +1,128 @@
 extends Control
-## Brawlstars-inspired Soccer Hero Gallery.
-## Cards with glow, spotlight, stadium background, punchy animations.
+## Brawl Stars-inspired pedestal hero gallery.
+## Glowing circular pedestals, stats panel, role/tactical panel, center glow.
 
 # --- Node refs ---
 @onready var hero_row: HBoxContainer = $MainVBox/CarouselPanel/CarouselMargin/HeroScroll/HeroRow
-@onready var spotlight_ring: Control = $MainVBox/SpotlightPanel/SpotlightMargin/SpotlightHBox/SpotlightSpriteContainer/SpotlightRing
 @onready var play_button: Button = $MainVBox/BottomBar/BottomMargin/BottomHBox/PlayButton
-@onready var spotlight_sprite: TextureRect = $MainVBox/SpotlightPanel/SpotlightMargin/SpotlightHBox/SpotlightSpriteContainer/SpotlightSprite
-@onready var spotlight_name: Label = $MainVBox/SpotlightPanel/SpotlightMargin/SpotlightHBox/SpotlightInfo/SpotlightName
-@onready var spotlight_role: Label = $MainVBox/SpotlightPanel/SpotlightMargin/SpotlightHBox/SpotlightInfo/SpotlightRole
-@onready var spotlight_desc: Label = $MainVBox/SpotlightPanel/SpotlightMargin/SpotlightHBox/SpotlightInfo/SpotlightDesc
-@onready var title_label: Label = $MainVBox/TopBar/TopMargin/TitleVBox/Title
-@onready var subtitle_label: Label = $MainVBox/TopBar/TopMargin/TitleVBox/Subtitle
+@onready var title_label: Label = $MainVBox/TopBar/TopMargin/ContentHBox/TitleVBox/Title
+@onready var subtitle_label: Label = $MainVBox/TopBar/TopMargin/ContentHBox/TitleVBox/Subtitle
 @onready var top_bar: PanelContainer = $MainVBox/TopBar
-@onready var spotlight_panel: PanelContainer = $MainVBox/SpotlightPanel
 @onready var carousel_panel: PanelContainer = $MainVBox/CarouselPanel
 @onready var bottom_bar: PanelContainer = $MainVBox/BottomBar
+@onready var stats_container: VBoxContainer = $MainVBox/TopBar/TopMargin/ContentHBox/StatsPanel/StatsMargin/StatsVBox/StatsContainer
+@onready var role_title: Label = $MainVBox/TopBar/TopMargin/ContentHBox/RolePanel/RoleMargin/RoleVBox/RoleTitle
+@onready var role_desc: Label = $MainVBox/TopBar/TopMargin/ContentHBox/RolePanel/RoleMargin/RoleVBox/RoleDesc
+@onready var hero_scroll: ScrollContainer = $MainVBox/CarouselPanel/CarouselMargin/HeroScroll
+@onready var background_layer: Control = $BackgroundLayer
 
-# --- Hero data with roles and glow colors ---
+const STAT_NAMES := ["Speed", "Shooting", "Passing", "Defense", "Control"]
+
+# --- Hero data with roles, glow, stats, tactical ---
 const HERO_DATA: Array[Dictionary] = [
-	{"id": "arlo",   "name": "Arlo",   "role": "Playmaker",      "desc": "Precision passing playmaker.",             "glow": Color(0.16, 0.66, 1.0)},
-	{"id": "axel",   "name": "Axel",   "role": "Striker",        "desc": "Elite goal scoring striker.",              "glow": Color(1.0, 0.35, 0.2)},
-	{"id": "enzo",   "name": "Enzo",   "role": "Forward",        "desc": "Aggressive pressing forward.",            "glow": Color(0.95, 0.75, 0.2)},
-	{"id": "johan",  "name": "Johan",  "role": "General",        "desc": "Tactical field general.",                 "glow": Color(0.3, 0.85, 0.5)},
-	{"id": "kai",    "name": "Kai",    "role": "Shooter",        "desc": "Unstoppable power shooter.",               "glow": Color(0.9, 0.2, 0.4)},
-	{"id": "kian",   "name": "Kian",   "role": "Midfielder",     "desc": "Dynamic box-to-box midfielder.",          "glow": Color(0.5, 0.9, 0.6)},
-	{"id": "leo",    "name": "Leo",    "role": "Defender",       "desc": "Defensive anchor specialist.",            "glow": Color(0.4, 0.6, 1.0)},
-	{"id": "lionel", "name": "Lionel", "role": "Dribbler",       "desc": "Skillful freestyle dribbler.",             "glow": Color(0.7, 0.3, 0.95)},
-	{"id": "marco",  "name": "Marco",  "role": "Finisher",       "desc": "Clutch finisher hero.",                    "glow": Color(1.0, 0.55, 0.2)},
-	{"id": "rio",    "name": "Rio",    "role": "Sprint",         "desc": "Rapid counterattack sprinter.",           "glow": Color(0.2, 0.95, 0.5)},
-	{"id": "zane",   "name": "Zane",   "role": "Defender",       "desc": "Smart positioning defender.",             "glow": Color(0.55, 0.75, 0.95)},
+	{"id": "arlo",   "name": "Arlo",   "role": "Playmaker",      "desc": "Precision passing playmaker.",             "glow": Color(0.16, 0.66, 1.0),
+	 "stats": {"speed": 70, "shooting": 45, "passing": 92, "defense": 38, "control": 85},
+	 "tactical": "Precision passing playmaker. Dictates tempo, creates chances through vision and through balls."},
+	{"id": "axel",   "name": "Axel",   "role": "Striker",        "desc": "Elite goal scoring striker.",              "glow": Color(1.0, 0.35, 0.2),
+	 "stats": {"speed": 75, "shooting": 90, "passing": 50, "defense": 25, "control": 65},
+	 "tactical": "Elite goal scorer. Prioritize shooting positions and exploit space in the final third."},
+	{"id": "enzo",   "name": "Enzo",   "role": "Forward",        "desc": "Aggressive pressing forward.",            "glow": Color(0.95, 0.75, 0.2),
+	 "stats": {"speed": 82, "shooting": 72, "passing": 55, "defense": 45, "control": 60},
+	 "tactical": "Aggressive pressing forward. High work rate, closes down defenders, wins the ball high."},
+	{"id": "johan",  "name": "Johan",  "role": "General",        "desc": "Tactical field general.",                 "glow": Color(0.3, 0.85, 0.5),
+	 "stats": {"speed": 65, "shooting": 55, "passing": 88, "defense": 70, "control": 90},
+	 "tactical": "Tactical field general. Maintains structure, controls tempo, creates passing opportunities."},
+	{"id": "kai",    "name": "Kai",    "role": "Shooter",        "desc": "Unstoppable power shooter.",               "glow": Color(0.9, 0.2, 0.4),
+	 "stats": {"speed": 68, "shooting": 95, "passing": 42, "defense": 22, "control": 58},
+	 "tactical": "Unstoppable power shooter. Long range threat, shoot on sight from anywhere."},
+	{"id": "kian",   "name": "Kian",   "role": "Midfielder",     "desc": "Dynamic box-to-box midfielder.",          "glow": Color(0.5, 0.9, 0.6),
+	 "stats": {"speed": 78, "shooting": 60, "passing": 80, "defense": 62, "control": 75},
+	 "tactical": "Dynamic box-to-box midfielder. Covers ground, links defense and attack, versatile."},
+	{"id": "leo",    "name": "Leo",    "role": "Defender",       "desc": "Defensive anchor specialist.",            "glow": Color(0.4, 0.6, 1.0),
+	 "stats": {"speed": 62, "shooting": 35, "passing": 65, "defense": 92, "control": 70},
+	 "tactical": "Defensive anchor specialist. Holds the line, blocks shots, clears danger."},
+	{"id": "lionel", "name": "Lionel", "role": "Dribbler",       "desc": "Skillful freestyle dribbler.",             "glow": Color(0.7, 0.3, 0.95),
+	 "stats": {"speed": 80, "shooting": 65, "passing": 72, "defense": 30, "control": 95},
+	 "tactical": "Skillful freestyle dribbler. Beats defenders one-on-one, creates space with the ball."},
+	{"id": "marco",  "name": "Marco",  "role": "Finisher",       "desc": "Clutch finisher hero.",                    "glow": Color(1.0, 0.55, 0.2),
+	 "stats": {"speed": 72, "shooting": 88, "passing": 52, "defense": 28, "control": 68},
+	 "tactical": "Clutch finisher hero. Composed in front of goal, converts chances under pressure."},
+	{"id": "rio",    "name": "Rio",    "role": "Sprint",         "desc": "Rapid counterattack sprinter.",           "glow": Color(0.2, 0.95, 0.5),
+	 "stats": {"speed": 95, "shooting": 58, "passing": 60, "defense": 35, "control": 72},
+	 "tactical": "Rapid counterattack sprinter. Explosive pace, breaks lines, runs in behind."},
+	{"id": "zane",   "name": "Zane",   "role": "Defender",       "desc": "Smart positioning defender.",             "glow": Color(0.55, 0.75, 0.95),
+	 "stats": {"speed": 70, "shooting": 40, "passing": 70, "defense": 88, "control": 75},
+	 "tactical": "Smart positioning defender. Reads the game, intercepts passes, organizes the back line."},
 ]
 
 var _selected_id: String = ""
-var _cards: Array[PanelContainer] = []
+var _pedestals: Array = []  # PedestalCard or Control
 var _play_pulse_tween: Tween
+var _default_stats: Dictionary = {"speed": 60, "shooting": 60, "passing": 60, "defense": 60, "control": 60}
 
 func _get_hero_texture_path(hero_id: String) -> String:
 	return "res://heroes/" + hero_id + ".png"
 
-func _create_trophy_icon() -> Control:
-	var TrophyIcon := preload("res://scenes/ui/TrophyIconDraw.gd") as GDScript
-	var c: Control = TrophyIcon.new()
-	c.custom_minimum_size = Vector2(24, 24)
-	c.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	return c
+func _get_hero_stats(hero: Dictionary) -> Dictionary:
+	if hero.has("stats"):
+		return hero["stats"]
+	var role_stats: Dictionary = {}
+	match hero.get("role", "").to_lower():
+		"striker", "shooter", "finisher":
+			role_stats = {"speed": 75, "shooting": 90, "passing": 50, "defense": 25, "control": 65}
+		"defender":
+			role_stats = {"speed": 65, "shooting": 38, "passing": 65, "defense": 90, "control": 70}
+		"general":
+			role_stats = {"speed": 65, "shooting": 55, "passing": 88, "defense": 70, "control": 90}
+		_:
+			role_stats = _default_stats.duplicate()
+	return role_stats
 
 func _ready() -> void:
 	_style_panels()
 	_style_play_button()
-	_populate_cards()
+	_populate_pedestals()
 	_select_hero("arlo")
 	_screen_open_animation()
 
 # ====================== PANEL STYLING ======================
 
 func _style_panels() -> void:
-	# Deep green panels with neon accents (overgrown arena + esports)
 	const DEEP_GREEN := Color(0.06, 0.12, 0.08)
 	const NEON_BORDER := Color(0.2, 0.9, 0.6, 0.3)
 	const STADIUM_GOLD := Color(0.95, 0.78, 0.25)
-	for panel: PanelContainer in [top_bar, spotlight_panel, carousel_panel, bottom_bar]:
+	for panel: PanelContainer in [top_bar, carousel_panel, bottom_bar]:
 		var sb := StyleBoxFlat.new()
 		sb.bg_color = Color(DEEP_GREEN.r, DEEP_GREEN.g, DEEP_GREEN.b, 0.9)
-		sb.corner_radius_top_left = 12
-		sb.corner_radius_top_right = 12
-		sb.corner_radius_bottom_left = 12
-		sb.corner_radius_bottom_right = 12
-		sb.border_width_left = 2
-		sb.border_width_top = 2
-		sb.border_width_right = 2
-		sb.border_width_bottom = 2
+		sb.set_corner_radius_all(12)
+		sb.set_border_width_all(2)
 		sb.border_color = NEON_BORDER
 		panel.add_theme_stylebox_override("panel", sb)
 
-	# Title styling - stadium gold
+	# Stats and Role panels (nested)
+	var stats_panel: PanelContainer = $MainVBox/TopBar/TopMargin/ContentHBox/StatsPanel
+	var role_panel: PanelContainer = $MainVBox/TopBar/TopMargin/ContentHBox/RolePanel
+	for p in [stats_panel, role_panel]:
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = Color(DEEP_GREEN.r, DEEP_GREEN.g, DEEP_GREEN.b, 0.85)
+		sb.set_corner_radius_all(8)
+		sb.set_border_width_all(1)
+		sb.border_color = Color(NEON_BORDER.r, NEON_BORDER.g, NEON_BORDER.b, 0.2)
+		p.add_theme_stylebox_override("panel", sb)
+
 	title_label.add_theme_color_override("font_color", STADIUM_GOLD)
 	subtitle_label.add_theme_color_override("font_color", Color(0.75, 0.85, 0.7))
-	subtitle_label.text = "Enter the overgrown arena"
+	subtitle_label.text = "Choose your hero for the arena"
 
-	# Spotlight text
-	spotlight_name.add_theme_color_override("font_color", Color.WHITE)
-	spotlight_role.add_theme_color_override("font_color", Color(0.2, 0.95, 0.7))
-	spotlight_desc.add_theme_color_override("font_color", Color(0.6, 0.75, 0.6))
+	role_title.add_theme_color_override("font_color", Color(0.2, 0.95, 0.7))
+	role_desc.add_theme_color_override("font_color", Color(0.6, 0.75, 0.6))
 
 func _style_play_button() -> void:
 	play_button.disabled = true
 	var sb_normal := StyleBoxFlat.new()
 	sb_normal.bg_color = Color(0.15, 0.65, 0.35)
-	sb_normal.corner_radius_top_left = 20
-	sb_normal.corner_radius_top_right = 20
-	sb_normal.corner_radius_bottom_left = 20
-	sb_normal.corner_radius_bottom_right = 20
-	sb_normal.border_width_left = 2
-	sb_normal.border_width_top = 2
-	sb_normal.border_width_right = 2
-	sb_normal.border_width_bottom = 2
+	sb_normal.set_corner_radius_all(20)
+	sb_normal.set_border_width_all(2)
 	sb_normal.border_color = Color(0.95, 0.78, 0.25, 0.5)
 	sb_normal.shadow_size = 8
 	sb_normal.shadow_color = Color(0.2, 0.95, 0.5, 0.4)
@@ -112,10 +139,7 @@ func _style_play_button() -> void:
 
 	var sb_disabled := StyleBoxFlat.new()
 	sb_disabled.bg_color = Color(0.3, 0.3, 0.3, 0.6)
-	sb_disabled.corner_radius_top_left = 16
-	sb_disabled.corner_radius_top_right = 16
-	sb_disabled.corner_radius_bottom_left = 16
-	sb_disabled.corner_radius_bottom_right = 16
+	sb_disabled.set_corner_radius_all(16)
 	play_button.add_theme_stylebox_override("disabled", sb_disabled)
 
 	play_button.add_theme_color_override("font_color", Color.WHITE)
@@ -123,144 +147,48 @@ func _style_play_button() -> void:
 	play_button.add_theme_color_override("font_pressed_color", Color(0.9, 0.9, 0.9))
 	play_button.add_theme_color_override("font_disabled_color", Color(0.5, 0.5, 0.5))
 
-# ====================== HERO CARDS ======================
+# ====================== PEDESTALS ======================
 
-func _populate_cards() -> void:
+func _populate_pedestals() -> void:
+	var PedestalCardScript: GDScript = load("res://scenes/ui/PedestalCard.gd") as GDScript
 	for hero in HERO_DATA:
-		var card := _create_hero_card(hero)
+		var tex: Texture2D = load(_get_hero_texture_path(hero["id"])) as Texture2D
+		var card: Control = PedestalCardScript.new()
+		card.setup(hero, tex)
+		card.set_meta("hero_id", hero["id"])
+		card.set_meta("hero_data", hero)
+
 		var wrapper := MarginContainer.new()
 		wrapper.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		wrapper.add_child(card)
 		hero_row.add_child(wrapper)
 		card.set_meta("wrapper", wrapper)
-		_cards.append(card)
 
-func _create_hero_card(hero: Dictionary) -> PanelContainer:
-	var card := PanelContainer.new()
-	card.custom_minimum_size = Vector2(200, 260)
-	card.set_meta("hero_id", hero["id"])
-	card.set_meta("hero_data", hero)
-	card.mouse_filter = Control.MOUSE_FILTER_STOP
+		card.gui_input.connect(_on_pedestal_gui_input.bind(card))
+		card.mouse_entered.connect(_on_pedestal_mouse_entered.bind(card))
+		card.mouse_exited.connect(_on_pedestal_mouse_exited.bind(card))
 
-	# Card StyleBox - larger, more rounded, role glow
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.08, 0.12, 0.1)
-	sb.corner_radius_top_left = 24
-	sb.corner_radius_top_right = 24
-	sb.corner_radius_bottom_left = 24
-	sb.corner_radius_bottom_right = 24
-	sb.border_width_left = 3
-	sb.border_width_top = 3
-	sb.border_width_right = 3
-	sb.border_width_bottom = 3
-	sb.border_color = Color(hero["glow"].r, hero["glow"].g, hero["glow"].b, 0.35)
-	sb.shadow_size = 6
-	sb.shadow_offset = Vector2(0, 3)
-	sb.shadow_color = Color(0, 0, 0, 0.45)
-	card.add_theme_stylebox_override("panel", sb)
+		_pedestals.append(card)
 
-	# Inner margin
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 12)
-	margin.add_theme_constant_override("margin_top", 12)
-	margin.add_theme_constant_override("margin_right", 12)
-	margin.add_theme_constant_override("margin_bottom", 12)
-	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	card.add_child(margin)
-
-	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 8)
-	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	margin.add_child(vbox)
-
-	# Trophy row (top-right area)
-	var trophy_row := HBoxContainer.new()
-	trophy_row.add_theme_constant_override("separation", 4)
-	trophy_row.alignment = BoxContainer.ALIGNMENT_END
-	trophy_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.add_child(trophy_row)
-	var trophy_spacer := Control.new()
-	trophy_spacer.custom_minimum_size = Vector2(140, 0)
-	trophy_spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	trophy_row.add_child(trophy_spacer)
-	var trophy_icon := _create_trophy_icon()
-	trophy_row.add_child(trophy_icon)
-
-	# Portrait
-	var portrait := TextureRect.new()
-	portrait.custom_minimum_size = Vector2(170, 150)
-	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var tex_path: String = _get_hero_texture_path(hero["id"])
-	var tex: Texture2D = load(tex_path) as Texture2D
-	if tex:
-		portrait.texture = tex
-	vbox.add_child(portrait)
-
-	# Name label
-	var name_lbl := Label.new()
-	name_lbl.text = hero["name"]
-	name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_lbl.add_theme_font_size_override("font_size", 18)
-	name_lbl.add_theme_color_override("font_color", Color.WHITE)
-	name_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.add_child(name_lbl)
-
-	# Role badge (rounded pill with role text)
-	var role_badge := PanelContainer.new()
-	role_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var role_sb := StyleBoxFlat.new()
-	role_sb.bg_color = Color(hero["glow"].r, hero["glow"].g, hero["glow"].b, 0.28)
-	role_sb.corner_radius_top_left = 10
-	role_sb.corner_radius_top_right = 10
-	role_sb.corner_radius_bottom_left = 10
-	role_sb.corner_radius_bottom_right = 10
-	role_sb.border_width_left = 1
-	role_sb.border_width_top = 1
-	role_sb.border_width_right = 1
-	role_sb.border_width_bottom = 1
-	role_sb.border_color = Color(hero["glow"].r, hero["glow"].g, hero["glow"].b, 0.6)
-	role_badge.add_theme_stylebox_override("panel", role_sb)
-	var role_lbl := Label.new()
-	role_lbl.text = hero["role"]
-	role_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	role_lbl.add_theme_font_size_override("font_size", 12)
-	role_lbl.add_theme_color_override("font_color", hero["glow"])
-	role_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	role_badge.add_child(role_lbl)
-	vbox.add_child(role_badge)
-
-	# Signals
-	card.gui_input.connect(_on_card_gui_input.bind(card))
-	card.mouse_entered.connect(_on_card_mouse_entered.bind(card))
-	card.mouse_exited.connect(_on_card_mouse_exited.bind(card))
-
-	return card
-
-# ====================== CARD INTERACTIONS ======================
-
-func _on_card_mouse_entered(card: PanelContainer) -> void:
+func _on_pedestal_mouse_entered(card: Control) -> void:
 	if card.get_meta("hero_id") == _selected_id:
 		return
 	card.pivot_offset = card.size / 2
 	var t := create_tween()
-	t.tween_property(card, "scale", Vector2(1.06, 1.06), 0.15).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	t.tween_property(card, "scale", Vector2(1.1, 1.1), 0.15).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 
-func _on_card_mouse_exited(card: PanelContainer) -> void:
+func _on_pedestal_mouse_exited(card: Control) -> void:
 	if card.get_meta("hero_id") == _selected_id:
 		return
 	var t := create_tween()
 	t.tween_property(card, "scale", Vector2.ONE, 0.12).set_ease(Tween.EASE_OUT)
 
-func _on_card_gui_input(event: InputEvent, card: PanelContainer) -> void:
+func _on_pedestal_gui_input(event: InputEvent, card: Control) -> void:
 	if event is InputEventMouseButton:
 		var mb := event as InputEventMouseButton
 		if mb.button_index == MOUSE_BUTTON_LEFT and mb.pressed:
 			var hero_id: String = card.get_meta("hero_id")
 			_select_hero(hero_id)
-			# Click bounce
 			card.pivot_offset = card.size / 2
 			var t := create_tween()
 			t.tween_property(card, "scale", Vector2(0.94, 0.94), 0.05)
@@ -279,67 +207,123 @@ func _select_hero(hero_id: String) -> void:
 	if hero_data.is_empty():
 		return
 
-	# Update GameManager
 	GameManager.selected_hero_path = _get_hero_texture_path(hero_id)
 	GameManager.selected_hero_name = hero_data["name"]
 	GameManager.selected_hero_id = hero_id
 
-	# Update spotlight
-	var tex: Texture2D = load(GameManager.selected_hero_path) as Texture2D
-	if tex:
-		spotlight_sprite.texture = tex
-	if spotlight_ring:
-		spotlight_ring.glow_color = hero_data["glow"]
-		spotlight_ring.queue_redraw()
-	spotlight_name.text = hero_data["name"]
-	spotlight_role.text = hero_data["role"]
-	spotlight_role.add_theme_color_override("font_color", hero_data["glow"])
-	spotlight_desc.text = hero_data["desc"]
+	_update_stats_panel(hero_data)
+	_update_role_panel(hero_data)
+	_update_pedestal_visuals()
+	_scroll_to_selected()
+	_update_center_glow()
 
-	# Enable play button + start pulse
 	play_button.disabled = false
 	_start_play_pulse()
 
-	# Update card visuals
-	_update_card_visuals()
+func _update_stats_panel(hero: Dictionary) -> void:
+	for c in stats_container.get_children():
+		c.queue_free()
+	var stats: Dictionary = _get_hero_stats(hero)
+	for stat_name in STAT_NAMES:
+		var key: String = stat_name.to_lower()
+		var val: int = stats.get(key, 60)
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-func _update_card_visuals() -> void:
-	for card: PanelContainer in _cards:
+		var lbl := Label.new()
+		lbl.text = stat_name + "  "
+		lbl.custom_minimum_size.x = 75
+		lbl.add_theme_font_size_override("font_size", 12)
+		lbl.add_theme_color_override("font_color", Color(0.8, 0.85, 0.8))
+		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(lbl)
+
+		var bar := ProgressBar.new()
+		bar.custom_minimum_size = Vector2(80, 10)
+		bar.max_value = 100.0
+		bar.value = float(val)
+		bar.show_percentage = false
+		bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		bar.add_theme_stylebox_override("background", _make_bar_stylebox(Color(0.1, 0.15, 0.12)))
+		bar.add_theme_stylebox_override("fill", _make_fill_stylebox(Color(0.95, 0.78, 0.25, 0.8)))
+		row.add_child(bar)
+
+		var val_lbl := Label.new()
+		val_lbl.text = str(val)
+		val_lbl.add_theme_font_size_override("font_size", 12)
+		val_lbl.add_theme_color_override("font_color", Color(0.95, 0.78, 0.25))
+		val_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(val_lbl)
+
+		stats_container.add_child(row)
+
+func _make_bar_stylebox(col: Color) -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = col
+	sb.set_corner_radius_all(4)
+	return sb
+
+func _make_fill_stylebox(col: Color) -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = col
+	sb.set_corner_radius_all(4)
+	return sb
+
+func _update_role_panel(hero: Dictionary) -> void:
+	role_title.text = hero.get("role", "") + ":"
+	role_title.add_theme_color_override("font_color", hero.get("glow", Color.WHITE))
+	role_desc.text = hero.get("tactical", hero.get("desc", ""))
+
+func _update_pedestal_visuals() -> void:
+	for card in _pedestals:
 		var cid: String = card.get_meta("hero_id")
-		var hero: Dictionary = card.get_meta("hero_data")
-		var glow: Color = hero["glow"]
-		var sb: StyleBoxFlat = card.get_theme_stylebox("panel").duplicate() as StyleBoxFlat
 		var wrapper: MarginContainer = card.get_meta("wrapper", null)
+		card.set_selected(cid == _selected_id)
 
 		if cid == _selected_id:
-			sb.border_color = glow
-			sb.border_width_left = 4
-			sb.border_width_top = 4
-			sb.border_width_right = 4
-			sb.border_width_bottom = 4
-			sb.shadow_color = Color(glow.r, glow.g, glow.b, 0.55)
-			sb.shadow_size = 12
-			sb.shadow_offset = Vector2(0, 5)
 			card.modulate = Color.WHITE
 			card.scale = Vector2.ONE
+			card.start_idle_bounce()
+			card.start_glow_pulse()
 			if wrapper:
 				wrapper.add_theme_constant_override("margin_top", -10)
 				wrapper.add_theme_constant_override("margin_bottom", 10)
 		else:
-			sb.border_color = Color(glow.r, glow.g, glow.b, 0.2)
-			sb.border_width_left = 2
-			sb.border_width_top = 2
-			sb.border_width_right = 2
-			sb.border_width_bottom = 2
-			sb.shadow_color = Color(0, 0, 0, 0.35)
-			sb.shadow_size = 6
-			sb.shadow_offset = Vector2(0, 3)
-			card.modulate = Color(0.65, 0.65, 0.65)
+			card.modulate = Color(0.7, 0.7, 0.7)
+			card.stop_idle_bounce()
+			card.stop_glow_pulse()
 			if wrapper:
 				wrapper.add_theme_constant_override("margin_top", 0)
 				wrapper.add_theme_constant_override("margin_bottom", 0)
 
-		card.add_theme_stylebox_override("panel", sb)
+func _scroll_to_selected() -> void:
+	await get_tree().process_frame
+	var idx := 0
+	for i in range(HERO_DATA.size()):
+		if HERO_DATA[i]["id"] == _selected_id:
+			idx = i
+			break
+	var card: Control = _pedestals[idx] if idx < _pedestals.size() else null
+	if card and hero_scroll:
+		var wrapper: Control = card.get_parent()
+		var center_x: float = wrapper.position.x + card.position.x + card.size.x * 0.5
+		hero_scroll.scroll_horizontal = int(center_x - hero_scroll.size.x * 0.5)
+		hero_scroll.scroll_horizontal = clampi(hero_scroll.scroll_horizontal, 0, max(0, hero_scroll.get_h_scroll_bar().max_value))
+
+func _update_center_glow() -> void:
+	if not background_layer:
+		return
+	await get_tree().process_frame
+	var idx := 0
+	for i in range(HERO_DATA.size()):
+		if HERO_DATA[i]["id"] == _selected_id:
+			idx = i
+			break
+	if idx < _pedestals.size():
+		var card: Control = _pedestals[idx]
+		background_layer.center_glow_pos = card.global_position + card.size * 0.5
+		background_layer.queue_redraw()
 
 # ====================== PLAY BUTTON PULSE ======================
 

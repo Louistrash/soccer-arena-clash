@@ -1,11 +1,13 @@
 extends Control
 ## Overgrown arena background: dark grass, stadium lines, vine overlays, lighting gradients.
+## center_glow_pos: soft glow behind selected hero (global coords).
 
 const GRASS_PATH := "res://obstacles/grass.png"
 const VINES_PATH := "res://obstacles/rock_vines.png"
 
 var _grass_tex: Texture2D
 var _vines_tex: Texture2D
+var center_glow_pos: Vector2 = Vector2(-9999, -9999)  # Invalid until set
 
 func _ready() -> void:
 	_grass_tex = load(GRASS_PATH) as Texture2D
@@ -46,7 +48,7 @@ func _draw() -> void:
 	# Vine overlays at edges
 	if _vines_tex:
 		var vine_color := Color(1, 1, 1, 0.12)
-		var vine_w := min(200.0, size.x * 0.15)
+		var vine_w: float = min(200.0, size.x * 0.15)
 		draw_texture_rect_region(_vines_tex, Rect2(0, 0, vine_w, size.y), Rect2(0, 0, _vines_tex.get_width(), _vines_tex.get_height()), vine_color)
 		draw_texture_rect_region(_vines_tex, Rect2(size.x - vine_w, 0, vine_w, size.y), Rect2(0, 0, _vines_tex.get_width(), _vines_tex.get_height()), vine_color)
 
@@ -56,3 +58,12 @@ func _draw() -> void:
 		var alpha: float = 0.025 + float(i) * 0.004
 		draw_circle(Vector2(80, 40), r, Color(0.9, 0.95, 0.7, alpha))
 		draw_circle(Vector2(size.x - 80, 40), r, Color(0.9, 0.95, 0.7, alpha))
+
+	# Center circle glow behind selected hero
+	if center_glow_pos.x > -9999:
+		var xform: Transform2D = get_global_transform_with_canvas().affine_inverse()
+		var local_pos: Vector2 = xform * center_glow_pos
+		for i in range(8):
+			var r: float = 60.0 + float(i) * 25.0
+			var alpha: float = 0.15 - float(i) * 0.015
+			draw_arc(local_pos, r, 0, TAU, 32, Color(0.9, 0.95, 0.7, alpha))

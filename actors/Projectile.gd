@@ -41,6 +41,8 @@ func _draw() -> void:
 
 func _on_body_entered(body: Node2D) -> void:
 	if body is StaticBody2D:
+		if body.has_method("take_damage"):
+			body.take_damage(1.0, direction.normalized(), 0.0)
 		queue_free()
 	elif body is CharacterBody2D:
 		# Don't damage same team

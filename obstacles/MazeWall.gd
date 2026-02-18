@@ -1,21 +1,27 @@
 extends StaticBody2D
-## Maze wall obstacle: indestructible (ruin, moss) of destructible (cracked).
-## Configurable texture and collision size for esports maze layout.
+## Maze wall obstacle: indestructible (ruin, moss) or destructible (cracked, vines, cleanable).
+## 5 HP, progressive damage states, ball 2x damage.
 
 const TEXTURE_PATHS: Dictionary = {
 	"ruin": "res://obstacles/rock_ruin.png",
 	"moss": "res://obstacles/rock_moss.png",
 	"cracked": "res://obstacles/rock_cracked.png",
+	"vines": "res://obstacles/rock_vines.png",
+	"cleanable": "res://obstacles/rock_cleanable.png",
 }
+const DESTRUCTIBLE_TYPES: Array = ["cracked", "vines", "cleanable"]
 const FALLBACK_TEXTURE: String = "res://obstacles/stone_wall.png"
 const SOURCE_SIZE_PX: float = 1024.0
+const DUST_PUFF_SCENE := preload("res://actors/DustPuff.tscn")
 
 enum WallSize { SIZE_1x1, SIZE_1x2, SIZE_2x2 }
 
 var wall_type: String = "ruin"
 var wall_size: WallSize = WallSize.SIZE_2x2
-var health: float = 30.0
-var max_health: float = 30.0
+var health: float = 5.0
+var max_health: float = 5.0
+var _is_destroyed: bool = false
+var _dust_spawned: bool = false
 
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
@@ -31,7 +37,7 @@ func setup(p_type: String, p_size_id: int) -> void:
 		0: wall_size = WallSize.SIZE_1x1
 		1: wall_size = WallSize.SIZE_1x2
 		_: wall_size = WallSize.SIZE_2x2
-	if wall_type == "cracked":
+	if wall_type in DESTRUCTIBLE_TYPES:
 		add_to_group("destructible")
 
 func _setup_collision() -> void:
@@ -67,14 +73,19 @@ func _setup_sprite() -> void:
 			scale_y = 256.0 / SOURCE_SIZE_PX
 	sprite.scale = Vector2(scale_x, scale_y)
 
-func take_damage(_amount: float, _knockback_dir: Vector2 = Vector2.ZERO, _knockback_strength: float = 0.0) -> void:
-	_hit_flash()
-	_spawn_debris(_knockback_dir)
-	if wall_type != "cracked":
+func take_damage(amount: float, knockback_dir: Vector2 = Vector2.ZERO, _knockback_strength: float = 0.0) -> void:
+	if _is_destroyed:
 		return
-	health -= _amount
-	if health <= 0:
-		_break()
+	_hit_flash()
+	if wall_type in DESTRUCTIBLE_TYPES:
+		_spawn_debris(knockback_dir)
+		health -= amount
+		_update_damage_state()
+		if health <= 0:
+			_break()
+	else:
+		# Permanent walls: visual feedback only
+		_spawn_debris(knockback_dir)
 
 func _hit_flash() -> void:
 	var tw: Tween = create_tween()
@@ -100,16 +111,60 @@ func _get_debris_color() -> Color:
 			return Color(0.45, 0.55, 0.35).lerp(Color(0.35, 0.45, 0.25), randf())
 		"cracked":
 			return Color(0.6, 0.5, 0.4).lerp(Color(0.5, 0.4, 0.3), randf())
+		"vines":
+			return Color(0.4, 0.5, 0.35).lerp(Color(0.3, 0.4, 0.25), randf())
+		"cleanable":
+			return Color(0.55, 0.5, 0.45).lerp(Color(0.45, 0.4, 0.35), randf())
 	return Color(0.5, 0.45, 0.4)
 
+func _update_damage_state() -> void:
+	if wall_type not in DESTRUCTIBLE_TYPES:
+		return
+	if sprite:
+		if health <= 2:
+			sprite.modulate = Color(0.65, 0.65, 0.65)
+			if not _dust_spawned:
+				_dust_spawned = true
+				_spawn_small_dust()
+		elif health <= 3:
+			sprite.modulate = Color(0.85, 0.85, 0.85)
+
+func _spawn_small_dust() -> void:
+	var dust: Node2D = DUST_PUFF_SCENE.instantiate() as Node2D
+	if dust:
+		dust.global_position = global_position
+		var parent: Node2D = get_parent() as Node2D
+		if parent:
+			parent.add_child(dust)
+
 func _break() -> void:
+	if _is_destroyed:
+		return
+	_is_destroyed = true
+	if collision_shape:
+		collision_shape.set_deferred("disabled", true)
+	# White flash (0.05s)
+	modulate = Color(2.5, 2.5, 2.5, 1.0)
+	var flash_tween: Tween = create_tween()
+	flash_tween.tween_property(self, "modulate", Color(1, 1, 1, 1), 0.05)
+	flash_tween.tween_callback(_do_break_explosion)
+
+func _do_break_explosion() -> void:
 	_spawn_debris(Vector2.UP)
+	_spawn_debris(Vector2.DOWN)
+	_spawn_debris(Vector2.LEFT)
 	_spawn_debris(Vector2.RIGHT)
+	_screen_shake()
 	var tween: Tween = create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(self, "modulate:a", 0.0, 0.15)
-	tween.tween_property(self, "scale", Vector2(0.3, 0.3), 0.15).set_ease(Tween.EASE_IN)
+	tween.tween_property(self, "modulate:a", 0.0, 0.4)
+	tween.tween_property(self, "scale", Vector2(0.3, 0.3), 0.4).set_ease(Tween.EASE_IN)
 	tween.chain().tween_callback(queue_free)
+
+func _screen_shake() -> void:
+	var cam: Node = get_tree().get_first_node_in_group("game_camera")
+	if cam and cam.has_method("add_trauma"):
+		cam.add_trauma(0.12)
 
 
 class DebrisParticle extends Node2D:
