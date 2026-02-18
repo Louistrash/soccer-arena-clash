@@ -23,7 +23,7 @@ if [ ! -f "$INDEX" ]; then
 fi
 
 INDEX_PATH="$INDEX" python3 << 'PYEOF'
-import os, sys
+import os, sys, re
 path = os.environ.get("INDEX_PATH", "")
 if not path:
     print("! Geen index pad")
@@ -31,31 +31,31 @@ if not path:
 with open(path, "r") as f:
     s = f.read()
 
-old = '\t\t<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />\n<link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>'
-
-new = '''\t\t<link rel="icon" type="image/png" href="icon.png" />
-\t\t<link rel="apple-touch-icon" href="icon.png" />
-\t\t<meta property="og:image" content="icon.png" />
-\t\t<meta property="og:title" content="Soccer Arena Clash" />
-\t\t<meta property="og:description" content="Top-down soccer arena battle game. Select your hero and play!" />
-\t\t<meta property="og:type" content="website" />
-\t\t<meta name="twitter:card" content="summary_large_image" />
-\t\t<meta name="twitter:image" content="icon.png" />
-\t\t<meta name="twitter:title" content="Soccer Arena Clash" />
-\t\t<meta name="twitter:description" content="Top-down soccer arena battle game. Select your hero and play!" />'''
-
-if old in s:
-    s = s.replace(old, new)
+# Favicon: flexibele match (tabs of spaties)
+favicon_pat = r'<link[^>]*rel="icon"[^>]*>[\s\n]*<link[^>]*apple-touch-icon[^>]*>'
+favicon_new = '''<link rel="icon" type="image/png" href="icon.png" />
+		<link rel="apple-touch-icon" href="icon.png" />
+		<meta property="og:image" content="icon.png" />
+		<meta property="og:title" content="Soccer Arena Clash" />
+		<meta property="og:description" content="Top-down soccer arena battle game. Select your hero and play!" />
+		<meta property="og:type" content="website" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:image" content="icon.png" />
+		<meta name="twitter:title" content="Soccer Arena Clash" />
+		<meta name="twitter:description" content="Top-down soccer arena battle game. Select your hero and play!" />'''
+if re.search(favicon_pat, s):
+    s = re.sub(favicon_pat, favicon_new, s, count=1)
     print("✓ index.html gepatcht: favicon + social meta tags")
 else:
-    print("! Geen standaard favicon-block gevonden (al gepatcht of ander template)")
+    print("- Favicon block niet gevonden (al gepatcht)")
 
-# 3. Forceer thread_support=false (voorkomt Cross-Origin Isolation error)
-if "GODOT_THREADS_ENABLED = true" in s:
-    s = s.replace("GODOT_THREADS_ENABLED = true", "GODOT_THREADS_ENABLED = false")
-    print("✓ GODOT_THREADS_ENABLED geforceerd naar false (geen Cross-Origin headers nodig)")
-else:
-    print("- GODOT_THREADS_ENABLED staat al op false")
+# GODOT_THREADS_ENABLED
+s = s.replace("GODOT_THREADS_ENABLED = true", "GODOT_THREADS_ENABLED = false")
+print("✓ GODOT_THREADS_ENABLED geforceerd naar false")
+
+# ensureCrossOriginIsolationHeaders in GODOT_CONFIG (belangrijk voor splash hang)
+s = re.sub(r'"ensureCrossOriginIsolationHeaders"\s*:\s*true', '"ensureCrossOriginIsolationHeaders":false', s)
+print("✓ ensureCrossOriginIsolationHeaders op false gezet")
 
 with open(path, "w") as f:
     f.write(s)
