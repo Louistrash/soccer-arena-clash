@@ -6,13 +6,15 @@ PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WEB_DIR="$PROJECT_DIR/web"
 INDEX="$WEB_DIR/index.html"
 
-# 1. Kopieer icon.png naar web/
-if [ -f "$PROJECT_DIR/icon.png" ]; then
-  cp "$PROJECT_DIR/icon.png" "$WEB_DIR/icon.png"
-  echo "✓ icon.png gekopieerd naar web/"
-else
-  echo "! icon.png niet gevonden in project root"
-fi
+# 1. Kopieer icon.png en index.png naar web/
+for f in icon.png index.png; do
+  if [ -f "$PROJECT_DIR/$f" ]; then
+    cp "$PROJECT_DIR/$f" "$WEB_DIR/$f"
+    echo "✓ $f gekopieerd naar web/"
+  else
+    echo "! $f niet gevonden in project root"
+  fi
+done
 
 # 2. Patch index.html met Python (betrouwbaar op macOS)
 if [ ! -f "$INDEX" ]; then

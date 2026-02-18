@@ -23,10 +23,20 @@ func _is_touch_device() -> bool:
 	if os_name in ["iOS", "Android"]:
 		return true
 	if os_name == "Web":
-		# Op Web: alleen tonen als browser touch rapporteert (maxTouchPoints > 0)
-		# Desktop browsers hebben meestal maxTouchPoints = 0
+		# Op Web: meerdere checks - iPad in desktopmodus rapporteert vaak maxTouchPoints=0
 		if OS.has_feature("web"):
-			var result = JavaScriptBridge.eval("navigator.maxTouchPoints > 0", true)
+			var js := """
+			(function() {
+				if (navigator.maxTouchPoints > 0) return true;
+				if ('ontouchstart' in window) return true;
+				if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return true;
+				// Tablet-viewport fallback (iPad etc. wanneer maxTouchPoints faalt)
+				var w = window.innerWidth || screen.width;
+				var h = window.innerHeight || screen.height;
+				return (w <= 1024 || h <= 900);
+			})()
+			"""
+			var result = JavaScriptBridge.eval(js, true)
 			return result == true
 		return false
 	# Native desktop: alleen bij fysieke touchscreen
