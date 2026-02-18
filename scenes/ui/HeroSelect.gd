@@ -2,7 +2,7 @@ extends Control
 ## Stadium-style hero gallery: rounded cards, green/gold palette, 6x2 grid layout.
 
 # --- Node refs ---
-@onready var hero_grid: GridContainer = $MainVBox/CarouselPanel/CarouselMargin/ScrollContainer/CenterContainer/HeroGrid
+@onready var hero_grid: GridContainer = $MainVBox/CarouselPanel/CarouselMargin/ScrollContainer/HeroGrid
 @onready var play_button: Button = $MainVBox/BottomBar/BottomMargin/BottomHBox/PlayButton
 @onready var title_label: Label = $MainVBox/TopBar/TopMargin/ContentHBox/TitleVBox/Title
 @onready var subtitle_label: Label = $MainVBox/TopBar/TopMargin/ContentHBox/TitleVBox/Subtitle
@@ -93,8 +93,11 @@ func _ready() -> void:
 	_select_hero("arlo")
 	_screen_open_animation()
 	_play_gallery_music()
-	# Defer layout to next frame so viewport has proper size (fixes empty gallery on web/tablet)
+	# Defer layout so viewport has proper size (fixes empty gallery on web/tablet)
 	call_deferred("_update_grid_layout")
+	# Extra delayed layout for web - viewport/canvas can be 0 on first load
+	var t := get_tree().create_timer(0.3)
+	t.timeout.connect(_update_grid_layout)
 
 func _play_gallery_music() -> void:
 	if not gallery_music or not gallery_music.stream:
@@ -115,6 +118,9 @@ func _update_grid_layout() -> void:
 	var bottom_h: int = 60 if win_size.y < 800 else 80
 	top_bar.custom_minimum_size.y = top_h
 	bottom_bar.custom_minimum_size.y = bottom_h
+
+	# Ensure carousel has minimum height (prevents empty gallery when layout collapses on web)
+	carousel_panel.custom_minimum_size.y = maxi(200, int(win_size.y * 0.4))
 
 	# Margins: CarouselMargin 8+8, extra padding
 	var margin_overhead: int = 32

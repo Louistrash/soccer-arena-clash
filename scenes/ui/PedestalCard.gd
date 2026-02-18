@@ -151,7 +151,6 @@ func _build_ui() -> void:
 	_name_label = Label.new()
 	_name_label.text = hero_data.get("name", "?")
 	_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_name_label.text_overrun_behavior = TextServer.OVERRUN_TRUNCATE_ELLIPSIS
 	_name_label.add_theme_font_size_override("font_size", 12)
 	_name_label.add_theme_color_override("font_color", Color.WHITE)
 	_name_label.add_theme_constant_override("outline_size", 1)
@@ -227,7 +226,6 @@ func _build_ui() -> void:
 
 	var role_lbl := Label.new()
 	role_lbl.text = hero_data.get("role", "")
-	role_lbl.text_overrun_behavior = TextServer.OVERRUN_TRUNCATE_ELLIPSIS
 	role_lbl.add_theme_font_size_override("font_size", 10)
 	role_lbl.add_theme_color_override("font_color", hero_data.get("glow", TEAL_GLOW))
 	role_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
