@@ -26,7 +26,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="InfoPanel" type="PanelContainer" parent="Margin/HBoxMain"]
-custom_minimum_size = Vector2(520, 48)
+custom_minimum_size = Vector2(640, 48)
 layout_mode = 2
 size_flags_horizontal = 3
 
@@ -38,9 +38,10 @@ size_flags_horizontal = 3
 
 [node name="WaveLabel" type="Label" parent="Margin/HBoxMain/InfoPanel/HBoxInfo"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 15
 text = "WAVE 1"
 horizontal_alignment = 1
+clip_text = true
 size_flags_horizontal = 3
 
 [node name="Divider1" type="Label" parent="Margin/HBoxMain/InfoPanel/HBoxInfo"]
@@ -51,9 +52,10 @@ horizontal_alignment = 1
 
 [node name="EnemiesLabel" type="Label" parent="Margin/HBoxMain/InfoPanel/HBoxInfo"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 15
 text = "2 ENEMIES ON FIELD"
 horizontal_alignment = 1
+clip_text = true
 size_flags_horizontal = 3
 
 [node name="Divider2" type="Label" parent="Margin/HBoxMain/InfoPanel/HBoxInfo"]
@@ -64,9 +66,10 @@ horizontal_alignment = 1
 
 [node name="StatusLabel" type="Label" parent="Margin/HBoxMain/InfoPanel/HBoxInfo"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 15
 text = "ARENA ACTIVE"
 horizontal_alignment = 1
+clip_text = true
 size_flags_horizontal = 3
 
 [node name="Divider3" type="Label" parent="Margin/HBoxMain/InfoPanel/HBoxInfo"]
@@ -77,9 +80,10 @@ horizontal_alignment = 1
 
 [node name="ZoneLabel" type="Label" parent="Margin/HBoxMain/InfoPanel/HBoxInfo"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 15
 text = "CENTER"
 horizontal_alignment = 1
+clip_text = true
 size_flags_horizontal = 3
 
 [node name="SpacerRight" type="Control" parent="Margin/HBoxMain"]

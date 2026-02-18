@@ -52,6 +52,9 @@ func _physics_process(delta: float) -> void:
 		var body: Node2D = col.get_collider() as Node2D
 		if body is StaticBody2D:
 			_bounce(col.get_normal())
+			if body.has_method("take_damage"):
+				var hit_dir: Vector2 = col.get_normal()
+				body.take_damage(EXPLOSION_DAMAGE * 0.5, -hit_dir, 0.0)
 		elif body is CharacterBody2D:
 			if _should_hit(body):
 				_explode()

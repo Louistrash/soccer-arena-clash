@@ -16,12 +16,24 @@ const WALL_DATA: Array = [
 	[Vector2(832, 1920), "ruin", 2],
 	[Vector2(1280, 1024), "ruin", 2],
 	[Vector2(1280, 1664), "ruin", 2],
+	# Extra side lane clusters
+	[Vector2(700, 1100), "ruin", 2],
+	[Vector2(700, 1550), "ruin", 2],
+	# Mid-lane walls (dichter bij center)
+	[Vector2(1500, 800), "ruin", 2],
+	[Vector2(1500, 1850), "ruin", 2],
 	# Midfield chokes (rock_cracked 1x1) - destructible
 	[Vector2(1792, 1088), "cracked", 0],
 	[Vector2(1792, 1536), "cracked", 0],
+	[Vector2(1900, 1325), "cracked", 0],
 	# Soft cover corners (rock_moss 1x2)
 	[Vector2(512, 512), "moss", 1],
 	[Vector2(512, 2176), "moss", 1],
+	# Flank cover
+	[Vector2(400, 900), "moss", 1],
+	[Vector2(400, 1750), "moss", 1],
+	# Near-goal cover
+	[Vector2(600, 1325), "moss", 1],
 ]
 
 func spawn_maze(arena: Node2D) -> void:

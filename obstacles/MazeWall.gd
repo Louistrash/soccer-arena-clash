@@ -40,11 +40,11 @@ func _setup_collision() -> void:
 	var rect: RectangleShape2D = RectangleShape2D.new()
 	match wall_size:
 		WallSize.SIZE_1x1:
-			rect.size = Vector2(64, 64)
-		WallSize.SIZE_1x2:
-			rect.size = Vector2(64, 128)
-		WallSize.SIZE_2x2:
 			rect.size = Vector2(128, 128)
+		WallSize.SIZE_1x2:
+			rect.size = Vector2(128, 256)
+		WallSize.SIZE_2x2:
+			rect.size = Vector2(256, 256)
 	collision_shape.shape = rect
 
 func _setup_sprite() -> void:
@@ -56,27 +56,85 @@ func _setup_sprite() -> void:
 		sprite.texture = tex
 	else:
 		sprite.texture = load(FALLBACK_TEXTURE) as Texture2D
-	var scale_x: float = 64.0 / SOURCE_SIZE_PX
-	var scale_y: float = 64.0 / SOURCE_SIZE_PX
+	var scale_x: float = 128.0 / SOURCE_SIZE_PX
+	var scale_y: float = 128.0 / SOURCE_SIZE_PX
 	match wall_size:
 		WallSize.SIZE_2x2:
-			scale_x = 128.0 / SOURCE_SIZE_PX
-			scale_y = 128.0 / SOURCE_SIZE_PX
+			scale_x = 256.0 / SOURCE_SIZE_PX
+			scale_y = 256.0 / SOURCE_SIZE_PX
 		WallSize.SIZE_1x2:
-			scale_x = 64.0 / SOURCE_SIZE_PX
-			scale_y = 128.0 / SOURCE_SIZE_PX
+			scale_x = 128.0 / SOURCE_SIZE_PX
+			scale_y = 256.0 / SOURCE_SIZE_PX
 	sprite.scale = Vector2(scale_x, scale_y)
 
 func take_damage(_amount: float, _knockback_dir: Vector2 = Vector2.ZERO, _knockback_strength: float = 0.0) -> void:
+	_hit_flash()
+	_spawn_debris(_knockback_dir)
 	if wall_type != "cracked":
 		return
 	health -= _amount
 	if health <= 0:
 		_break()
 
+func _hit_flash() -> void:
+	var tw: Tween = create_tween()
+	tw.tween_property(self, "modulate", Color(2.5, 2.5, 2.5, 1.0), 0.04)
+	tw.tween_property(self, "modulate", Color(1, 1, 1, 1), 0.08)
+
+func _spawn_debris(hit_dir: Vector2) -> void:
+	var base_dir: Vector2 = hit_dir.normalized() if hit_dir.length_squared() > 0.01 else Vector2.UP
+	var count: int = randi_range(3, 5)
+	for i in count:
+		var p: DebrisParticle = DebrisParticle.new()
+		p.position = Vector2.ZERO
+		var angle_spread: float = randf_range(-0.8, 0.8)
+		p.velocity = base_dir.rotated(angle_spread) * randf_range(80.0, 160.0)
+		p.wall_color = _get_debris_color()
+		add_child(p)
+
+func _get_debris_color() -> Color:
+	match wall_type:
+		"ruin":
+			return Color(0.55, 0.45, 0.35).lerp(Color(0.4, 0.33, 0.25), randf())
+		"moss":
+			return Color(0.45, 0.55, 0.35).lerp(Color(0.35, 0.45, 0.25), randf())
+		"cracked":
+			return Color(0.6, 0.5, 0.4).lerp(Color(0.5, 0.4, 0.3), randf())
+	return Color(0.5, 0.45, 0.4)
+
 func _break() -> void:
+	_spawn_debris(Vector2.UP)
+	_spawn_debris(Vector2.RIGHT)
 	var tween: Tween = create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(self, "modulate:a", 0.0, 0.12)
-	tween.tween_property(self, "scale", Vector2(0.3, 0.3), 0.12).set_ease(Tween.EASE_IN)
-	tween.tween_callback(queue_free)
+	tween.tween_property(self, "modulate:a", 0.0, 0.15)
+	tween.tween_property(self, "scale", Vector2(0.3, 0.3), 0.15).set_ease(Tween.EASE_IN)
+	tween.chain().tween_callback(queue_free)
+
+
+class DebrisParticle extends Node2D:
+	var velocity: Vector2 = Vector2.ZERO
+	var wall_color: Color = Color(0.5, 0.45, 0.4)
+	var _life: float = 0.0
+	var _max_life: float = 0.35
+	var _size: float = 3.0
+	var _gravity: float = 220.0
+
+	func _ready() -> void:
+		_size = randf_range(2.0, 5.0)
+		z_index = 10
+
+	func _process(delta: float) -> void:
+		_life += delta
+		if _life >= _max_life:
+			queue_free()
+			return
+		velocity.y += _gravity * delta
+		position += velocity * delta
+		queue_redraw()
+
+	func _draw() -> void:
+		var alpha: float = 1.0 - (_life / _max_life)
+		var c: Color = wall_color
+		c.a = alpha
+		draw_rect(Rect2(-_size * 0.5, -_size * 0.5, _size, _size), c)

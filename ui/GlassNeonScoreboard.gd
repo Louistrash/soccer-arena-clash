@@ -111,11 +111,11 @@ func _refresh_info() -> void:
 	if _spawner.has_method("get_last_spawn_zone"):
 		zone = _spawner.get_last_spawn_zone()
 	if wave_label:
-		wave_label.text = "WAVE %d (1 vs %d)" % [wave, count]
+		wave_label.text = "W%d  1v%d" % [wave, count]
 	if enemies_label:
 		enemies_label.text = "%d ENEMIES" % count
 	if zone_label:
-		zone_label.text = "SOLO"
+		zone_label.text = ""
 	if status_label:
 		if count >= 5:
 			status_label.text = "HIGH PRESSURE"
