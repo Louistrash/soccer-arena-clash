@@ -59,11 +59,11 @@ func _draw() -> void:
 		draw_circle(Vector2(80, 40), r, Color(0.9, 0.95, 0.7, alpha))
 		draw_circle(Vector2(size.x - 80, 40), r, Color(0.9, 0.95, 0.7, alpha))
 
-	# Center circle glow behind selected hero
+	# Center circle glow behind selected hero (premium spotlight)
 	if center_glow_pos.x > -9999:
 		var xform: Transform2D = get_global_transform_with_canvas().affine_inverse()
 		var local_pos: Vector2 = xform * center_glow_pos
-		for i in range(8):
-			var r: float = 60.0 + float(i) * 25.0
-			var alpha: float = 0.15 - float(i) * 0.015
-			draw_arc(local_pos, r, 0, TAU, 32, Color(0.9, 0.95, 0.7, alpha))
+		for i in range(12):
+			var r: float = 70.0 + float(i) * 28.0
+			var alpha: float = 0.18 - float(i) * 0.012
+			draw_arc(local_pos, r, 0, TAU, 36, Color(0.92, 0.96, 0.78, alpha))

@@ -137,22 +137,21 @@ size_flags_vertical = 3
 
 [node name="CarouselMargin" type="MarginContainer" parent="MainVBox/CarouselPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 24
 
-[node name="HeroScroll" type="ScrollContainer" parent="MainVBox/CarouselPanel/CarouselMargin"]
-layout_mode = 2
-size_flags_vertical = 3
-horizontal_scroll_mode = 2
-vertical_scroll_mode = 0
-
-[node name="HeroRow" type="HBoxContainer" parent="MainVBox/CarouselPanel/CarouselMargin/HeroScroll"]
+[node name="CenterContainer" type="CenterContainer" parent="MainVBox/CarouselPanel/CarouselMargin"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 20
-alignment = 1
+size_flags_vertical = 3
+
+[node name="HeroGrid" type="GridContainer" parent="MainVBox/CarouselPanel/CarouselMargin/CenterContainer"]
+layout_mode = 2
+theme_override_constants/h_separation = 28
+theme_override_constants/v_separation = 28
+columns = 4
 
 [node name="BottomBar" type="PanelContainer" parent="MainVBox"]
 layout_mode = 2
@@ -171,8 +170,8 @@ alignment = 1
 
 [node name="PlayButton" type="Button" parent="MainVBox/BottomBar/BottomMargin/BottomHBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(320, 64)
-theme_override_font_sizes/font_size = 24
+custom_minimum_size = Vector2(360, 72)
+theme_override_font_sizes/font_size = 26
 text = "PLAY MATCH"
 
 [connection signal="pressed" from="MainVBox/BottomBar/BottomMargin/BottomHBox/PlayButton" to="." method="_on_play_pressed"]

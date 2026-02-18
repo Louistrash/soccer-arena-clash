@@ -3,7 +3,7 @@ extends Control
 ## Glowing circular pedestals, stats panel, role/tactical panel, center glow.
 
 # --- Node refs ---
-@onready var hero_row: HBoxContainer = $MainVBox/CarouselPanel/CarouselMargin/HeroScroll/HeroRow
+@onready var hero_grid: GridContainer = $MainVBox/CarouselPanel/CarouselMargin/CenterContainer/HeroGrid
 @onready var play_button: Button = $MainVBox/BottomBar/BottomMargin/BottomHBox/PlayButton
 @onready var title_label: Label = $MainVBox/TopBar/TopMargin/ContentHBox/TitleVBox/Title
 @onready var subtitle_label: Label = $MainVBox/TopBar/TopMargin/ContentHBox/TitleVBox/Subtitle
@@ -13,7 +13,6 @@ extends Control
 @onready var stats_container: VBoxContainer = $MainVBox/TopBar/TopMargin/ContentHBox/StatsPanel/StatsMargin/StatsVBox/StatsContainer
 @onready var role_title: Label = $MainVBox/TopBar/TopMargin/ContentHBox/RolePanel/RoleMargin/RoleVBox/RoleTitle
 @onready var role_desc: Label = $MainVBox/TopBar/TopMargin/ContentHBox/RolePanel/RoleMargin/RoleVBox/RoleDesc
-@onready var hero_scroll: ScrollContainer = $MainVBox/CarouselPanel/CarouselMargin/HeroScroll
 @onready var background_layer: Control = $BackgroundLayer
 
 const STAT_NAMES := ["Speed", "Shooting", "Passing", "Defense", "Control"]
@@ -111,30 +110,35 @@ func _style_panels() -> void:
 		p.add_theme_stylebox_override("panel", sb)
 
 	title_label.add_theme_color_override("font_color", STADIUM_GOLD)
-	subtitle_label.add_theme_color_override("font_color", Color(0.75, 0.85, 0.7))
-	subtitle_label.text = "Choose your hero for the arena"
+	title_label.add_theme_font_size_override("font_size", 36)
+	subtitle_label.add_theme_color_override("font_color", Color(0.7, 0.88, 0.75))
+	subtitle_label.add_theme_font_size_override("font_size", 15)
+	subtitle_label.text = "Choose your champion for the arena"
 
-	role_title.add_theme_color_override("font_color", Color(0.2, 0.95, 0.7))
-	role_desc.add_theme_color_override("font_color", Color(0.6, 0.75, 0.6))
+	role_title.add_theme_color_override("font_color", Color(0.25, 0.98, 0.75))
+	role_title.add_theme_font_size_override("font_size", 15)
+	role_desc.add_theme_color_override("font_color", Color(0.65, 0.8, 0.68))
+	role_desc.add_theme_font_size_override("font_size", 13)
 
 func _style_play_button() -> void:
 	play_button.disabled = true
 	var sb_normal := StyleBoxFlat.new()
-	sb_normal.bg_color = Color(0.15, 0.65, 0.35)
-	sb_normal.set_corner_radius_all(20)
-	sb_normal.set_border_width_all(2)
-	sb_normal.border_color = Color(0.95, 0.78, 0.25, 0.5)
-	sb_normal.shadow_size = 8
-	sb_normal.shadow_color = Color(0.2, 0.95, 0.5, 0.4)
-	sb_normal.shadow_offset = Vector2(0, 4)
+	sb_normal.bg_color = Color(0.12, 0.6, 0.32)
+	sb_normal.set_corner_radius_all(24)
+	sb_normal.set_border_width_all(3)
+	sb_normal.border_color = Color(0.95, 0.78, 0.25, 0.6)
+	sb_normal.shadow_size = 12
+	sb_normal.shadow_color = Color(0.15, 0.9, 0.45, 0.5)
+	sb_normal.shadow_offset = Vector2(0, 6)
 	play_button.add_theme_stylebox_override("normal", sb_normal)
 
 	var sb_hover := sb_normal.duplicate() as StyleBoxFlat
-	sb_hover.bg_color = Color(0.25, 0.9, 0.5)
+	sb_hover.bg_color = Color(0.28, 0.92, 0.52)
+	sb_hover.border_color = Color(0.95, 0.78, 0.25, 0.9)
 	play_button.add_theme_stylebox_override("hover", sb_hover)
 
 	var sb_pressed := sb_normal.duplicate() as StyleBoxFlat
-	sb_pressed.bg_color = Color(0.1, 0.5, 0.28)
+	sb_pressed.bg_color = Color(0.08, 0.45, 0.22)
 	play_button.add_theme_stylebox_override("pressed", sb_pressed)
 
 	var sb_disabled := StyleBoxFlat.new()
@@ -157,12 +161,9 @@ func _populate_pedestals() -> void:
 		card.setup(hero, tex)
 		card.set_meta("hero_id", hero["id"])
 		card.set_meta("hero_data", hero)
-
-		var wrapper := MarginContainer.new()
-		wrapper.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		wrapper.add_child(card)
-		hero_row.add_child(wrapper)
-		card.set_meta("wrapper", wrapper)
+		
+		# GridContainer handles positioning, no wrapper needed for separation
+		hero_grid.add_child(card)
 
 		card.gui_input.connect(_on_pedestal_gui_input.bind(card))
 		card.mouse_entered.connect(_on_pedestal_mouse_entered.bind(card))
@@ -175,7 +176,7 @@ func _on_pedestal_mouse_entered(card: Control) -> void:
 		return
 	card.pivot_offset = card.size / 2
 	var t := create_tween()
-	t.tween_property(card, "scale", Vector2(1.1, 1.1), 0.15).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	t.tween_property(card, "scale", Vector2(1.05, 1.05), 0.15).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 
 func _on_pedestal_mouse_exited(card: Control) -> void:
 	if card.get_meta("hero_id") == _selected_id:
@@ -214,7 +215,6 @@ func _select_hero(hero_id: String) -> void:
 	_update_stats_panel(hero_data)
 	_update_role_panel(hero_data)
 	_update_pedestal_visuals()
-	_scroll_to_selected()
 	_update_center_glow()
 
 	play_button.disabled = false
@@ -234,25 +234,26 @@ func _update_stats_panel(hero: Dictionary) -> void:
 		var lbl := Label.new()
 		lbl.text = stat_name + "  "
 		lbl.custom_minimum_size.x = 75
-		lbl.add_theme_font_size_override("font_size", 12)
+		lbl.add_theme_font_size_override("font_size", 13)
 		lbl.add_theme_color_override("font_color", Color(0.8, 0.85, 0.8))
 		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		row.add_child(lbl)
 
 		var bar := ProgressBar.new()
-		bar.custom_minimum_size = Vector2(80, 10)
+		bar.custom_minimum_size = Vector2(90, 12)
 		bar.max_value = 100.0
 		bar.value = float(val)
 		bar.show_percentage = false
 		bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		bar.add_theme_stylebox_override("background", _make_bar_stylebox(Color(0.1, 0.15, 0.12)))
-		bar.add_theme_stylebox_override("fill", _make_fill_stylebox(Color(0.95, 0.78, 0.25, 0.8)))
+		bar.add_theme_stylebox_override("background", _make_bar_stylebox(Color(0.06, 0.1, 0.08)))
+		var hero_glow: Color = hero.get("glow", Color(0.95, 0.78, 0.25))
+		bar.add_theme_stylebox_override("fill", _make_fill_stylebox(Color(hero_glow.r, hero_glow.g, hero_glow.b, 0.9)))
 		row.add_child(bar)
 
 		var val_lbl := Label.new()
 		val_lbl.text = str(val)
-		val_lbl.add_theme_font_size_override("font_size", 12)
-		val_lbl.add_theme_color_override("font_color", Color(0.95, 0.78, 0.25))
+		val_lbl.add_theme_font_size_override("font_size", 13)
+		val_lbl.add_theme_color_override("font_color", hero.get("glow", Color(0.95, 0.78, 0.25)))
 		val_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		row.add_child(val_lbl)
 
@@ -278,38 +279,22 @@ func _update_role_panel(hero: Dictionary) -> void:
 func _update_pedestal_visuals() -> void:
 	for card in _pedestals:
 		var cid: String = card.get_meta("hero_id")
-		var wrapper: MarginContainer = card.get_meta("wrapper", null)
 		card.set_selected(cid == _selected_id)
 
 		if cid == _selected_id:
 			card.modulate = Color.WHITE
-			card.scale = Vector2.ONE
+			card.z_index = 10
+			var t := create_tween()
+			t.tween_property(card, "scale", Vector2(1.15, 1.15), 0.2).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 			card.start_idle_bounce()
 			card.start_glow_pulse()
-			if wrapper:
-				wrapper.add_theme_constant_override("margin_top", -10)
-				wrapper.add_theme_constant_override("margin_bottom", 10)
 		else:
 			card.modulate = Color(0.7, 0.7, 0.7)
+			card.z_index = 0
+			var t := create_tween()
+			t.tween_property(card, "scale", Vector2.ONE, 0.2).set_ease(Tween.EASE_OUT)
 			card.stop_idle_bounce()
 			card.stop_glow_pulse()
-			if wrapper:
-				wrapper.add_theme_constant_override("margin_top", 0)
-				wrapper.add_theme_constant_override("margin_bottom", 0)
-
-func _scroll_to_selected() -> void:
-	await get_tree().process_frame
-	var idx := 0
-	for i in range(HERO_DATA.size()):
-		if HERO_DATA[i]["id"] == _selected_id:
-			idx = i
-			break
-	var card: Control = _pedestals[idx] if idx < _pedestals.size() else null
-	if card and hero_scroll:
-		var wrapper: Control = card.get_parent()
-		var center_x: float = wrapper.position.x + card.position.x + card.size.x * 0.5
-		hero_scroll.scroll_horizontal = int(center_x - hero_scroll.size.x * 0.5)
-		hero_scroll.scroll_horizontal = clampi(hero_scroll.scroll_horizontal, 0, max(0, hero_scroll.get_h_scroll_bar().max_value))
 
 func _update_center_glow() -> void:
 	if not background_layer:

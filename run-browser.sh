@@ -32,6 +32,9 @@ if [ ! -f "$WEB_DIR/index.html" ]; then
   exit 1
 fi
 
+# Post-export: favicon + icon.png + social meta
+"$PROJECT_DIR/post-export-web.sh"
+
 # Serveer en open browser
 URL="http://127.0.0.1:$PORT"
 echo "Starten lokale server op $URL"

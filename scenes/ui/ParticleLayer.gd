@@ -37,5 +37,7 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	for p in _particles:
-		var alpha: float = 0.12 * (1.0 - p.life / p.max_life)
-		draw_circle(p.pos, p.size, Color(0.9, 0.95, 0.85, alpha))
+		var life_norm: float = 1.0 - p.life / p.max_life
+		var alpha: float = 0.14 * life_norm
+		var col: Color = Color(0.9, 0.96, 0.88, alpha)
+		draw_circle(p.pos, p.size, col)
