@@ -93,6 +93,8 @@ func _ready() -> void:
 	_select_hero("arlo")
 	_screen_open_animation()
 	_play_gallery_music()
+	# Defer layout to next frame so viewport has proper size (fixes empty gallery on web/tablet)
+	call_deferred("_update_grid_layout")
 
 func _play_gallery_music() -> void:
 	if not gallery_music or not gallery_music.stream:
@@ -150,6 +152,11 @@ func _update_grid_layout() -> void:
 		var scale_factor: float = available_h / required_h
 		card_h = clampi(int(card_h * scale_factor), 75, 200)
 		card_w = clampi(int(card_w * scale_factor), 65, 200)
+
+	# Force grid minimum size so content is visible (fixes empty gallery on web/tablet)
+	var grid_w: int = cols * card_w + (cols - 1) * h_sep
+	var grid_h: int = rows * card_h + (rows - 1) * v_sep
+	hero_grid.custom_minimum_size = Vector2(grid_w, grid_h)
 
 	for card in _pedestals:
 		card.custom_minimum_size = Vector2(card_w, card_h)
