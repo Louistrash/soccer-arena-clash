@@ -95,6 +95,8 @@ func _ready() -> void:
 	_play_gallery_music()
 
 func _play_gallery_music() -> void:
+	if not gallery_music or not gallery_music.stream:
+		return
 	if gallery_music.stream is AudioStreamOggVorbis:
 		gallery_music.stream.loop = true
 	gallery_music.play()
