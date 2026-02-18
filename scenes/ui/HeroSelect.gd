@@ -14,6 +14,7 @@ extends Control
 @onready var role_title: Label = $MainVBox/TopBar/TopMargin/ContentHBox/RolePanel/RoleMargin/RoleVBox/RoleTitle
 @onready var role_desc: Label = $MainVBox/TopBar/TopMargin/ContentHBox/RolePanel/RoleMargin/RoleVBox/RoleDesc
 @onready var background_layer: Control = $BackgroundLayer
+@onready var gallery_music: AudioStreamPlayer = $GalleryMusic
 
 const TOP_ROW_COUNT := 7
 const STAT_NAMES := ["Speed", "Shooting", "Passing", "Defense", "Control"]
@@ -80,6 +81,12 @@ func _ready() -> void:
 	_populate_pedestals()
 	_select_hero("arlo")
 	_screen_open_animation()
+	_play_gallery_music()
+
+func _play_gallery_music() -> void:
+	if gallery_music.stream is AudioStreamOggVorbis:
+		gallery_music.stream.loop = true
+	gallery_music.play()
 
 # ====================== PANEL STYLING ======================
 

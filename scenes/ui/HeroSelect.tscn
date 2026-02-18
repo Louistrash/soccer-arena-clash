@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scenes/ui/HeroSelect.gd" id="1_script"]
 [ext_resource type="Script" path="res://scenes/ui/BackgroundLayer.gd" id="2_background"]
 [ext_resource type="Script" path="res://scenes/ui/ParticleLayer.gd" id="3_particles"]
+[ext_resource type="AudioStream" path="res://audio/hero_gallery.ogg" id="4_audio"]
 
 [node name="HeroSelect" type="Control"]
 layout_mode = 3
@@ -30,6 +31,9 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("3_particles")
+
+[node name="GalleryMusic" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_audio")
 
 [node name="MainVBox" type="VBoxContainer" parent="."]
 layout_mode = 1
