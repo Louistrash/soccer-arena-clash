@@ -13,9 +13,9 @@ config_version=5
 config/name="Soccer Arena Clash"
 run/main_scene="res://Boot.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
-boot_splash/image="res://index.png"
+boot_splash/image="uid://cy5isp3fgym87"
 config/icon="res://icon.png"
-boot_splash/minimum_display_time=5
+boot_splash/minimum_display_time=1
 
 [autoload]
 
