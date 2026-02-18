@@ -120,12 +120,18 @@ func set_selected(selected: bool) -> void:
 	z_index = 10 if is_selected else 0
 
 func _build_ui() -> void:
-	# Hero sprite (upper 65%)
-	var sprite_container := Control.new()
-	sprite_container.set_anchors_preset(Control.PRESET_FULL_RECT)
-	sprite_container.anchor_bottom = 0.65
+	# Use VBoxContainer layout (reliable on web; anchors can fail when parent has 0 size initially)
+	var main_vbox := VBoxContainer.new()
+	main_vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	main_vbox.add_theme_constant_override("separation", 2)
+	add_child(main_vbox)
+
+	# Hero sprite (upper 65% - use minimum height so it gets space)
+	var sprite_container := CenterContainer.new()
+	sprite_container.custom_minimum_size = Vector2(0, 85)  # Min height so sprite area has space
+	sprite_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	sprite_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(sprite_container)
+	main_vbox.add_child(sprite_container)
 
 	_hero_rect = TextureRect.new()
 	_hero_rect.custom_minimum_size = Vector2(56, 56)
@@ -133,7 +139,6 @@ func _build_ui() -> void:
 	_hero_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_hero_rect.texture = hero_texture
 	_hero_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_hero_rect.set_anchors_preset(Control.PRESET_CENTER)
 	sprite_container.add_child(_hero_rect)
 
 	# Name + role at bottom
@@ -141,11 +146,7 @@ func _build_ui() -> void:
 	info_vbox.alignment = BoxContainer.ALIGNMENT_CENTER
 	info_vbox.add_theme_constant_override("separation", 2)
 	info_vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	info_vbox.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	info_vbox.anchor_top = 0.65
-	info_vbox.anchor_bottom = 1.0
-	info_vbox.offset_bottom = -6
-	add_child(info_vbox)
+	main_vbox.add_child(info_vbox)
 
 	_name_label = Label.new()
 	_name_label.text = hero_data.get("name", "?")

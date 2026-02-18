@@ -249,6 +249,8 @@ func _populate_pedestals() -> void:
 		card.setup(hero, tex)
 		card.set_meta("hero_id", hero["id"])
 		card.set_meta("hero_data", hero)
+		# Set size before add_child so layout works correctly (fixes empty cards on web)
+		card.custom_minimum_size = Vector2(110, 155)
 
 		hero_grid.add_child(card)
 
