@@ -159,9 +159,9 @@ size_flags_vertical = 3
 
 [node name="HeroGrid" type="GridContainer" parent="MainVBox/CarouselPanel/CarouselMargin/ScrollContainer/CenterContainer"]
 layout_mode = 2
-theme_override_constants/h_separation = 24
-theme_override_constants/v_separation = 24
-columns = 4
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 20
+columns = 6
 
 [node name="BottomBar" type="PanelContainer" parent="MainVBox"]
 layout_mode = 2

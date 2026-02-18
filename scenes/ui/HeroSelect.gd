@@ -1,5 +1,5 @@
 extends Control
-## Stadium-style hero gallery: rounded cards, green/gold palette, 4x3 grid layout.
+## Stadium-style hero gallery: rounded cards, green/gold palette, 6x2 grid layout.
 
 # --- Node refs ---
 @onready var hero_grid: GridContainer = $MainVBox/CarouselPanel/CarouselMargin/ScrollContainer/CenterContainer/HeroGrid
@@ -134,12 +134,12 @@ func _update_grid_layout() -> void:
 		card_h = 130
 		hero_grid.columns = cols
 	else:
-		cols = 4
-		rows = ceili(HERO_DATA.size() / float(cols))
-		h_sep = 24
-		v_sep = 24
-		card_w = 140
-		card_h = 180
+		cols = 6
+		rows = 2
+		h_sep = 16
+		v_sep = 20
+		card_w = 110
+		card_h = 155
 		hero_grid.columns = cols
 
 	hero_grid.add_theme_constant_override("h_separation", h_sep)
@@ -148,8 +148,8 @@ func _update_grid_layout() -> void:
 	var required_h: float = rows * card_h + (rows - 1) * v_sep
 	if required_h > available_h and available_h > 0:
 		var scale_factor: float = available_h / required_h
-		card_h = clampi(int(card_h * scale_factor), 80, 200)
-		card_w = clampi(int(card_w * scale_factor), 70, 200)
+		card_h = clampi(int(card_h * scale_factor), 75, 200)
+		card_w = clampi(int(card_w * scale_factor), 65, 200)
 
 	for card in _pedestals:
 		card.custom_minimum_size = Vector2(card_w, card_h)
