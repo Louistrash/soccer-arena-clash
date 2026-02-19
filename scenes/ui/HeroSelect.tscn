@@ -135,6 +135,12 @@ theme_override_font_sizes/font_size = 12
 text = ""
 autowrap_mode = 2
 
+[node name="SpeakerToggle" type="Button" parent="MainVBox/TopBar/TopMargin/ContentHBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(48, 40)
+size_flags_vertical = 1
+text = ""
+
 [node name="CarouselPanel" type="PanelContainer" parent="MainVBox"]
 layout_mode = 2
 size_flags_vertical = 3
@@ -142,9 +148,9 @@ size_flags_vertical = 3
 [node name="CarouselMargin" type="MarginContainer" parent="MainVBox/CarouselPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 64
-theme_override_constants/margin_top = 8
+theme_override_constants/margin_top = 28
 theme_override_constants/margin_right = 64
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_bottom = 16
 
 [node name="ScrollContainer" type="ScrollContainer" parent="MainVBox/CarouselPanel/CarouselMargin"]
 layout_mode = 2
@@ -179,3 +185,4 @@ theme_override_font_sizes/font_size = 24
 text = "PLAY MATCH"
 
 [connection signal="pressed" from="MainVBox/BottomBar/BottomMargin/BottomHBox/PlayButton" to="." method="_on_play_pressed"]
+[connection signal="pressed" from="MainVBox/TopBar/TopMargin/ContentHBox/SpeakerToggle" to="." method="_on_speaker_toggle_pressed"]

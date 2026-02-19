@@ -15,6 +15,36 @@ script = ExtResource("4_gamecam")
 [node name="HUD" type="CanvasLayer" parent="."]
 layer = 10
 
+[node name="BackToGallery" type="Button" parent="HUD"]
+anchors_preset = 1
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 24.0
+offset_top = 16.0
+grow_horizontal = 0
+grow_vertical = 0
+custom_minimum_size = Vector2(120, 32)
+text = "< HERO GALLERY"
+
+[node name="SpeakerToggle" type="Button" parent="HUD"]
+anchors_preset = 2
+anchor_top = 0.0
+anchor_bottom = 0.0
+offset_left = -80.0
+offset_top = 16.0
+offset_right = -24.0
+offset_bottom = 48.0
+grow_horizontal = 0
+grow_vertical = 0
+custom_minimum_size = Vector2(56, 32)
+text = ""
+
+[node name="WhistlePlayer" type="AudioStreamPlayer" parent="HUD"]
+
+[node name="StadiumAmbient" type="AudioStreamPlayer" parent="HUD"]
+
 [node name="HealthBar" type="ProgressBar" parent="HUD"]
 anchors_preset = 12
 anchor_top = 1.0
@@ -63,3 +93,6 @@ text = "Match Over!"
 horizontal_alignment = 1
 vertical_alignment = 1
 visible = false
+
+[connection signal="pressed" from="HUD/BackToGallery" to="." method="_on_back_to_gallery_pressed"]
+[connection signal="pressed" from="HUD/SpeakerToggle" to="." method="_on_speaker_toggle_pressed"]

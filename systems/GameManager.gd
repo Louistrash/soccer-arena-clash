@@ -6,6 +6,8 @@ var state: String = "boot"
 var selected_hero_path: String = ""
 var selected_hero_name: String = ""
 var selected_hero_id: String = ""
+## Speaker on/off; toggled via UI in HeroSelect and Match. When false, music and ambient are muted.
+var sound_enabled: bool = true
 
 func _ready() -> void:
 	# Autoloads initialize before the main scene is added to the tree.

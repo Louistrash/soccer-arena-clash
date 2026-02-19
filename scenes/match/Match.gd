@@ -5,6 +5,10 @@ extends Node
 @onready var health_bar: ProgressBar = $HUD/HealthBar
 @onready var goal_label: Label = $HUD/GoalLabel
 @onready var match_over_label: Label = $HUD/MatchOverLabel
+@onready var back_button: Button = $HUD/BackToGallery
+@onready var speaker_toggle: Button = $HUD/SpeakerToggle
+@onready var whistle_player: AudioStreamPlayer = $HUD/WhistlePlayer
+@onready var stadium_ambient: AudioStreamPlayer = $HUD/StadiumAmbient
 
 var hero: CharacterBody2D
 var enemy_spawner: Node
@@ -34,6 +38,74 @@ func _ready() -> void:
 	_setup_goal_areas()
 	_spawn_initial_dirty_zones()
 	_update_score_ui()
+	_style_back_button()
+	_setup_match_audio()
+	_update_speaker_toggle_ui()
+
+func _style_back_button() -> void:
+	if not back_button:
+		return
+	back_button.focus_mode = Control.FOCUS_NONE
+	var sb_normal := StyleBoxFlat.new()
+	sb_normal.bg_color = Color(0.05, 0.08, 0.12, 0.9)
+	sb_normal.set_corner_radius_all(8)
+	sb_normal.set_border_width_all(1)
+	sb_normal.border_color = Color(0.2, 0.95, 0.5, 0.4)
+	back_button.add_theme_stylebox_override("normal", sb_normal)
+	var sb_hover := sb_normal.duplicate() as StyleBoxFlat
+	sb_hover.bg_color = Color(0.1, 0.16, 0.22, 0.95)
+	back_button.add_theme_stylebox_override("hover", sb_hover)
+	back_button.add_theme_color_override("font_color", Color(0.8, 0.9, 1.0))
+	back_button.add_theme_font_size_override("font_size", 13)
+
+func _setup_match_audio() -> void:
+	var whistle: AudioStream = load("res://audio/referee_whistle.ogg") as AudioStream
+	var stadium: AudioStream = load("res://audio/stadium.ogg") as AudioStream
+	if whistle and whistle_player:
+		whistle_player.stream = whistle
+		if GameManager.sound_enabled:
+			whistle_player.play()
+	if stadium and stadium_ambient:
+		stadium_ambient.stream = stadium
+		if stadium is AudioStreamOggVorbis:
+			stadium.loop = true
+		stadium_ambient.volume_db = -14.0
+		stadium_ambient.finished.connect(_on_stadium_finished)
+		_apply_sound_enabled()
+
+func _on_stadium_finished() -> void:
+	if stadium_ambient and GameManager.sound_enabled:
+		stadium_ambient.play()
+
+func _apply_sound_enabled() -> void:
+	var on_db: float = 0.0
+	var off_db: float = -80.0
+	if stadium_ambient:
+		stadium_ambient.volume_db = -14.0 if GameManager.sound_enabled else off_db
+		if GameManager.sound_enabled and not stadium_ambient.playing:
+			stadium_ambient.play()
+		elif not GameManager.sound_enabled:
+			stadium_ambient.stop()
+	if whistle_player:
+		whistle_player.volume_db = on_db if GameManager.sound_enabled else off_db
+
+func _update_speaker_toggle_ui() -> void:
+	if speaker_toggle:
+		speaker_toggle.focus_mode = Control.FOCUS_NONE
+		speaker_toggle.text = "🔊" if GameManager.sound_enabled else "🔇"
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = Color(0.05, 0.08, 0.12, 0.9)
+		sb.set_corner_radius_all(8)
+		sb.set_border_width_all(1)
+		sb.border_color = Color(0.2, 0.95, 0.5, 0.4)
+		speaker_toggle.add_theme_stylebox_override("normal", sb)
+		speaker_toggle.add_theme_color_override("font_color", Color(0.8, 0.9, 1.0))
+		speaker_toggle.add_theme_font_size_override("font_size", 18)
+
+func _on_speaker_toggle_pressed() -> void:
+	GameManager.sound_enabled = not GameManager.sound_enabled
+	_apply_sound_enabled()
+	_update_speaker_toggle_ui()
 
 func _setup_maze_layout() -> void:
 	var MazeLayoutScript: GDScript = load("res://systems/MazeLayout.gd") as GDScript
@@ -217,4 +289,7 @@ func _end_match() -> void:
 	match_over_label.visible = true
 	# Return to menu after 3 seconds
 	await get_tree().create_timer(3.0).timeout
+	GameManager.goto_hero_select()
+
+func _on_back_to_gallery_pressed() -> void:
 	GameManager.goto_hero_select()

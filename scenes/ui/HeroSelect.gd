@@ -16,6 +16,7 @@ extends Control
 @onready var role_desc: Label = $MainVBox/TopBar/TopMargin/ContentHBox/RolePanel/RoleMargin/RoleVBox/RoleDesc
 @onready var background_layer: Control = $BackgroundLayer
 @onready var gallery_music: AudioStreamPlayer = $GalleryMusic
+@onready var speaker_toggle: Button = $MainVBox/TopBar/TopMargin/ContentHBox/SpeakerToggle
 
 const STAT_NAMES := ["Speed", "Shooting", "Passing", "Defense", "Control"]
 
@@ -78,13 +79,15 @@ var _pedestals: Array = []
 var _play_pulse_tween: Tween
 var _scroll_snap_tween: Tween
 var _default_stats: Dictionary = {"speed": 60, "shooting": 60, "passing": 60, "defense": 60, "control": 60}
-var _card_w: int = 374
-var _card_h: int = 468
+var _card_w: int = 236
+var _card_h: int = 370
 var _card_gap: int = 28
 var _arrow_left: Button
 var _arrow_right: Button
 var _scroll_idle_frames: int = 0
 var _last_scroll_h: int = -1
+var _left_spacer: Control
+var _right_spacer: Control
 
 func _get_hero_texture_path(hero_id: String) -> String:
 	return "res://heroes/" + hero_id + ".png"
@@ -107,6 +110,7 @@ func _deferred_gallery_init() -> void:
 	_select_hero("arlo")
 	_screen_open_animation()
 	_play_gallery_music()
+	_update_speaker_toggle_ui()
 	_build_arrow_buttons()
 	if scroll_container.get_h_scroll_bar():
 		scroll_container.get_h_scroll_bar().scrolling.connect(_on_scroll_started)
@@ -117,9 +121,35 @@ func _deferred_gallery_init() -> void:
 func _play_gallery_music() -> void:
 	if not gallery_music or not gallery_music.stream:
 		return
+	if not GameManager.sound_enabled:
+		return
 	if gallery_music.stream is AudioStreamOggVorbis:
 		gallery_music.stream.loop = true
 	gallery_music.play()
+
+func _update_speaker_toggle_ui() -> void:
+	if not speaker_toggle:
+		return
+	speaker_toggle.focus_mode = Control.FOCUS_NONE
+	speaker_toggle.text = "🔊" if GameManager.sound_enabled else "🔇"
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.05, 0.08, 0.14, 0.9)
+	sb.set_corner_radius_all(8)
+	sb.set_border_width_all(1)
+	sb.border_color = Color(STADIUM_GREEN.r, STADIUM_GREEN.g, STADIUM_GREEN.b, 0.4)
+	speaker_toggle.add_theme_stylebox_override("normal", sb)
+	speaker_toggle.add_theme_color_override("font_color", Color(0.8, 0.9, 1.0))
+	speaker_toggle.add_theme_font_size_override("font_size", 20)
+
+func _on_speaker_toggle_pressed() -> void:
+	GameManager.sound_enabled = not GameManager.sound_enabled
+	if gallery_music:
+		if GameManager.sound_enabled:
+			if gallery_music.stream:
+				gallery_music.play()
+		else:
+			gallery_music.stop()
+	_update_speaker_toggle_ui()
 
 func _on_viewport_resized() -> void:
 	_update_carousel_layout()
@@ -201,12 +231,13 @@ func _process(_delta: float) -> void:
 
 func _snap_to_nearest_card() -> void:
 	var view_w: float = scroll_container.size.x
+	var half_pad: float = maxf(0, view_w * 0.5 - _card_w * 0.5)
 	var scroll := scroll_container.scroll_horizontal
 	var center_x: float = scroll + view_w * 0.5
 	var best_idx := 0
 	var best_dist: float = 1e9
 	for i in range(_pedestals.size()):
-		var card_center_x: float = i * (_card_w + _card_gap) + _card_w * 0.5
+		var card_center_x: float = half_pad + i * (_card_w + _card_gap) + _card_w * 0.5
 		var d: float = abs(card_center_x - center_x)
 		if d < best_dist:
 			best_dist = d
@@ -219,10 +250,10 @@ func _scroll_to_center_selected(animated: bool) -> void:
 	var idx := _get_selected_index()
 	if idx < 0 or idx >= _pedestals.size():
 		return
-	var content_w: int = hero_row.custom_minimum_size.x
+	var content_w: float = hero_row.custom_minimum_size.x
 	var view_w: float = scroll_container.size.x
-	# Index-based position (reliable before/after layout)
-	var card_center_x: float = idx * (_card_w + _card_gap) + _card_w * 0.5
+	var half_pad: float = maxf(0, view_w * 0.5 - _card_w * 0.5)
+	var card_center_x: float = half_pad + idx * (_card_w + _card_gap) + _card_w * 0.5
 	var scroll_target: float = card_center_x - view_w * 0.5
 	scroll_target = clampf(scroll_target, 0.0, maxf(0, content_w - view_w))
 	if _scroll_snap_tween and _scroll_snap_tween.is_valid():
@@ -235,18 +266,29 @@ func _scroll_to_center_selected(animated: bool) -> void:
 
 func _update_carousel_layout() -> void:
 	var win_size := get_viewport_rect().size
-	_card_w = 374
-	_card_h = 468
+	_card_w = 236
+	_card_h = 370
 	_card_gap = 28
 	var top_h: int = 76 if win_size.y < 800 else 100
 	var bottom_h: int = 56 if win_size.y < 800 else 72
 	top_bar.custom_minimum_size.y = top_h
 	bottom_bar.custom_minimum_size.y = bottom_h
-	carousel_panel.custom_minimum_size.y = maxi(280, int(win_size.y * 0.45))
+	carousel_panel.custom_minimum_size.y = maxi(340, int(win_size.y * 0.50))
 	hero_row.add_theme_constant_override("separation", _card_gap)
+
+	var view_w: float = scroll_container.size.x
+	if view_w < 1:
+		view_w = win_size.x - 128
+	var half_pad: float = maxf(0, view_w * 0.5 - _card_w * 0.5)
+	if _left_spacer:
+		_left_spacer.custom_minimum_size.x = half_pad
+	if _right_spacer:
+		_right_spacer.custom_minimum_size.x = half_pad
+
 	var n := HERO_DATA.size()
-	var row_w: int = n * _card_w + (n - 1) * _card_gap
-	hero_row.custom_minimum_size = Vector2(row_w, _card_h)
+	var glow_pad := 28
+	var row_w: int = int(half_pad * 2) + n * _card_w + (n - 1) * _card_gap
+	hero_row.custom_minimum_size = Vector2(row_w, _card_h + glow_pad * 2)
 	for card in _pedestals:
 		card.custom_minimum_size = Vector2(_card_w, _card_h)
 		if card.has_method("_clamp_size"):
@@ -331,6 +373,10 @@ func _style_play_button() -> void:
 # ====================== PEDESTALS ======================
 
 func _populate_pedestals() -> void:
+	_left_spacer = Control.new()
+	_left_spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hero_row.add_child(_left_spacer)
+
 	var PedestalCardScript: GDScript = load("res://scenes/ui/PedestalCard.gd") as GDScript
 	for i in range(HERO_DATA.size()):
 		var hero: Dictionary = HERO_DATA[i]
@@ -340,12 +386,17 @@ func _populate_pedestals() -> void:
 		card.set_meta("hero_id", hero["id"])
 		card.set_meta("hero_data", hero)
 		card.custom_minimum_size = Vector2(_card_w, _card_h)
+		card.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		hero_row.add_child(card)
 
 		card.gui_input.connect(_on_pedestal_gui_input.bind(card))
 		card.mouse_entered.connect(_on_pedestal_mouse_entered.bind(card))
 		card.mouse_exited.connect(_on_pedestal_mouse_exited.bind(card))
 		_pedestals.append(card)
+
+	_right_spacer = Control.new()
+	_right_spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hero_row.add_child(_right_spacer)
 
 func _on_pedestal_mouse_entered(card: Control) -> void:
 	if card.get_meta("hero_id") == _selected_id:
