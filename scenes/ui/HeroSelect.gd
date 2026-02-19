@@ -1,5 +1,5 @@
 extends Control
-## Brawl/FIFA-style hero gallery: 6×2 grid, premium cards, no scroll when 12 fit.
+## Brawl/FIFA-style hero gallery: 5×2 grid, bigger cards, border/glow selection (no scale).
 
 # --- Node refs ---
 @onready var hero_grid: GridContainer = $MainVBox/CarouselPanel/CarouselMargin/ScrollContainer/HeroGrid
@@ -113,19 +113,19 @@ func _update_grid_layout() -> void:
 	var win_size := get_viewport_rect().size
 	var is_mobile := win_size.x < 1024
 
-	# Compact bars on small viewports
-	var top_h: int = 80 if win_size.y < 800 else 110
-	var bottom_h: int = 60 if win_size.y < 800 else 80
+	# Compact bars on small viewports; slightly slimmer for more fullscreen
+	var top_h: int = 76 if win_size.y < 800 else 100
+	var bottom_h: int = 56 if win_size.y < 800 else 72
 	top_bar.custom_minimum_size.y = top_h
 	bottom_bar.custom_minimum_size.y = bottom_h
 
 	# Ensure carousel has minimum height (prevents empty gallery when layout collapses on web)
-	carousel_panel.custom_minimum_size.y = maxi(200, int(win_size.y * 0.4))
+	carousel_panel.custom_minimum_size.y = maxi(200, int(win_size.y * 0.42))
 
-	# Horizontal space for grid (CarouselMargin 28+28 so left/right aren't cut off)
-	var carousel_margin_x: int = 56
+	# Horizontal space for grid: tight margins for more fullscreen (CarouselMargin 12+12)
+	var carousel_margin_x: int = 24
 	var available_w: float = win_size.x - float(carousel_margin_x)
-	var margin_overhead: int = 32
+	var margin_overhead: int = 24
 	var available_h: float = win_size.y - float(top_h + bottom_h + margin_overhead)
 
 	var card_w: int
@@ -135,7 +135,7 @@ func _update_grid_layout() -> void:
 	var cols: int
 	var rows: int
 
-	# 6 columns × 2 rows (12 cards visible), 24–32px gap, 4:5 card ratio
+	# 5 columns × 2 rows (10 cards visible), bigger cards, 4:5 ratio
 	if is_mobile:
 		cols = 3
 		rows = ceili(HERO_DATA.size() / float(cols))
@@ -145,12 +145,12 @@ func _update_grid_layout() -> void:
 		card_h = 175
 		hero_grid.columns = cols
 	else:
-		cols = 6
+		cols = 5
 		rows = 2
 		h_sep = 28
 		v_sep = 28
-		card_w = 240
-		card_h = 300
+		card_w = 260
+		card_h = 325
 		hero_grid.columns = cols
 
 	hero_grid.add_theme_constant_override("h_separation", h_sep)
@@ -167,8 +167,15 @@ func _update_grid_layout() -> void:
 		scale_h = available_h / required_h
 	var scale := minf(scale_w, scale_h)
 	if scale < 1.0:
-		card_w = clampi(int(card_w * scale), 130, 280)
-		card_h = clampi(int(card_h * scale), 162, 350)
+		card_w = clampi(int(card_w * scale), 140, 280)
+		card_h = clampi(int(card_h * scale), 175, 350)
+
+	# Guarantee grid fits width (no horizontal clipping in fullscreen)
+	var max_card_w: int = int((available_w - (cols - 1) * h_sep) / cols)
+	if max_card_w > 0 and card_w > max_card_w:
+		card_w = clampi(max_card_w, 140, 280)
+		# Keep aspect ~4:5
+		card_h = clampi(int(card_w * 325 / 260), 175, 350)
 
 	# Force grid minimum size so content is visible (fixes empty gallery on web/tablet)
 	var grid_w: int = cols * card_w + (cols - 1) * h_sep
@@ -266,8 +273,8 @@ func _populate_pedestals() -> void:
 		card.setup(hero, tex)
 		card.set_meta("hero_id", hero["id"])
 		card.set_meta("hero_data", hero)
-		# Set size before add_child (6×2 premium layout default)
-		card.custom_minimum_size = Vector2(240, 300)
+		# Set size before add_child (5×2 layout default)
+		card.custom_minimum_size = Vector2(260, 325)
 
 		hero_grid.add_child(card)
 
@@ -281,7 +288,7 @@ func _on_pedestal_mouse_entered(card: Control) -> void:
 		return
 	card.pivot_offset = card.size / 2
 	var t := create_tween()
-	t.tween_property(card, "scale", Vector2(1.05, 1.05), 0.15).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	t.tween_property(card, "scale", Vector2(1.02, 1.02), 0.15).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 
 func _on_pedestal_mouse_exited(card: Control) -> void:
 	if card.get_meta("hero_id") == _selected_id:
@@ -297,9 +304,8 @@ func _on_pedestal_gui_input(event: InputEvent, card: Control) -> void:
 			_select_hero(hero_id)
 			card.pivot_offset = card.size / 2
 			var t := create_tween()
-			t.tween_property(card, "scale", Vector2(0.92, 0.92), 0.05)
-			t.tween_property(card, "scale", Vector2(1.04, 1.04), 0.1).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-			t.tween_property(card, "scale", Vector2.ONE, 0.08)
+			t.tween_property(card, "scale", Vector2(1.02, 1.02), 0.05)
+			t.tween_property(card, "scale", Vector2.ONE, 0.1).set_ease(Tween.EASE_OUT)
 
 # ====================== SELECTION ======================
 
@@ -388,8 +394,7 @@ func _update_pedestal_visuals() -> void:
 		if cid == _selected_id:
 			card.modulate = Color.WHITE
 			card.z_index = 10
-			var t := create_tween()
-			t.tween_property(card, "scale", Vector2(1.08, 1.08), 0.2).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+			card.scale = Vector2.ONE
 			card.start_idle_bounce()
 			card.start_glow_pulse()
 			if card.has_method("update_trophy_visuals"):

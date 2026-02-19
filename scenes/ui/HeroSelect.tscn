@@ -46,14 +46,14 @@ theme_override_constants/separation = 0
 
 [node name="TopBar" type="PanelContainer" parent="MainVBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 110)
+custom_minimum_size = Vector2(0, 100)
 
 [node name="TopMargin" type="MarginContainer" parent="MainVBox/TopBar"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 6
 
 [node name="ContentHBox" type="HBoxContainer" parent="MainVBox/TopBar/TopMargin"]
 layout_mode = 2
@@ -141,10 +141,10 @@ size_flags_vertical = 3
 
 [node name="CarouselMargin" type="MarginContainer" parent="MainVBox/CarouselPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 28
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 28
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 6
 
 [node name="ScrollContainer" type="ScrollContainer" parent="MainVBox/CarouselPanel/CarouselMargin"]
 layout_mode = 2
@@ -156,18 +156,18 @@ vertical_scroll_mode = 1
 layout_mode = 2
 theme_override_constants/h_separation = 28
 theme_override_constants/v_separation = 28
-columns = 6
+columns = 5
 
 [node name="BottomBar" type="PanelContainer" parent="MainVBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 80)
+custom_minimum_size = Vector2(0, 72)
 
 [node name="BottomMargin" type="MarginContainer" parent="MainVBox/BottomBar"]
 layout_mode = 2
-theme_override_constants/margin_left = 40
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 40
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 8
 
 [node name="BottomHBox" type="HBoxContainer" parent="MainVBox/BottomBar/BottomMargin"]
 layout_mode = 2

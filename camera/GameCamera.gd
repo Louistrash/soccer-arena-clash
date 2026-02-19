@@ -87,9 +87,9 @@ func _calculate_overview_zoom() -> Vector2:
 		return Vector2(0.3, 0.3)
 	var field_w: float = FIELD_RIGHT - FIELD_LEFT
 	var field_h: float = FIELD_BOTTOM - FIELD_TOP
-	# Calculate zoom to fit field in viewport with 8% padding
-	var zoom_x: float = viewport_size.x / (field_w * 1.08)
-	var zoom_y: float = viewport_size.y / (field_h * 1.08)
+	# Calculate zoom to fit field in viewport with 2% padding (more fullscreen)
+	var zoom_x: float = viewport_size.x / (field_w * 1.02)
+	var zoom_y: float = viewport_size.y / (field_h * 1.02)
 	var z: float = min(zoom_x, zoom_y)
 	return Vector2(z, z)
 

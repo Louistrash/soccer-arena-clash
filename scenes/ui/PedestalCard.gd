@@ -177,19 +177,19 @@ func _build_ui() -> void:
 	role_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	role_container.add_child(role_lbl)
 
-	# Trophies (icon + number)
+	# Trophies (procedural icon + number)
 	_trophy_container = HBoxContainer.new()
 	_trophy_container.alignment = BoxContainer.ALIGNMENT_CENTER
-	_trophy_container.add_theme_constant_override("separation", 3)
+	_trophy_container.add_theme_constant_override("separation", 4)
 	_trophy_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_trophy_container.pivot_offset = Vector2(0, 0) # Will be updated after layout
+	_trophy_container.pivot_offset = Vector2(0, 0)
 	info_vbox.add_child(_trophy_container)
 
-	var trophy_icon := Label.new()
-	trophy_icon.text = "🏆"
-	trophy_icon.add_theme_font_size_override("font_size", 22)
-	trophy_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_trophy_container.add_child(trophy_icon)
+	var trophy_icon_control := Control.new()
+	trophy_icon_control.set_script(load("res://scenes/ui/TrophyIconDraw.gd") as GDScript)
+	trophy_icon_control.custom_minimum_size = Vector2(28, 28)
+	trophy_icon_control.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_trophy_container.add_child(trophy_icon_control)
 
 	_trophy_label = Label.new()
 	var trophy_count = hero_data.get("trophies", 0)
@@ -242,35 +242,28 @@ func _get_rank_tier(count: int) -> String:
 func update_trophy_visuals(selected: bool) -> void:
 	if not _trophy_container or not _trophy_label:
 		return
-		
-	var base_scale := Vector2.ONE
 	var base_font_size: int = _trophy_label.get_meta("base_font_size", 20)
 	var outline_col := Color(0, 0, 0, 0.8)
 	var outline_size := 3
-	
+	_trophy_container.scale = Vector2.ONE
+	_trophy_container.pivot_offset = Vector2.ZERO
 	if selected:
-		# Selected focus: Scale up trophy section, add glow
-		_trophy_container.scale = Vector2(1.15, 1.15)
-		_trophy_container.pivot_offset = _trophy_container.size / 2
 		_trophy_label.add_theme_font_size_override("font_size", base_font_size + 2)
 		_trophy_label.add_theme_color_override("font_outline_color", STADIUM_GOLD)
 		_trophy_label.add_theme_constant_override("outline_size", 3)
 	else:
-		# Reset to normal
-		_trophy_container.scale = Vector2.ONE
-		_trophy_container.pivot_offset = Vector2.ZERO
 		_trophy_label.add_theme_font_size_override("font_size", base_font_size)
 		_trophy_label.add_theme_color_override("font_outline_color", outline_col)
 		_trophy_label.add_theme_constant_override("outline_size", outline_size)
 
 func _update_size() -> void:
-	# 6×2 premium layout: 4:5 ratio
-	custom_minimum_size = Vector2(240, 300)
+	# 5×2 layout: 4:5 ratio
+	custom_minimum_size = Vector2(260, 325)
 	_clamp_size()
 
 func _clamp_size() -> void:
 	if custom_minimum_size == Vector2.ZERO:
-		custom_minimum_size = Vector2(240, 300)
+		custom_minimum_size = Vector2(260, 325)
 
 func start_idle_bounce() -> void:
 	if _hero_rect == null:
