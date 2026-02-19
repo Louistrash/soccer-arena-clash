@@ -1,13 +1,15 @@
 extends Control
-## Brawl/FIFA-style hero gallery: 5×2 grid, bigger cards, border/glow selection (no scale).
+## Premium horizontal hero carousel: one row, 44% bigger cards, snap scroll, Brawl Stars × FIFA style.
 
 # --- Node refs ---
-@onready var hero_grid: GridContainer = $MainVBox/CarouselPanel/CarouselMargin/ScrollContainer/HeroGrid
+@onready var hero_row: HBoxContainer = $MainVBox/CarouselPanel/CarouselMargin/ScrollContainer/HeroRow
+@onready var scroll_container: ScrollContainer = $MainVBox/CarouselPanel/CarouselMargin/ScrollContainer
 @onready var play_button: Button = $MainVBox/BottomBar/BottomMargin/BottomHBox/PlayButton
 @onready var title_label: Label = $MainVBox/TopBar/TopMargin/ContentHBox/TitleVBox/Title
 @onready var subtitle_label: Label = $MainVBox/TopBar/TopMargin/ContentHBox/TitleVBox/Subtitle
 @onready var top_bar: PanelContainer = $MainVBox/TopBar
 @onready var carousel_panel: PanelContainer = $MainVBox/CarouselPanel
+@onready var carousel_margin: MarginContainer = $MainVBox/CarouselPanel/CarouselMargin
 @onready var bottom_bar: PanelContainer = $MainVBox/BottomBar
 @onready var stats_container: VBoxContainer = $MainVBox/TopBar/TopMargin/ContentHBox/StatsPanel/StatsMargin/StatsVBox/StatsContainer
 @onready var role_title: Label = $MainVBox/TopBar/TopMargin/ContentHBox/RolePanel/RoleMargin/RoleVBox/RoleTitle
@@ -74,7 +76,15 @@ const HERO_DATA: Array[Dictionary] = [
 var _selected_id: String = ""
 var _pedestals: Array = []
 var _play_pulse_tween: Tween
+var _scroll_snap_tween: Tween
 var _default_stats: Dictionary = {"speed": 60, "shooting": 60, "passing": 60, "defense": 60, "control": 60}
+var _card_w: int = 374
+var _card_h: int = 468
+var _card_gap: int = 28
+var _arrow_left: Button
+var _arrow_right: Button
+var _scroll_idle_frames: int = 0
+var _last_scroll_h: int = -1
 
 func _get_hero_texture_path(hero_id: String) -> String:
 	return "res://heroes/" + hero_id + ".png"
@@ -88,16 +98,21 @@ func _ready() -> void:
 	get_tree().root.size_changed.connect(_on_viewport_resized)
 	_style_panels()
 	_style_play_button()
+	# Defer heavy work so loader can hide and first frame can paint (fixes stuck loader on web)
+	call_deferred("_deferred_gallery_init")
+
+func _deferred_gallery_init() -> void:
 	_populate_pedestals()
-	_update_grid_layout()
+	_update_carousel_layout()
 	_select_hero("arlo")
 	_screen_open_animation()
 	_play_gallery_music()
-	# Defer layout so viewport has proper size (fixes empty gallery on web/tablet)
-	call_deferred("_update_grid_layout")
-	# Extra delayed layout for web - viewport/canvas can be 0 on first load
+	_build_arrow_buttons()
+	if scroll_container.get_h_scroll_bar():
+		scroll_container.get_h_scroll_bar().scrolling.connect(_on_scroll_started)
+	call_deferred("_update_carousel_layout")
 	var t := get_tree().create_timer(0.3)
-	t.timeout.connect(_update_grid_layout)
+	t.timeout.connect(_update_carousel_layout)
 
 func _play_gallery_music() -> void:
 	if not gallery_music or not gallery_music.stream:
@@ -107,85 +122,136 @@ func _play_gallery_music() -> void:
 	gallery_music.play()
 
 func _on_viewport_resized() -> void:
-	_update_grid_layout()
+	_update_carousel_layout()
 
-func _update_grid_layout() -> void:
+func _build_arrow_buttons() -> void:
+	_arrow_left = Button.new()
+	_arrow_left.text = "‹"
+	_arrow_left.add_theme_font_size_override("font_size", 36)
+	_arrow_left.custom_minimum_size = Vector2(56, 80)
+	_arrow_left.flat = true
+	_arrow_left.focus_mode = Control.FOCUS_NONE
+	_arrow_left.add_theme_color_override("font_color", STADIUM_GOLD)
+	_arrow_left.add_theme_color_override("font_hover_color", Color.WHITE)
+	_arrow_left.pressed.connect(_on_arrow_left_pressed)
+	carousel_margin.add_child(_arrow_left)
+	_arrow_left.set_anchors_preset(Control.PRESET_LEFT_WIDE)
+	_arrow_left.anchor_top = 0.5
+	_arrow_left.anchor_bottom = 0.5
+	_arrow_left.offset_left = 4
+	_arrow_left.offset_top = -36
+	_arrow_left.offset_right = 52
+	_arrow_left.offset_bottom = 36
+
+	_arrow_right = Button.new()
+	_arrow_right.text = "›"
+	_arrow_right.add_theme_font_size_override("font_size", 36)
+	_arrow_right.custom_minimum_size = Vector2(56, 80)
+	_arrow_right.flat = true
+	_arrow_right.focus_mode = Control.FOCUS_NONE
+	_arrow_right.pressed.connect(_on_arrow_right_pressed)
+	_arrow_right.add_theme_color_override("font_color", STADIUM_GOLD)
+	_arrow_right.add_theme_color_override("font_hover_color", Color.WHITE)
+	carousel_margin.add_child(_arrow_right)
+	_arrow_right.set_anchors_preset(Control.PRESET_RIGHT_WIDE)
+	_arrow_right.anchor_top = 0.5
+	_arrow_right.anchor_bottom = 0.5
+	_arrow_right.offset_left = -52
+	_arrow_right.offset_top = -36
+	_arrow_right.offset_right = -4
+	_arrow_right.offset_bottom = 36
+
+func _on_arrow_left_pressed() -> void:
+	var idx := _get_selected_index()
+	if idx > 0:
+		_select_hero(HERO_DATA[idx - 1]["id"])
+		_scroll_to_center_selected(true)
+
+func _on_arrow_right_pressed() -> void:
+	var idx := _get_selected_index()
+	if idx >= 0 and idx < HERO_DATA.size() - 1:
+		_select_hero(HERO_DATA[idx + 1]["id"])
+		_scroll_to_center_selected(true)
+
+func _get_selected_index() -> int:
+	for i in range(HERO_DATA.size()):
+		if HERO_DATA[i]["id"] == _selected_id:
+			return i
+	return 0
+
+func _on_scroll_started() -> void:
+	_last_scroll_h = scroll_container.scroll_horizontal
+
+func _process(_delta: float) -> void:
+	if _pedestals.is_empty() or not is_instance_valid(scroll_container):
+		return
+	# Snap to nearest card when user stops scrolling (swipe/drag end)
+	if _scroll_snap_tween and _scroll_snap_tween.is_valid() and _scroll_snap_tween.is_running():
+		_last_scroll_h = scroll_container.scroll_horizontal
+		_scroll_idle_frames = 0
+		return
+	if scroll_container.scroll_horizontal != _last_scroll_h:
+		_last_scroll_h = scroll_container.scroll_horizontal
+		_scroll_idle_frames = 0
+		return
+	_scroll_idle_frames += 1
+	if _scroll_idle_frames == 12:  # ~0.2s at 60 FPS
+		_snap_to_nearest_card()
+		_scroll_idle_frames = 0
+
+func _snap_to_nearest_card() -> void:
+	var view_w: float = scroll_container.size.x
+	var scroll := scroll_container.scroll_horizontal
+	var center_x: float = scroll + view_w * 0.5
+	var best_idx := 0
+	var best_dist: float = 1e9
+	for i in range(_pedestals.size()):
+		var card_center_x: float = i * (_card_w + _card_gap) + _card_w * 0.5
+		var d: float = abs(card_center_x - center_x)
+		if d < best_dist:
+			best_dist = d
+			best_idx = i
+	if best_idx >= 0 and best_idx < HERO_DATA.size() and HERO_DATA[best_idx]["id"] != _selected_id:
+		_select_hero(HERO_DATA[best_idx]["id"])
+	_scroll_to_center_selected(true)
+
+func _scroll_to_center_selected(animated: bool) -> void:
+	var idx := _get_selected_index()
+	if idx < 0 or idx >= _pedestals.size():
+		return
+	var content_w: int = hero_row.custom_minimum_size.x
+	var view_w: float = scroll_container.size.x
+	# Index-based position (reliable before/after layout)
+	var card_center_x: float = idx * (_card_w + _card_gap) + _card_w * 0.5
+	var scroll_target: float = card_center_x - view_w * 0.5
+	scroll_target = clampf(scroll_target, 0.0, maxf(0, content_w - view_w))
+	if _scroll_snap_tween and _scroll_snap_tween.is_valid():
+		_scroll_snap_tween.kill()
+	if animated:
+		_scroll_snap_tween = create_tween()
+		_scroll_snap_tween.tween_property(scroll_container, "scroll_horizontal", int(scroll_target), 0.25).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	else:
+		scroll_container.scroll_horizontal = int(scroll_target)
+
+func _update_carousel_layout() -> void:
 	var win_size := get_viewport_rect().size
-	var is_mobile := win_size.x < 1024
-
-	# Compact bars on small viewports; slightly slimmer for more fullscreen
+	_card_w = 374
+	_card_h = 468
+	_card_gap = 28
 	var top_h: int = 76 if win_size.y < 800 else 100
 	var bottom_h: int = 56 if win_size.y < 800 else 72
 	top_bar.custom_minimum_size.y = top_h
 	bottom_bar.custom_minimum_size.y = bottom_h
-
-	# Ensure carousel has minimum height (prevents empty gallery when layout collapses on web)
-	carousel_panel.custom_minimum_size.y = maxi(200, int(win_size.y * 0.42))
-
-	# Horizontal space for grid: tight margins for more fullscreen (CarouselMargin 12+12)
-	var carousel_margin_x: int = 24
-	var available_w: float = win_size.x - float(carousel_margin_x)
-	var margin_overhead: int = 24
-	var available_h: float = win_size.y - float(top_h + bottom_h + margin_overhead)
-
-	var card_w: int
-	var card_h: int
-	var h_sep: int
-	var v_sep: int
-	var cols: int
-	var rows: int
-
-	# 5 columns × 2 rows (10 cards visible), bigger cards, 4:5 ratio
-	if is_mobile:
-		cols = 3
-		rows = ceili(HERO_DATA.size() / float(cols))
-		h_sep = 20
-		v_sep = 20
-		card_w = 140
-		card_h = 175
-		hero_grid.columns = cols
-	else:
-		cols = 5
-		rows = 2
-		h_sep = 28
-		v_sep = 28
-		card_w = 260
-		card_h = 325
-		hero_grid.columns = cols
-
-	hero_grid.add_theme_constant_override("h_separation", h_sep)
-	hero_grid.add_theme_constant_override("v_separation", v_sep)
-
-	var grid_w_needed: float = cols * card_w + (cols - 1) * h_sep
-	var required_h: float = rows * card_h + (rows - 1) * v_sep
-	# Scale down so grid fits in both width and height (no cut-off left/right/top/bottom)
-	var scale_w: float = 1.0
-	var scale_h: float = 1.0
-	if grid_w_needed > available_w and available_w > 0:
-		scale_w = available_w / grid_w_needed
-	if required_h > available_h and available_h > 0:
-		scale_h = available_h / required_h
-	var scale := minf(scale_w, scale_h)
-	if scale < 1.0:
-		card_w = clampi(int(card_w * scale), 140, 280)
-		card_h = clampi(int(card_h * scale), 175, 350)
-
-	# Guarantee grid fits width (no horizontal clipping in fullscreen)
-	var max_card_w: int = int((available_w - (cols - 1) * h_sep) / cols)
-	if max_card_w > 0 and card_w > max_card_w:
-		card_w = clampi(max_card_w, 140, 280)
-		# Keep aspect ~4:5
-		card_h = clampi(int(card_w * 325 / 260), 175, 350)
-
-	# Force grid minimum size so content is visible (fixes empty gallery on web/tablet)
-	var grid_w: int = cols * card_w + (cols - 1) * h_sep
-	var grid_h: int = rows * card_h + (rows - 1) * v_sep
-	hero_grid.custom_minimum_size = Vector2(grid_w, grid_h)
-
+	carousel_panel.custom_minimum_size.y = maxi(280, int(win_size.y * 0.45))
+	hero_row.add_theme_constant_override("separation", _card_gap)
+	var n := HERO_DATA.size()
+	var row_w: int = n * _card_w + (n - 1) * _card_gap
+	hero_row.custom_minimum_size = Vector2(row_w, _card_h)
 	for card in _pedestals:
-		card.custom_minimum_size = Vector2(card_w, card_h)
+		card.custom_minimum_size = Vector2(_card_w, _card_h)
 		if card.has_method("_clamp_size"):
 			card._clamp_size()
+	call_deferred("_scroll_to_center_selected", false)
 
 # ====================== PANEL STYLING ======================
 
@@ -273,10 +339,8 @@ func _populate_pedestals() -> void:
 		card.setup(hero, tex)
 		card.set_meta("hero_id", hero["id"])
 		card.set_meta("hero_data", hero)
-		# Set size before add_child (5×2 layout default)
-		card.custom_minimum_size = Vector2(260, 325)
-
-		hero_grid.add_child(card)
+		card.custom_minimum_size = Vector2(_card_w, _card_h)
+		hero_row.add_child(card)
 
 		card.gui_input.connect(_on_pedestal_gui_input.bind(card))
 		card.mouse_entered.connect(_on_pedestal_mouse_entered.bind(card))
@@ -288,7 +352,7 @@ func _on_pedestal_mouse_entered(card: Control) -> void:
 		return
 	card.pivot_offset = card.size / 2
 	var t := create_tween()
-	t.tween_property(card, "scale", Vector2(1.02, 1.02), 0.15).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	t.tween_property(card, "scale", Vector2(1.04, 1.04), 0.14).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 
 func _on_pedestal_mouse_exited(card: Control) -> void:
 	if card.get_meta("hero_id") == _selected_id:
@@ -302,10 +366,10 @@ func _on_pedestal_gui_input(event: InputEvent, card: Control) -> void:
 		if mb.button_index == MOUSE_BUTTON_LEFT and mb.pressed:
 			var hero_id: String = card.get_meta("hero_id")
 			_select_hero(hero_id)
+			_scroll_to_center_selected(true)
 			card.pivot_offset = card.size / 2
 			var t := create_tween()
-			t.tween_property(card, "scale", Vector2(1.02, 1.02), 0.05)
-			t.tween_property(card, "scale", Vector2.ONE, 0.1).set_ease(Tween.EASE_OUT)
+			t.tween_property(card, "scale", Vector2(1.06, 1.06), 0.08).set_ease(Tween.EASE_OUT)
 
 # ====================== SELECTION ======================
 
@@ -394,13 +458,14 @@ func _update_pedestal_visuals() -> void:
 		if cid == _selected_id:
 			card.modulate = Color.WHITE
 			card.z_index = 10
-			card.scale = Vector2.ONE
+			card.pivot_offset = card.size / 2
+			card.scale = Vector2(1.06, 1.06)
 			card.start_idle_bounce()
 			card.start_glow_pulse()
 			if card.has_method("update_trophy_visuals"):
 				card.update_trophy_visuals(true)
 		else:
-			card.modulate = Color(0.5, 0.55, 0.6) # Desaturated blue/grey
+			card.modulate = Color(0.5, 0.55, 0.6)
 			card.z_index = 0
 			var t := create_tween()
 			t.tween_property(card, "scale", Vector2.ONE, 0.2).set_ease(Tween.EASE_OUT)

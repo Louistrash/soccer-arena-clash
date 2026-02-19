@@ -141,22 +141,21 @@ size_flags_vertical = 3
 
 [node name="CarouselMargin" type="MarginContainer" parent="MainVBox/CarouselPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 6
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 6
+theme_override_constants/margin_left = 64
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 64
+theme_override_constants/margin_bottom = 8
 
 [node name="ScrollContainer" type="ScrollContainer" parent="MainVBox/CarouselPanel/CarouselMargin"]
 layout_mode = 2
 size_flags_vertical = 3
-horizontal_scroll_mode = 0
-vertical_scroll_mode = 1
+horizontal_scroll_mode = 2
+vertical_scroll_mode = 0
 
-[node name="HeroGrid" type="GridContainer" parent="MainVBox/CarouselPanel/CarouselMargin/ScrollContainer"]
+[node name="HeroRow" type="HBoxContainer" parent="MainVBox/CarouselPanel/CarouselMargin/ScrollContainer"]
 layout_mode = 2
-theme_override_constants/h_separation = 28
-theme_override_constants/v_separation = 28
-columns = 5
+theme_override_constants/separation = 28
+alignment = 1
 
 [node name="BottomBar" type="PanelContainer" parent="MainVBox"]
 layout_mode = 2
