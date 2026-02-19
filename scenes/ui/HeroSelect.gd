@@ -1,5 +1,5 @@
 extends Control
-## Stadium-style hero gallery: rounded cards, green/gold palette, 4x3 (desktop) / 3-col (mobile) grid.
+## Brawl/FIFA-style hero gallery: 6×2 grid, premium cards, no scroll when 12 fit.
 
 # --- Node refs ---
 @onready var hero_grid: GridContainer = $MainVBox/CarouselPanel/CarouselMargin/ScrollContainer/HeroGrid
@@ -122,7 +122,9 @@ func _update_grid_layout() -> void:
 	# Ensure carousel has minimum height (prevents empty gallery when layout collapses on web)
 	carousel_panel.custom_minimum_size.y = maxi(200, int(win_size.y * 0.4))
 
-	# Margins: CarouselMargin 8+8, extra padding
+	# Horizontal space for grid (CarouselMargin 28+28 so left/right aren't cut off)
+	var carousel_margin_x: int = 56
+	var available_w: float = win_size.x - float(carousel_margin_x)
 	var margin_overhead: int = 32
 	var available_h: float = win_size.y - float(top_h + bottom_h + margin_overhead)
 
@@ -133,31 +135,40 @@ func _update_grid_layout() -> void:
 	var cols: int
 	var rows: int
 
+	# 6 columns × 2 rows (12 cards visible), 24–32px gap, 4:5 card ratio
 	if is_mobile:
 		cols = 3
 		rows = ceili(HERO_DATA.size() / float(cols))
-		h_sep = 16
-		v_sep = 16
-		card_w = 125
-		card_h = 170
+		h_sep = 20
+		v_sep = 20
+		card_w = 140
+		card_h = 175
 		hero_grid.columns = cols
 	else:
-		cols = 4
-		rows = ceili(HERO_DATA.size() / float(cols))
-		h_sep = 24
-		v_sep = 24
-		card_w = 155
-		card_h = 205
+		cols = 6
+		rows = 2
+		h_sep = 28
+		v_sep = 28
+		card_w = 240
+		card_h = 300
 		hero_grid.columns = cols
 
 	hero_grid.add_theme_constant_override("h_separation", h_sep)
 	hero_grid.add_theme_constant_override("v_separation", v_sep)
 
+	var grid_w_needed: float = cols * card_w + (cols - 1) * h_sep
 	var required_h: float = rows * card_h + (rows - 1) * v_sep
+	# Scale down so grid fits in both width and height (no cut-off left/right/top/bottom)
+	var scale_w: float = 1.0
+	var scale_h: float = 1.0
+	if grid_w_needed > available_w and available_w > 0:
+		scale_w = available_w / grid_w_needed
 	if required_h > available_h and available_h > 0:
-		var scale_factor: float = available_h / required_h
-		card_h = clampi(int(card_h * scale_factor), 100, 220)
-		card_w = clampi(int(card_w * scale_factor), 90, 220)
+		scale_h = available_h / required_h
+	var scale := minf(scale_w, scale_h)
+	if scale < 1.0:
+		card_w = clampi(int(card_w * scale), 130, 280)
+		card_h = clampi(int(card_h * scale), 162, 350)
 
 	# Force grid minimum size so content is visible (fixes empty gallery on web/tablet)
 	var grid_w: int = cols * card_w + (cols - 1) * h_sep
@@ -255,8 +266,8 @@ func _populate_pedestals() -> void:
 		card.setup(hero, tex)
 		card.set_meta("hero_id", hero["id"])
 		card.set_meta("hero_data", hero)
-		# Set size before add_child so layout works correctly (fixes empty cards on web)
-		card.custom_minimum_size = Vector2(125, 170)
+		# Set size before add_child (6×2 premium layout default)
+		card.custom_minimum_size = Vector2(240, 300)
 
 		hero_grid.add_child(card)
 
@@ -270,7 +281,7 @@ func _on_pedestal_mouse_entered(card: Control) -> void:
 		return
 	card.pivot_offset = card.size / 2
 	var t := create_tween()
-	t.tween_property(card, "scale", Vector2(1.08, 1.08), 0.15).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	t.tween_property(card, "scale", Vector2(1.05, 1.05), 0.15).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 
 func _on_pedestal_mouse_exited(card: Control) -> void:
 	if card.get_meta("hero_id") == _selected_id:
@@ -287,7 +298,7 @@ func _on_pedestal_gui_input(event: InputEvent, card: Control) -> void:
 			card.pivot_offset = card.size / 2
 			var t := create_tween()
 			t.tween_property(card, "scale", Vector2(0.92, 0.92), 0.05)
-			t.tween_property(card, "scale", Vector2(1.06, 1.06), 0.1).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+			t.tween_property(card, "scale", Vector2(1.04, 1.04), 0.1).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 			t.tween_property(card, "scale", Vector2.ONE, 0.08)
 
 # ====================== SELECTION ======================
@@ -378,7 +389,7 @@ func _update_pedestal_visuals() -> void:
 			card.modulate = Color.WHITE
 			card.z_index = 10
 			var t := create_tween()
-			t.tween_property(card, "scale", Vector2(1.35, 1.35), 0.2).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+			t.tween_property(card, "scale", Vector2(1.08, 1.08), 0.2).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 			card.start_idle_bounce()
 			card.start_glow_pulse()
 			if card.has_method("update_trophy_visuals"):

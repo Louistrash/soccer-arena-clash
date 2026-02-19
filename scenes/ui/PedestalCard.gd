@@ -7,7 +7,8 @@ const CARD_BG := Color(0.05, 0.1, 0.16, 0.92)
 const CARD_BG_TOP := Color(0.08, 0.16, 0.24, 0.7)
 const STADIUM_GREEN := Color(0.2, 0.95, 0.5)
 const TEAL_GLOW := Color(0.0, 0.9, 1.0) # Kept for role text fallback
-const SHADOW_COL := Color(0, 0, 0, 0.25) # Softer shadow
+const SHADOW_COL := Color(0, 0, 0, 0.35) # Subtle shadow for depth
+const CARD_RADIUS := 18.0 # 16–20px rounded corners (Brawl/FIFA style)
 
 var hero_data: Dictionary = {}
 var hero_texture: Texture2D
@@ -37,21 +38,20 @@ func _ready() -> void:
 
 func _draw() -> void:
 	var rect := Rect2(Vector2.ZERO, size)
-	var radius := 12.0
-	
-	# 1. Soft circular shadow (underneath)
-	var shadow_center := Vector2(size.x * 0.5, size.y - 10)
-	var shadow_radius := size.x * 0.55
+	var radius := CARD_RADIUS
+
+	# 1. Subtle shadow for depth (arcade premium feel)
+	var shadow_center := Vector2(size.x * 0.5, size.y - 8)
+	var shadow_radius := size.x * 0.52
 	draw_circle(shadow_center, shadow_radius, SHADOW_COL)
 
-	# 2. Glow ring (only if selected)
+	# 2. Gold/neon glow ring when selected
 	if is_selected:
-		var glow_col := Color(STADIUM_GOLD.r, STADIUM_GOLD.g, STADIUM_GOLD.b, 0.5 * _glow_pulse_val)
-		# Draw a glow rect slightly larger than the card
-		var glow_rect := rect.grow(4.0)
-		_draw_rounded_rect_outline(glow_rect, radius + 2, glow_col, 4.0)
+		var glow_col := Color(STADIUM_GOLD.r, STADIUM_GOLD.g, STADIUM_GOLD.b, 0.6 * _glow_pulse_val)
+		var glow_rect := rect.grow(6.0)
+		_draw_rounded_rect_outline(glow_rect, radius + 4, glow_col, 5.0)
 
-	# 3. Card Body (Rounded Rect)
+	# 3. Card body (rounded rect)
 	var style_box := StyleBoxFlat.new()
 	style_box.bg_color = CARD_BG
 	style_box.set_corner_radius_all(int(radius))
@@ -63,16 +63,15 @@ func _draw() -> void:
 	# Let's try a StyleBox with gradient? No, StyleBoxFlat doesn't support gradient.
 	# We'll just skip the complex gradient for now to keep it clean, or use a slightly lighter top part.
 	
-	# 5. Border
+	# 4. Border (gold when selected, green otherwise)
 	var border_col: Color
 	var border_w: float
 	if is_selected:
-		border_col = Color(STADIUM_GOLD.r, STADIUM_GOLD.g, STADIUM_GOLD.b, 0.9 * _glow_pulse_val)
-		border_w = 3.0
+		border_col = Color(STADIUM_GOLD.r, STADIUM_GOLD.g, STADIUM_GOLD.b, 0.95 * _glow_pulse_val)
+		border_w = 3.5
 	else:
-		border_col = Color(STADIUM_GREEN.r, STADIUM_GREEN.g, STADIUM_GREEN.b, 0.4)
+		border_col = Color(STADIUM_GREEN.r, STADIUM_GREEN.g, STADIUM_GREEN.b, 0.45)
 		border_w = 2.0
-	
 	_draw_rounded_rect_outline(rect, radius, border_col, border_w)
 
 func _draw_rounded_rect_outline(rect: Rect2, radius: float, col: Color, width: float) -> void:
@@ -126,39 +125,59 @@ func _build_ui() -> void:
 	main_vbox.add_theme_constant_override("separation", 2)
 	add_child(main_vbox)
 
-	# Hero sprite (upper ~65% - use minimum height so it gets space)
+	# Large pixel hero sprite (1.4x, centered) — keep pixel clarity
 	var sprite_container := CenterContainer.new()
-	sprite_container.custom_minimum_size = Vector2(0, 115)
+	sprite_container.custom_minimum_size = Vector2(0, 155)
 	sprite_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	sprite_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	main_vbox.add_child(sprite_container)
 
 	_hero_rect = TextureRect.new()
-	_hero_rect.custom_minimum_size = Vector2(80, 80)
+	_hero_rect.custom_minimum_size = Vector2(112, 112)  # 1.4× previous 80
 	_hero_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_hero_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_hero_rect.texture = hero_texture
+	_hero_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_hero_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	sprite_container.add_child(_hero_rect)
 
-	# Name + role at bottom
+	# Card content: name → role badge → trophy → rank
 	var info_vbox := VBoxContainer.new()
 	info_vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	info_vbox.add_theme_constant_override("separation", 2)
+	info_vbox.add_theme_constant_override("separation", 4)
 	info_vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	main_vbox.add_child(info_vbox)
 
 	_name_label = Label.new()
 	_name_label.text = hero_data.get("name", "?")
 	_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_name_label.add_theme_font_size_override("font_size", 14)
+	_name_label.add_theme_font_size_override("font_size", 18)
 	_name_label.add_theme_color_override("font_color", Color.WHITE)
-	_name_label.add_theme_constant_override("outline_size", 1)
+	_name_label.add_theme_constant_override("outline_size", 2)
 	_name_label.add_theme_color_override("font_outline_color", Color(0.02, 0.04, 0.08))
 	_name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	info_vbox.add_child(_name_label)
 
-	# Trophies (Directly under name, BEFORE role)
+	# Role tag (colored badge)
+	var role_container := HBoxContainer.new()
+	role_container.alignment = BoxContainer.ALIGNMENT_CENTER
+	role_container.add_theme_constant_override("separation", 5)
+	role_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	info_vbox.add_child(role_container)
+	_role_icon = Control.new()
+	_role_icon.set_script(load("res://scenes/ui/RoleIconDraw.gd") as GDScript)
+	_role_icon.role = hero_data.get("role", "")
+	_role_icon.custom_minimum_size = Vector2(20, 20)
+	_role_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	role_container.add_child(_role_icon)
+	var role_lbl := Label.new()
+	role_lbl.text = hero_data.get("role", "")
+	role_lbl.add_theme_font_size_override("font_size", 13)
+	role_lbl.add_theme_color_override("font_color", hero_data.get("glow", TEAL_GLOW))
+	role_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	role_container.add_child(role_lbl)
+
+	# Trophies (icon + number)
 	_trophy_container = HBoxContainer.new()
 	_trophy_container.alignment = BoxContainer.ALIGNMENT_CENTER
 	_trophy_container.add_theme_constant_override("separation", 3)
@@ -168,7 +187,7 @@ func _build_ui() -> void:
 
 	var trophy_icon := Label.new()
 	trophy_icon.text = "🏆"
-	trophy_icon.add_theme_font_size_override("font_size", 18)
+	trophy_icon.add_theme_font_size_override("font_size", 22)
 	trophy_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_trophy_container.add_child(trophy_icon)
 
@@ -176,21 +195,20 @@ func _build_ui() -> void:
 	var trophy_count = hero_data.get("trophies", 0)
 	_trophy_label.text = str(trophy_count)
 	
-	# Rank color logic (larger cards = larger fonts)
+	# Rank color logic (premium card fonts)
 	var trophy_color = STADIUM_GOLD
-	var base_font_size = 18
+	var base_font_size = 20
 	var outline_size = 3
-	
 	if trophy_count < 100:
 		trophy_color = Color(0.85, 0.55, 0.2) # Bronze
-		base_font_size = 16
+		base_font_size = 18
 	elif trophy_count < 300:
 		trophy_color = Color(0.9, 0.9, 0.95) # Silver
 	elif trophy_count < 600:
 		trophy_color = Color(1.0, 0.84, 0.0) # Gold
 	else:
 		trophy_color = Color(0.6, 0.85, 1.0) # Diamond
-		base_font_size = 20
+		base_font_size = 22
 		outline_size = 4
 		
 	_trophy_label.add_theme_font_size_override("font_size", base_font_size)
@@ -202,34 +220,14 @@ func _build_ui() -> void:
 	_trophy_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_trophy_container.add_child(_trophy_label)
 
-	# Rank Tier Label (Under trophies)
+	# Rank tier (small badge chip)
 	_rank_tier_label = Label.new()
 	_rank_tier_label.text = _get_rank_tier(trophy_count)
-	_rank_tier_label.add_theme_font_size_override("font_size", 11)
+	_rank_tier_label.add_theme_font_size_override("font_size", 12)
 	_rank_tier_label.add_theme_color_override("font_color", trophy_color)
 	_rank_tier_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_rank_tier_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	info_vbox.add_child(_rank_tier_label)
-
-	var role_container := HBoxContainer.new()
-	role_container.alignment = BoxContainer.ALIGNMENT_CENTER
-	role_container.add_theme_constant_override("separation", 4)
-	role_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	info_vbox.add_child(role_container)
-
-	_role_icon = Control.new()
-	_role_icon.set_script(load("res://scenes/ui/RoleIconDraw.gd") as GDScript)
-	_role_icon.role = hero_data.get("role", "")
-	_role_icon.custom_minimum_size = Vector2(18, 18)
-	_role_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	role_container.add_child(_role_icon)
-
-	var role_lbl := Label.new()
-	role_lbl.text = hero_data.get("role", "")
-	role_lbl.add_theme_font_size_override("font_size", 12)
-	role_lbl.add_theme_color_override("font_color", hero_data.get("glow", TEAL_GLOW))
-	role_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	role_container.add_child(role_lbl)
 
 func _get_rank_tier(count: int) -> String:
 	if count < 100: return "Bronze"
@@ -246,7 +244,7 @@ func update_trophy_visuals(selected: bool) -> void:
 		return
 		
 	var base_scale := Vector2.ONE
-	var base_font_size: int = _trophy_label.get_meta("base_font_size", 18)
+	var base_font_size: int = _trophy_label.get_meta("base_font_size", 20)
 	var outline_col := Color(0, 0, 0, 0.8)
 	var outline_size := 3
 	
@@ -266,13 +264,13 @@ func update_trophy_visuals(selected: bool) -> void:
 		_trophy_label.add_theme_constant_override("outline_size", outline_size)
 
 func _update_size() -> void:
-	# Size controlled by grid; larger cards for better readability
-	custom_minimum_size = Vector2(155, 205)
+	# 6×2 premium layout: 4:5 ratio
+	custom_minimum_size = Vector2(240, 300)
 	_clamp_size()
 
 func _clamp_size() -> void:
 	if custom_minimum_size == Vector2.ZERO:
-		custom_minimum_size = Vector2(125, 170)
+		custom_minimum_size = Vector2(240, 300)
 
 func start_idle_bounce() -> void:
 	if _hero_rect == null:
