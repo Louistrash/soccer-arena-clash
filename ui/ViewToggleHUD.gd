@@ -5,12 +5,20 @@ extends CanvasLayer
 @onready var toggle_btn: Button = $Margin/VBox/ToggleButton
 @onready var tooltip_label: Label = $Margin/VBox/TooltipLabel
 
+var _icon_overview: Texture2D
+
 var _camera: Node
 var _tooltip_tween: Tween
 
 func _ready() -> void:
 	layer = 30
 	_style_button()
+	_icon_overview = load("res://Icons/toggle_view.png") as Texture2D
+	if toggle_btn:
+		if _icon_overview:
+			toggle_btn.icon = _icon_overview
+			toggle_btn.text = ""
+			toggle_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	if toggle_btn:
 		toggle_btn.focus_mode = Control.FOCUS_NONE  # Space blijft voor shoot, niet voor button
 		toggle_btn.pressed.connect(_on_toggle_pressed)
@@ -61,12 +69,12 @@ func _on_mode_changed(_new_mode: int) -> void:
 	_refresh_button_text()
 
 func _refresh_button_text() -> void:
-	if not toggle_btn or not _camera:
+	if not tooltip_label or not _camera:
 		return
 	if _camera.has_method("is_overview_mode") and _camera.is_overview_mode():
-		toggle_btn.text = "GAMEPLAY"
+		tooltip_label.text = "GAMEPLAY VIEW"
 	else:
-		toggle_btn.text = "OVERVIEW"
+		tooltip_label.text = "FIELD OVERVIEW"
 
 func _on_button_hovered() -> void:
 	_show_tooltip()
@@ -87,7 +95,6 @@ func _input(event: InputEvent) -> void:
 func _show_tooltip() -> void:
 	if not tooltip_label:
 		return
-	tooltip_label.text = "FIELD OVERVIEW"
 	tooltip_label.visible = true
 	if _tooltip_tween and _tooltip_tween.is_valid():
 		_tooltip_tween.kill()

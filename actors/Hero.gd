@@ -6,12 +6,14 @@ extends CharacterBody2D
 @onready var name_label: Label = $UnitUI/NameLabel
 @onready var health_bar_fill: ColorRect = $UnitUI/HealthBarFill
 @onready var respawn_label: Label = $UnitUI/RespawnLabel
+@onready var shot_player: AudioStreamPlayer = $ShotPlayer
 
 const SPEED: float = 220.0
 const SOCCER_BALL_SCENE := preload("res://projectiles/SoccerBallProjectile.tscn")
 const LASER_PROJECTILE_SCENE := preload("res://actors/Projectile.tscn")
 const DUST_PUFF_SCENE := preload("res://actors/DustPuff.tscn")
 const PROJECTILE_SPAWN_OFFSET: float = 40.0
+const SHOT_SOUND: AudioStream = preload("res://audio/shot_short.ogg")
 
 const HEALTH_BAR_WIDTH: float = 50.0
 
@@ -35,6 +37,9 @@ func _ready() -> void:
 	# Scale applied in set_hero_texture when texture is set
 	if sprite.texture:
 		AssetScaler.apply(sprite, AssetScaler.HERO_TARGET_PX)
+	if shot_player and SHOT_SOUND:
+		shot_player.stream = SHOT_SOUND
+		shot_player.volume_db = -4.0
 	InputRouter.register_hero(self)
 	projectile_container = get_parent().get_node_or_null("ProjectileManager")
 	if not projectile_container:
@@ -171,6 +176,9 @@ func _shoot(direction: Vector2) -> void:
 		projectile.source_group = "hero"
 		projectile.global_position = global_position + direction * PROJECTILE_SPAWN_OFFSET
 	projectile_container.add_child(projectile)
+	if shot_player and SHOT_SOUND:
+		shot_player.stop()
+		shot_player.play()
 	_shoot_cooldown = SHOOT_COOLDOWN
 	var scoreboard: Node = get_tree().get_first_node_in_group("glass_scoreboard")
 	if scoreboard and scoreboard.has_method("trigger_ball_spin"):

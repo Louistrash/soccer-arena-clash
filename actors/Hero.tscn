@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://actors/Hero.gd" id="1_hero"]
 [ext_resource type="Script" path="res://actors/Shadow.gd" id="2_shadow"]
@@ -55,3 +55,5 @@ text = "Respawning in 3..."
 horizontal_alignment = 1
 vertical_alignment = 1
 visible = false
+
+[node name="ShotPlayer" type="AudioStreamPlayer" parent="."]

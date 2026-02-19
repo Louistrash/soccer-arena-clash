@@ -10,6 +10,9 @@ extends Node
 @onready var whistle_player: AudioStreamPlayer = $HUD/WhistlePlayer
 @onready var stadium_ambient: AudioStreamPlayer = $HUD/StadiumAmbient
 
+var _icon_sound_on: Texture2D
+var _icon_sound_off: Texture2D
+
 var hero: CharacterBody2D
 var enemy_spawner: Node
 var match_time: float = 120.0
@@ -39,6 +42,8 @@ func _ready() -> void:
 	_spawn_initial_dirty_zones()
 	_update_score_ui()
 	_style_back_button()
+	_icon_sound_on = load("res://Icons/on.png") as Texture2D
+	_icon_sound_off = load("res://Icons/sound_off.png") as Texture2D
 	_setup_match_audio()
 	_update_speaker_toggle_ui()
 
@@ -94,9 +99,18 @@ func _apply_sound_enabled() -> void:
 
 func _update_speaker_toggle_ui() -> void:
 	if speaker_toggle:
+		if not _icon_sound_on:
+			_icon_sound_on = load("res://Icons/on.png") as Texture2D
+		if not _icon_sound_off:
+			_icon_sound_off = load("res://Icons/sound_off.png") as Texture2D
 		speaker_toggle.z_index = 100
 		speaker_toggle.focus_mode = Control.FOCUS_NONE
-		speaker_toggle.text = "🔊" if GameManager.sound_enabled else "🔇"
+		if _icon_sound_on and _icon_sound_off:
+			speaker_toggle.icon = _icon_sound_on if GameManager.sound_enabled else _icon_sound_off
+			speaker_toggle.text = ""
+			speaker_toggle.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		else:
+			speaker_toggle.text = "🔊" if GameManager.sound_enabled else "🔇"
 		speaker_toggle.tooltip_text = "Sound on/off"
 		var sb := StyleBoxFlat.new()
 		sb.bg_color = Color(0.05, 0.08, 0.12, 0.9)
