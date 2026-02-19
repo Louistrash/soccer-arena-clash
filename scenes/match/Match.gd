@@ -58,18 +58,22 @@ func _style_back_button() -> void:
 	back_button.add_theme_color_override("font_color", Color(0.8, 0.9, 1.0))
 	back_button.add_theme_font_size_override("font_size", 13)
 
+const STADIUM_VOLUME_DB: float = -8.0
+
 func _setup_match_audio() -> void:
 	var whistle: AudioStream = load("res://audio/referee_whistle.ogg") as AudioStream
 	var stadium: AudioStream = load("res://audio/stadium.ogg") as AudioStream
 	if whistle and whistle_player:
 		whistle_player.stream = whistle
+		whistle_player.volume_db = 0.0 if GameManager.sound_enabled else -80.0
 		if GameManager.sound_enabled:
 			whistle_player.play()
 	if stadium and stadium_ambient:
 		stadium_ambient.stream = stadium
 		if stadium is AudioStreamOggVorbis:
 			stadium.loop = true
-		stadium_ambient.volume_db = -14.0
+		stadium_ambient.volume_db = STADIUM_VOLUME_DB if GameManager.sound_enabled else -80.0
+		stadium_ambient.bus = &"Master"
 		stadium_ambient.finished.connect(_on_stadium_finished)
 		_apply_sound_enabled()
 
@@ -78,21 +82,22 @@ func _on_stadium_finished() -> void:
 		stadium_ambient.play()
 
 func _apply_sound_enabled() -> void:
-	var on_db: float = 0.0
 	var off_db: float = -80.0
 	if stadium_ambient:
-		stadium_ambient.volume_db = -14.0 if GameManager.sound_enabled else off_db
+		stadium_ambient.volume_db = STADIUM_VOLUME_DB if GameManager.sound_enabled else off_db
 		if GameManager.sound_enabled and not stadium_ambient.playing:
 			stadium_ambient.play()
 		elif not GameManager.sound_enabled:
 			stadium_ambient.stop()
 	if whistle_player:
-		whistle_player.volume_db = on_db if GameManager.sound_enabled else off_db
+		whistle_player.volume_db = 0.0 if GameManager.sound_enabled else off_db
 
 func _update_speaker_toggle_ui() -> void:
 	if speaker_toggle:
+		speaker_toggle.z_index = 100
 		speaker_toggle.focus_mode = Control.FOCUS_NONE
 		speaker_toggle.text = "🔊" if GameManager.sound_enabled else "🔇"
+		speaker_toggle.tooltip_text = "Sound on/off"
 		var sb := StyleBoxFlat.new()
 		sb.bg_color = Color(0.05, 0.08, 0.12, 0.9)
 		sb.set_corner_radius_all(8)
@@ -100,10 +105,10 @@ func _update_speaker_toggle_ui() -> void:
 		sb.border_color = Color(0.2, 0.95, 0.5, 0.4)
 		speaker_toggle.add_theme_stylebox_override("normal", sb)
 		speaker_toggle.add_theme_color_override("font_color", Color(0.8, 0.9, 1.0))
-		speaker_toggle.add_theme_font_size_override("font_size", 18)
+		speaker_toggle.add_theme_font_size_override("font_size", 22)
 
 func _on_speaker_toggle_pressed() -> void:
-	GameManager.sound_enabled = not GameManager.sound_enabled
+	GameManager.toggle_sound()
 	_apply_sound_enabled()
 	_update_speaker_toggle_ui()
 

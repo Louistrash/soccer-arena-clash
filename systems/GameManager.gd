@@ -9,6 +9,16 @@ var selected_hero_id: String = ""
 ## Speaker on/off; toggled via UI in HeroSelect and Match. When false, music and ambient are muted.
 var sound_enabled: bool = true
 
+func is_sound_enabled() -> bool:
+	return sound_enabled
+
+func set_sound_enabled(enabled: bool) -> void:
+	sound_enabled = enabled
+
+func toggle_sound() -> bool:
+	sound_enabled = not sound_enabled
+	return sound_enabled
+
 func _ready() -> void:
 	# Autoloads initialize before the main scene is added to the tree.
 	# Wait one frame so current_scene is available.

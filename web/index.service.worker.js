@@ -4,7 +4,7 @@
 // Incrementing CACHE_VERSION will kick off the install event and force
 // previously cached resources to be updated from the network.
 /** @type {string} */
-const CACHE_VERSION = '1771506578|18652829379';
+const CACHE_VERSION = '1771510726|22800981673';
 /** @type {string} */
 const CACHE_PREFIX = 'Soccer Arena Cla-sw-cache-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;

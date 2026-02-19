@@ -137,7 +137,8 @@ autowrap_mode = 2
 
 [node name="SpeakerToggle" type="Button" parent="MainVBox/TopBar/TopMargin/ContentHBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(48, 40)
+custom_minimum_size = Vector2(56, 44)
+size_flags_horizontal = 4
 size_flags_vertical = 1
 text = ""
 

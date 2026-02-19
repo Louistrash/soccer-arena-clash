@@ -105,12 +105,13 @@ func _ready() -> void:
 	call_deferred("_deferred_gallery_init")
 
 func _deferred_gallery_init() -> void:
+	_update_speaker_toggle_ui()
+	_play_gallery_music()
 	_populate_pedestals()
 	_update_carousel_layout()
-	_select_hero("arlo")
+	# Open de gallery met Johan gecentreerd in de rij
+	_select_hero("johan")
 	_screen_open_animation()
-	_play_gallery_music()
-	_update_speaker_toggle_ui()
 	_build_arrow_buttons()
 	if scroll_container.get_h_scroll_bar():
 		scroll_container.get_h_scroll_bar().scrolling.connect(_on_scroll_started)
@@ -127,11 +128,18 @@ func _play_gallery_music() -> void:
 		gallery_music.stream.loop = true
 	gallery_music.play()
 
+func _ensure_gallery_music_playing() -> void:
+	if GameManager.sound_enabled and gallery_music and gallery_music.stream and not gallery_music.playing:
+		if gallery_music.stream is AudioStreamOggVorbis:
+			gallery_music.stream.loop = true
+		gallery_music.play()
+
 func _update_speaker_toggle_ui() -> void:
 	if not speaker_toggle:
 		return
 	speaker_toggle.focus_mode = Control.FOCUS_NONE
 	speaker_toggle.text = "🔊" if GameManager.sound_enabled else "🔇"
+	speaker_toggle.tooltip_text = "Sound on/off"
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color(0.05, 0.08, 0.14, 0.9)
 	sb.set_corner_radius_all(8)
@@ -139,10 +147,10 @@ func _update_speaker_toggle_ui() -> void:
 	sb.border_color = Color(STADIUM_GREEN.r, STADIUM_GREEN.g, STADIUM_GREEN.b, 0.4)
 	speaker_toggle.add_theme_stylebox_override("normal", sb)
 	speaker_toggle.add_theme_color_override("font_color", Color(0.8, 0.9, 1.0))
-	speaker_toggle.add_theme_font_size_override("font_size", 20)
+	speaker_toggle.add_theme_font_size_override("font_size", 24)
 
 func _on_speaker_toggle_pressed() -> void:
-	GameManager.sound_enabled = not GameManager.sound_enabled
+	GameManager.toggle_sound()
 	if gallery_music:
 		if GameManager.sound_enabled:
 			if gallery_music.stream:
@@ -415,6 +423,7 @@ func _on_pedestal_gui_input(event: InputEvent, card: Control) -> void:
 	if event is InputEventMouseButton:
 		var mb := event as InputEventMouseButton
 		if mb.button_index == MOUSE_BUTTON_LEFT and mb.pressed:
+			_ensure_gallery_music_playing()
 			var hero_id: String = card.get_meta("hero_id")
 			_select_hero(hero_id)
 			_scroll_to_center_selected(true)
@@ -562,6 +571,7 @@ func _screen_open_animation() -> void:
 # ====================== PLAY ======================
 
 func _on_play_pressed() -> void:
+	_ensure_gallery_music_playing()
 	if GameManager.selected_hero_path.is_empty():
 		return
 	GameManager.goto_match()
