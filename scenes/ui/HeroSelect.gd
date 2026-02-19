@@ -104,8 +104,8 @@ func _ready() -> void:
 	get_tree().root.size_changed.connect(_on_viewport_resized)
 	_style_panels()
 	_style_play_button()
-	_icon_sound_on = load("res://Icons/on.png") as Texture2D
-	_icon_sound_off = load("res://Icons/sound_off.png") as Texture2D
+	_icon_sound_on = load("res://ui/icons/on.png") as Texture2D
+	_icon_sound_off = load("res://ui/icons/sound_off.png") as Texture2D
 	# Defer heavy work so loader can hide and first frame can paint (fixes stuck loader on web)
 	call_deferred("_deferred_gallery_init")
 
@@ -143,14 +143,15 @@ func _update_speaker_toggle_ui() -> void:
 	if not speaker_toggle:
 		return
 	if not _icon_sound_on:
-		_icon_sound_on = load("res://Icons/on.png") as Texture2D
+		_icon_sound_on = load("res://ui/icons/on.png") as Texture2D
 	if not _icon_sound_off:
-		_icon_sound_off = load("res://Icons/sound_off.png") as Texture2D
+		_icon_sound_off = load("res://ui/icons/sound_off.png") as Texture2D
 	speaker_toggle.focus_mode = Control.FOCUS_NONE
 	if _icon_sound_on and _icon_sound_off:
 		speaker_toggle.icon = _icon_sound_on if GameManager.sound_enabled else _icon_sound_off
 		speaker_toggle.text = ""
 		speaker_toggle.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		speaker_toggle.expand_icon = true
 	else:
 		speaker_toggle.text = "🔊" if GameManager.sound_enabled else "🔇"
 	speaker_toggle.tooltip_text = "Sound on/off"

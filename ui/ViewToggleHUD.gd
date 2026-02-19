@@ -13,7 +13,7 @@ var _tooltip_tween: Tween
 func _ready() -> void:
 	layer = 30
 	_style_button()
-	_icon_overview = load("res://Icons/toggle_view.png") as Texture2D
+	_icon_overview = load("res://ui/icons/toggle_view.png") as Texture2D
 	if toggle_btn:
 		if _icon_overview:
 			toggle_btn.icon = _icon_overview

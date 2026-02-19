@@ -141,6 +141,7 @@ custom_minimum_size = Vector2(56, 44)
 size_flags_horizontal = 4
 size_flags_vertical = 1
 text = ""
+expand_icon = true
 
 [node name="CarouselPanel" type="PanelContainer" parent="MainVBox"]
 layout_mode = 2

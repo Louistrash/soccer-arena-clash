@@ -1,7 +1,7 @@
 extends CanvasLayer
 ## Glass Neon Arcade scoreboard. Floating HUD met neon glow.
 
-@onready var timer_label: Label = $Margin/HBoxMain/TimerPanel/TimerLabel
+@onready var timer_label: Label = $Margin/HBoxMain/InfoPanel/HBoxInfo/TimerLabel
 @onready var float_target: Control = $Margin
 @onready var info_panel: PanelContainer = $Margin/HBoxMain/InfoPanel
 @onready var wave_label: Label = $Margin/HBoxMain/InfoPanel/HBoxInfo/WaveLabel
@@ -73,15 +73,12 @@ func _style_panels() -> void:
 			if div:
 				div.add_theme_color_override("font_color", Color(0.0, 0.898, 1.0, 0.8))
 
-	var timer_panel: PanelContainer = $Margin/HBoxMain/TimerPanel
-	var tsb: StyleBoxFlat = sb.duplicate()
-	tsb.corner_radius_top_left = 16
-	tsb.corner_radius_top_right = 16
-	tsb.corner_radius_bottom_left = 16
-	tsb.corner_radius_bottom_right = 16
-	timer_panel.add_theme_stylebox_override("panel", tsb)
+	var div4: Label = $Margin/HBoxMain/InfoPanel/HBoxInfo/Divider4
+	if div4:
+		div4.add_theme_color_override("font_color", Color(0.0, 0.898, 1.0, 0.8))
 
-	timer_label.add_theme_color_override("font_color", Color(1.0, 0.847, 0.302))
+	if timer_label:
+		timer_label.add_theme_color_override("font_color", Color(1.0, 0.847, 0.302))
 
 func set_timer_text(t: String, low_time: bool = false) -> void:
 	timer_label.text = t

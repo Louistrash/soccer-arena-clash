@@ -28,7 +28,7 @@ size_flags_horizontal = 3
 [node name="InfoPanel" type="PanelContainer" parent="Margin/HBoxMain"]
 custom_minimum_size = Vector2(640, 48)
 layout_mode = 2
-size_flags_horizontal = 3
+size_flags_horizontal = 8
 
 [node name="HBoxInfo" type="HBoxContainer" parent="Margin/HBoxMain/InfoPanel"]
 layout_mode = 2
@@ -86,17 +86,20 @@ horizontal_alignment = 1
 clip_text = true
 size_flags_horizontal = 3
 
+[node name="Divider4" type="Label" parent="Margin/HBoxMain/InfoPanel/HBoxInfo"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "•"
+horizontal_alignment = 1
+
+[node name="TimerLabel" type="Label" parent="Margin/HBoxMain/InfoPanel/HBoxInfo"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+text = "2:00"
+horizontal_alignment = 1
+clip_text = true
+size_flags_horizontal = 3
+
 [node name="SpacerRight" type="Control" parent="Margin/HBoxMain"]
 layout_mode = 2
 size_flags_horizontal = 3
-
-[node name="TimerPanel" type="PanelContainer" parent="Margin/HBoxMain"]
-custom_minimum_size = Vector2(76, 40)
-layout_mode = 2
-
-[node name="TimerLabel" type="Label" parent="Margin/HBoxMain/TimerPanel"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 28
-text = "2:00"
-horizontal_alignment = 1
-vertical_alignment = 1
