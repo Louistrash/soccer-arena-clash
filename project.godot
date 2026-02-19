@@ -13,9 +13,8 @@ config_version=5
 config/name="Soccer Arena Clash"
 run/main_scene="res://Boot.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
-boot_splash/image="uid://ugy4nj5g52su"
+boot_splash/image="uid://fac4s8308dem"
 config/icon="res://icon.png"
-boot_splash/minimum_display_time=1
 
 [autoload]
 
@@ -32,7 +31,7 @@ window/stretch/aspect="expand"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/godot_mcp/plugin.cfg")
+enabled=PackedStringArray("res://addons/godot_mcp/plugin.cfg", "res://addons/post_export_web/plugin.cfg")
 
 [input]
 
