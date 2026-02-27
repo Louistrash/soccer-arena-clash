@@ -77,6 +77,10 @@ func _input(event: InputEvent) -> void:
 	if block_mouse:
 		return
 
+	# Skip if a UI control already handled this event (e.g. Gallery button, SpeakerToggle)
+	if get_viewport() and get_viewport().is_input_handled():
+		return
+
 	if event.is_action_pressed("shoot"):
 		_shoot_buffered = true
 		shoot_just_pressed = true

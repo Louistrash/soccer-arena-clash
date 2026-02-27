@@ -52,7 +52,7 @@ func _style_button() -> void:
 	sb.shadow_color = Color(0, 0, 0, 0.4)
 	toggle_btn.add_theme_stylebox_override("normal", sb)
 	var sb_hover: StyleBoxFlat = sb.duplicate()
-	sb_hover.border_color = Color(1.0, 1.0, 1.0, 0.95)
+	sb_hover.bg_color = Color(0.09, 0.13, 0.18, 0.85)
 	toggle_btn.add_theme_stylebox_override("hover", sb_hover)
 	var sb_pressed: StyleBoxFlat = sb.duplicate()
 	sb_pressed.bg_color = Color(0.04, 0.12, 0.15, 0.9)

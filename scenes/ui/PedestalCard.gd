@@ -65,6 +65,11 @@ func _draw() -> void:
 		var glow_col := Color(STADIUM_GOLD.r, STADIUM_GOLD.g, STADIUM_GOLD.b, 0.6 * _glow_pulse_val)
 		var glow_rect := rect.grow(4.0)
 		_draw_rounded_rect_outline(glow_rect, radius + 3, glow_col, 4.0)
+		# Green LED indicator — active/ready
+		var led_pos := Vector2(size.x - 14.0, y_off + 14.0)
+		draw_circle(led_pos, 7.0, Color(0.0, 0.6, 0.2, 0.4))
+		draw_circle(led_pos, 5.0, Color(0.2, 1.0, 0.4, 0.95 * _glow_pulse_val))
+		draw_circle(led_pos, 2.5, Color(0.7, 1.0, 0.8, 1.0))
 
 	var border_col: Color
 	var border_w: float
