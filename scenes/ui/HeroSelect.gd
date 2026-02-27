@@ -440,6 +440,9 @@ func _on_pedestal_gui_input(event: InputEvent, card: Control) -> void:
 		if mb.button_index == MOUSE_BUTTON_LEFT and mb.pressed:
 			_ensure_gallery_music_playing()
 			var hero_id: String = card.get_meta("hero_id")
+			if hero_id == _selected_id:
+				_deselect_hero()
+				return
 			_select_hero(hero_id)
 			_scroll_to_center_selected(true)
 			card.pivot_offset = card.size / 2
@@ -447,6 +450,24 @@ func _on_pedestal_gui_input(event: InputEvent, card: Control) -> void:
 			t.tween_property(card, "scale", Vector2(1.06, 1.06), 0.08).set_ease(Tween.EASE_OUT)
 
 # ====================== SELECTION ======================
+
+func _deselect_hero() -> void:
+	_selected_id = ""
+	GameManager.selected_hero_path = ""
+	GameManager.selected_hero_name = ""
+	GameManager.selected_hero_id = ""
+	for card in _pedestals:
+		card.set_selected(false)
+		card.modulate = Color.WHITE
+		card.z_index = 0
+		var t := create_tween()
+		t.tween_property(card, "scale", Vector2.ONE, 0.15).set_ease(Tween.EASE_OUT)
+		card.stop_idle_bounce()
+		card.stop_glow_pulse()
+	play_button.disabled = true
+	if _play_pulse_tween and _play_pulse_tween.is_valid():
+		_play_pulse_tween.kill()
+	play_button.scale = Vector2.ONE
 
 func _select_hero(hero_id: String) -> void:
 	_selected_id = hero_id
