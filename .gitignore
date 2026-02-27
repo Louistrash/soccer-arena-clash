@@ -1,6 +1,12 @@
 # Godot 4+ specific ignores
 .godot/
 
+# Firebase secrets - NEVER commit API keys
+firebase/.env
+firebase/.env.*
+.env
+.env.*
+
 # Web export output is now committed for easy deployment
 # web/ folder is included in repo
 /android/

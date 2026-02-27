@@ -18,8 +18,7 @@ extends Control
 @onready var gallery_music: AudioStreamPlayer = $GalleryMusic
 @onready var speaker_toggle: Button = $MainVBox/TopBar/TopMargin/ContentHBox/SpeakerToggle
 
-var _icon_sound_on: Texture2D
-var _icon_sound_off: Texture2D
+var _sound_icon_node: Control = null
 
 const STAT_NAMES := ["Speed", "Shooting", "Passing", "Defense", "Control"]
 
@@ -104,8 +103,6 @@ func _ready() -> void:
 	get_tree().root.size_changed.connect(_on_viewport_resized)
 	_style_panels()
 	_style_play_button()
-	_icon_sound_on = load("res://ui/icons/on.png") as Texture2D
-	_icon_sound_off = load("res://ui/icons/sound_off.png") as Texture2D
 	# Defer heavy work so loader can hide and first frame can paint (fixes stuck loader on web)
 	call_deferred("_deferred_gallery_init")
 
@@ -142,18 +139,8 @@ func _ensure_gallery_music_playing() -> void:
 func _update_speaker_toggle_ui() -> void:
 	if not speaker_toggle:
 		return
-	if not _icon_sound_on:
-		_icon_sound_on = load("res://ui/icons/on.png") as Texture2D
-	if not _icon_sound_off:
-		_icon_sound_off = load("res://ui/icons/sound_off.png") as Texture2D
 	speaker_toggle.focus_mode = Control.FOCUS_NONE
-	if _icon_sound_on and _icon_sound_off:
-		speaker_toggle.icon = _icon_sound_on if GameManager.sound_enabled else _icon_sound_off
-		speaker_toggle.text = ""
-		speaker_toggle.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		speaker_toggle.expand_icon = true
-	else:
-		speaker_toggle.text = "🔊" if GameManager.sound_enabled else "🔇"
+	speaker_toggle.text = ""
 	speaker_toggle.tooltip_text = "Sound on/off"
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color(0.05, 0.08, 0.14, 0.9)
@@ -162,7 +149,15 @@ func _update_speaker_toggle_ui() -> void:
 	sb.border_color = Color(STADIUM_GREEN.r, STADIUM_GREEN.g, STADIUM_GREEN.b, 0.4)
 	speaker_toggle.add_theme_stylebox_override("normal", sb)
 	speaker_toggle.add_theme_color_override("font_color", Color(0.8, 0.9, 1.0))
-	speaker_toggle.add_theme_font_size_override("font_size", 24)
+	if not _sound_icon_node:
+		var icon_script := load("res://ui/SoundIconDraw.gd") as GDScript
+		_sound_icon_node = Control.new()
+		_sound_icon_node.set_script(icon_script)
+		_sound_icon_node.custom_minimum_size = Vector2(32, 32)
+		_sound_icon_node.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_sound_icon_node.set_anchors_preset(Control.PRESET_FULL_RECT)
+		speaker_toggle.add_child(_sound_icon_node)
+	_sound_icon_node.set("sound_on", GameManager.sound_enabled)
 
 func _on_speaker_toggle_pressed() -> void:
 	GameManager.toggle_sound()

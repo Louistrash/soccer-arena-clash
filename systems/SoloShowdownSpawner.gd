@@ -11,7 +11,7 @@ const FIELD_TOP := 150.0
 const FIELD_BOTTOM := 2500.0
 const FIELD_CX := 2100.0
 const FIELD_CY := 1325.0
-const MIN_ENEMIES := 3
+const MIN_ENEMIES := 10
 const MAX_ENEMIES := 11
 
 enum Role { DEFENDER, MIDFIELDER, STRIKER }
