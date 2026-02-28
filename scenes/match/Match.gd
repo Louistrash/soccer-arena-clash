@@ -5,8 +5,8 @@ extends Node
 @onready var health_bar: ProgressBar = $HUD/HealthBar
 @onready var goal_label: Label = $HUD/GoalLabel
 @onready var match_over_label: Label = $HUD/MatchOverLabel
-@onready var back_button: Button = $HUD/BackToGallery
-@onready var speaker_toggle: Button = $HUD/SpeakerToggle
+@onready var back_button: Button = $ButtonsLayer/BackToGallery
+@onready var speaker_toggle: Button = $ButtonsLayer/SpeakerToggle
 @onready var whistle_player: AudioStreamPlayer = $HUD/WhistlePlayer
 @onready var stadium_ambient: AudioStreamPlayer = $HUD/StadiumAmbient
 
@@ -47,23 +47,28 @@ func _ready() -> void:
 func _style_back_button() -> void:
 	if not back_button:
 		return
+	# Ensure signals are wired regardless of .tscn connection state
 	back_button.focus_mode = Control.FOCUS_NONE
 	back_button.mouse_filter = Control.MOUSE_FILTER_STOP
 	if not back_button.pressed.is_connected(_on_back_to_gallery_pressed):
 		back_button.pressed.connect(_on_back_to_gallery_pressed)
-	if not speaker_toggle.pressed.is_connected(_on_speaker_toggle_pressed):
+	if speaker_toggle and not speaker_toggle.pressed.is_connected(_on_speaker_toggle_pressed):
 		speaker_toggle.pressed.connect(_on_speaker_toggle_pressed)
-	var sb_normal := StyleBoxFlat.new()
-	sb_normal.bg_color = Color(0.05, 0.08, 0.12, 0.9)
-	sb_normal.set_corner_radius_all(8)
-	sb_normal.set_border_width_all(1)
-	sb_normal.border_color = Color(0.2, 0.95, 0.5, 0.4)
-	back_button.add_theme_stylebox_override("normal", sb_normal)
-	var sb_hover := sb_normal.duplicate() as StyleBoxFlat
-	sb_hover.bg_color = Color(0.1, 0.16, 0.22, 0.95)
+	# Unified style: same dark glass + cyan border as scoreboard
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.043, 0.094, 0.125, 0.85)
+	sb.set_corner_radius_all(12)
+	sb.set_border_width_all(2)
+	sb.border_color = Color(0.0, 0.898, 1.0, 0.85)
+	sb.shadow_size = 6
+	sb.shadow_color = Color(0, 0, 0, 0.4)
+	back_button.add_theme_stylebox_override("normal", sb)
+	var sb_hover := sb.duplicate() as StyleBoxFlat
+	sb_hover.bg_color = Color(0.06, 0.14, 0.20, 0.95)
 	back_button.add_theme_stylebox_override("hover", sb_hover)
-	back_button.add_theme_color_override("font_color", Color(0.8, 0.9, 1.0))
-	back_button.add_theme_font_size_override("font_size", 13)
+	back_button.add_theme_color_override("font_color", Color(0.85, 0.95, 1.0))
+	back_button.add_theme_color_override("font_hover_color", Color(1.0, 1.0, 1.0))
+	back_button.add_theme_font_size_override("font_size", 14)
 
 const STADIUM_VOLUME_DB: float = -8.0
 
@@ -102,17 +107,20 @@ func _apply_sound_enabled() -> void:
 func _update_speaker_toggle_ui() -> void:
 	if not speaker_toggle:
 		return
-	speaker_toggle.z_index = 100
 	speaker_toggle.focus_mode = Control.FOCUS_NONE
+	speaker_toggle.mouse_filter = Control.MOUSE_FILTER_STOP
 	speaker_toggle.text = ""
 	speaker_toggle.tooltip_text = "Sound on/off"
 	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.05, 0.08, 0.12, 0.9)
-	sb.set_corner_radius_all(8)
-	sb.set_border_width_all(1)
-	sb.border_color = Color(0.2, 0.95, 0.5, 0.4)
+	sb.bg_color = Color(0.043, 0.094, 0.125, 0.85)
+	sb.set_corner_radius_all(12)
+	sb.set_border_width_all(2)
+	sb.border_color = Color(0.0, 0.898, 1.0, 0.85)
+	sb.shadow_size = 6
+	sb.shadow_color = Color(0, 0, 0, 0.4)
 	speaker_toggle.add_theme_stylebox_override("normal", sb)
-	speaker_toggle.add_theme_color_override("font_color", Color(0.8, 0.9, 1.0))
+	speaker_toggle.add_theme_stylebox_override("hover", sb)
+	speaker_toggle.add_theme_color_override("font_color", Color(0.85, 0.95, 1.0))
 	if not _sound_icon_node:
 		var icon_script := load("res://ui/SoundIconDraw.gd") as GDScript
 		_sound_icon_node = Control.new()
