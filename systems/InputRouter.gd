@@ -71,20 +71,18 @@ func _process(_delta: float) -> void:
 		_touch_active = false
 
 func _input(event: InputEvent) -> void:
-	# Op touch: negeer gesimuleerde muisklik (dubbel-fire). Alleen blocken bij actieve touch of net na touch-shoot.
+	# Keyboard shoot only — mouse shoot handled in _unhandled_input so UI buttons block it
+	if event.is_action_pressed("shoot"):
+		_shoot_buffered = true
+		shoot_just_pressed = true
+
+func _unhandled_input(event: InputEvent) -> void:
+	# Mouse-click shoot: only reaches here if no UI control consumed the event
 	var now: float = Time.get_ticks_msec() / 1000.0
 	var block_mouse: bool = (_touch_active or now < _touch_block_until) and event is InputEventMouseButton
 	if block_mouse:
 		return
-
-	# Skip if a UI control already handled this event (e.g. Gallery button, SpeakerToggle)
-	if get_viewport() and get_viewport().is_input_handled():
-		return
-
-	if event.is_action_pressed("shoot"):
-		_shoot_buffered = true
-		shoot_just_pressed = true
-	elif event is InputEventMouseButton:
+	if event is InputEventMouseButton:
 		var mb := event as InputEventMouseButton
 		if mb.button_index == MOUSE_BUTTON_LEFT and mb.pressed:
 			_shoot_buffered = true
