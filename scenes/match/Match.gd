@@ -48,6 +48,11 @@ func _style_back_button() -> void:
 	if not back_button:
 		return
 	back_button.focus_mode = Control.FOCUS_NONE
+	back_button.mouse_filter = Control.MOUSE_FILTER_STOP
+	if not back_button.pressed.is_connected(_on_back_to_gallery_pressed):
+		back_button.pressed.connect(_on_back_to_gallery_pressed)
+	if not speaker_toggle.pressed.is_connected(_on_speaker_toggle_pressed):
+		speaker_toggle.pressed.connect(_on_speaker_toggle_pressed)
 	var sb_normal := StyleBoxFlat.new()
 	sb_normal.bg_color = Color(0.05, 0.08, 0.12, 0.9)
 	sb_normal.set_corner_radius_all(8)
