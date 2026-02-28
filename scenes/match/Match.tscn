@@ -29,6 +29,7 @@ grow_horizontal = 0
 grow_vertical = 0
 custom_minimum_size = Vector2(140, 36)
 z_index = 200
+mouse_filter = 0
 text = "< GALLERY"
 
 [node name="SpeakerToggle" type="Button" parent="HUD"]
@@ -37,14 +38,15 @@ anchor_left = 1.0
 anchor_top = 0.0
 anchor_right = 1.0
 anchor_bottom = 0.0
-offset_left = -120.0
+offset_left = -124.0
 offset_top = 14.0
-offset_right = -84.0
-offset_bottom = 50.0
+offset_right = -80.0
+offset_bottom = 58.0
 grow_horizontal = 0
 grow_vertical = 0
-custom_minimum_size = Vector2(36, 36)
-z_index = 100
+custom_minimum_size = Vector2(44, 44)
+z_index = 200
+mouse_filter = 0
 text = ""
 
 [node name="WhistlePlayer" type="AudioStreamPlayer" parent="HUD"]
